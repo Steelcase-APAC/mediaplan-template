@@ -7,7 +7,7 @@
   <meta name="description" content="Steelcase Media Plan (ID, CN, SG) July 2026 - Budget breakdown and cross-channel strategic media proposal across LinkedIn, Meta, Pinterest, and WeChat.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-light">
@@ -22,17 +22,60 @@
         <span class="crumb-separator">/</span>
         <span class="crumb-folder">Media Proposals</span>
         <span class="crumb-separator">/</span>
-        <span class="crumb-current">go.steelcase.com/july2026_mediaplan</span>
+        <span class="crumb-current editable-target" data-edit-key="meta_nav_path" data-edit-type="text">go.steelcase.com/july2026_mediaplan</span>
       </div>
+
       <div class="nav-actions">
+        <!-- Auth & Edit Controls -->
+        <div id="authControls" class="auth-controls">
+          <!-- Guest state -->
+          <button id="openAuthModalBtn" class="btn btn-primary" title="Login or Register to edit this proposal">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Sign In to Edit</span>
+          </button>
+
+          <!-- Logged-in state (hidden initially) -->
+          <div id="authBar" class="auth-bar" style="display: none;">
+            <div class="user-pill" id="userProfilePill">
+              <span class="user-status-dot"></span>
+              <span id="userEmailDisplay" class="user-email-text">user@steelcase.com</span>
+            </div>
+
+            <!-- Edit Mode Toggle Switch -->
+            <label class="edit-toggle" title="Toggle inline editing for all text and dropdowns">
+              <input type="checkbox" id="editModeCheckbox">
+              <span class="slider"></span>
+              <span class="slider-label">Edit Mode</span>
+            </label>
+
+            <button id="exportDataBtn" class="btn btn-secondary btn-sm" title="Export current proposal data as JSON">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>Export</span>
+            </button>
+
+            <button id="resetDataBtn" class="btn btn-secondary btn-sm" title="Reset all edits back to original default proposal data">
+              <span>Reset</span>
+            </button>
+
+            <button id="logoutBtn" class="btn btn-secondary btn-sm" title="Log out of editing mode">
+              <span>Log Out</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Google Sheet Link -->
         <a href="https://docs.google.com/spreadsheets/d/10WFT3wfGnfo-2t_cMRrvIaEwQDoJPiLPdIIrHrtFF68/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" title="View Google Sheet">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
           <span>Budget Sheet V1</span>
         </a>
+
+        <!-- Print/PDF Button -->
         <button id="printBtn" class="btn btn-secondary" title="Print or Save PDF">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          <span>Print / PDF</span>
+          <span>Print</span>
         </button>
+
+        <!-- Theme Toggle -->
         <button id="themeToggle" class="btn btn-icon" aria-label="Toggle dark/light mode" title="Toggle theme">
           <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
           <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -40,6 +83,14 @@
       </div>
     </div>
   </header>
+
+  <!-- Edit Mode Active Notification Banner (shows when Edit Mode is ON) -->
+  <div id="editModeNotice" class="edit-mode-notice" style="display: none;">
+    <div class="edit-notice-content">
+      <span class="edit-notice-dot"></span>
+      <span><strong>Edit Mode Active:</strong> Click any title, description, or table cell to edit. Click any market, platform, priority, or offer to choose or <strong>+ Add New Item</strong>. Changes auto-save in real time.</span>
+    </div>
+  </div>
 
   <!-- Page Layout with Outline Sidebar -->
   <div class="layout-wrapper">
@@ -59,15 +110,15 @@
       <div class="sidebar-meta-card">
         <div class="meta-item">
           <span class="meta-label">Total Spend</span>
-          <span class="meta-val">$118,500</span>
+          <span class="meta-val editable-target" data-edit-key="sidebar_total_spend" data-edit-type="text">$118,500</span>
         </div>
         <div class="meta-item">
           <span class="meta-label">Markets</span>
-          <span class="meta-val">IN · SG · CN</span>
+          <span class="meta-val editable-target" data-edit-key="sidebar_markets" data-edit-type="text">IN · SG · CN</span>
         </div>
         <div class="meta-item">
           <span class="meta-label">Core Asset</span>
-          <span class="meta-val">Work Better Mag</span>
+          <span class="meta-val editable-target" data-edit-key="sidebar_core_asset" data-edit-type="text">Work Better Mag</span>
         </div>
       </div>
     </aside>
@@ -77,36 +128,36 @@
       <!-- Title & Hero Section -->
       <section id="hero" class="hero-section">
         <div class="status-pill-row">
-          <span class="status-badge live-badge">● Active Media Proposal</span>
-          <span class="status-badge date-badge">July 2026 Flight</span>
-          <span class="status-badge scope-badge">Regional: APAC</span>
+          <span class="status-badge live-badge editable-target" data-edit-key="hero_badge_status" data-edit-type="text">● Active Media Proposal</span>
+          <span class="status-badge date-badge editable-target" data-edit-key="hero_badge_date" data-edit-type="text">July 2026 Flight</span>
+          <span class="status-badge scope-badge editable-target" data-edit-key="hero_badge_scope" data-edit-type="text">Regional: APAC</span>
         </div>
-        <h1 class="document-title">Media Plan (ID,CN,SG) July 2026</h1>
-        <p class="document-desc">
+        <h1 class="document-title editable-target" data-edit-key="hero_doc_title" data-edit-type="text">Media Plan (ID,CN,SG) July 2026</h1>
+        <p class="document-desc editable-target" data-edit-key="hero_doc_desc" data-edit-type="multiline">
           Integrated paid media proposal targeting Corporate Real Estate (CRE), Workplace Strategy Leaders, Architects, Designers, and Enterprise Decision-Makers to drive downloads and pipeline for the <strong>Work Better Magazine</strong>.
         </p>
 
         <!-- KPI Metrics Grid -->
         <div class="kpi-grid">
           <div class="kpi-card highlight">
-            <span class="kpi-label">TOTAL CAMPAIGN BUDGET</span>
-            <span class="kpi-value">$118,500</span>
-            <span class="kpi-sub">Allocated across 3 regional markets</span>
+            <span class="kpi-label editable-target" data-edit-key="kpi_1_label" data-edit-type="text">TOTAL CAMPAIGN BUDGET</span>
+            <span class="kpi-value editable-target" data-edit-key="kpi_1_value" data-edit-type="text">$118,500</span>
+            <span class="kpi-sub editable-target" data-edit-key="kpi_1_sub" data-edit-type="text">Allocated across 3 regional markets</span>
           </div>
           <div class="kpi-card">
-            <span class="kpi-label">CHINA (WECHAT)</span>
-            <span class="kpi-value">$67,000</span>
-            <span class="kpi-sub">56.5% of total budget (Jul - Nov)</span>
+            <span class="kpi-label editable-target" data-edit-key="kpi_2_label" data-edit-type="text">CHINA (WECHAT)</span>
+            <span class="kpi-value editable-target" data-edit-key="kpi_2_value" data-edit-type="text">$67,000</span>
+            <span class="kpi-sub editable-target" data-edit-key="kpi_2_sub" data-edit-type="text">56.5% of total budget (Jul - Nov)</span>
           </div>
           <div class="kpi-card">
-            <span class="kpi-label">INDIA (IN)</span>
-            <span class="kpi-value">$37,000</span>
-            <span class="kpi-sub">LinkedIn (55%) · Meta (30%) · Pinterest (15%)</span>
+            <span class="kpi-label editable-target" data-edit-key="kpi_3_label" data-edit-type="text">INDIA (IN)</span>
+            <span class="kpi-value editable-target" data-edit-key="kpi_3_value" data-edit-type="text">$37,000</span>
+            <span class="kpi-sub editable-target" data-edit-key="kpi_3_sub" data-edit-type="text">LinkedIn (55%) · Meta (30%) · Pinterest (15%)</span>
           </div>
           <div class="kpi-card">
-            <span class="kpi-label">SINGAPORE (SG)</span>
-            <span class="kpi-value">$15,000</span>
-            <span class="kpi-sub">LinkedIn (60%) · Meta (40%)</span>
+            <span class="kpi-label editable-target" data-edit-key="kpi_4_label" data-edit-type="text">SINGAPORE (SG)</span>
+            <span class="kpi-value editable-target" data-edit-key="kpi_4_value" data-edit-type="text">$15,000</span>
+            <span class="kpi-sub editable-target" data-edit-key="kpi_4_sub" data-edit-type="text">LinkedIn (60%) · Meta (40%)</span>
           </div>
         </div>
       </section>
@@ -115,12 +166,12 @@
       <section id="budget-v2" class="content-section">
         <div class="section-header">
           <div class="section-title-wrap">
-            <h2 class="section-title">Budget Breakdown V2</h2>
+            <h2 class="section-title editable-target" data-edit-key="sec_budget_title" data-edit-type="text">Budget Breakdown V2</h2>
             <a href="https://docs.google.com/spreadsheets/d/10WFT3wfGnfo-2t_cMRrvIaEwQDoJPiLPdIIrHrtFF68/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="sheet-link">
               view Budget sheet V1 ↗
             </a>
           </div>
-          <p class="section-subtitle">
+          <p class="section-subtitle editable-target" data-edit-key="sec_budget_desc" data-edit-type="multiline">
             Consolidated market and channel allocations with full flight distribution.
           </p>
         </div>
@@ -146,101 +197,131 @@
             <tbody>
               <!-- India Rows -->
               <tr class="row-market-india">
-                <td class="font-bold cell-market" rowspan="3"><span class="market-tag in">India</span></td>
-                <td><span class="platform-badge linkedin">LinkedIn LeadGen</span></td>
-                <td>Lead Generation</td>
-                <td class="audience-desc">CRE, Workplace Leaders, Architects, Designers, HR</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="text-right font-mono">55%</td>
-                <td class="text-right font-mono font-bold">$20,350</td>
-                <td class="text-right font-mono">$3,850</td>
-                <td class="text-right font-mono">$8,250</td>
-                <td class="text-right font-mono">$8,250</td>
-                <td class="text-right font-mono text-muted">$0</td>
-                <td class="text-right font-mono text-muted">$0</td>
+                <td class="font-bold cell-market" rowspan="3">
+                  <span class="market-tag in editable-dropdown" data-edit-key="bgt_mkt_1" data-dropdown-group="markets">India</span>
+                </td>
+                <td>
+                  <span class="platform-badge linkedin editable-dropdown" data-edit-key="bgt_plat_1" data-dropdown-group="platforms">LinkedIn LeadGen</span>
+                </td>
+                <td class="editable-target" data-edit-key="bgt_obj_1" data-edit-type="text">Lead Generation</td>
+                <td class="audience-desc editable-target" data-edit-key="bgt_aud_1" data-edit-type="multiline">CRE, Workplace Leaders, Architects, Designers, HR</td>
+                <td>
+                  <span class="offer-tag editable-dropdown" data-edit-key="bgt_offer_1" data-dropdown-group="offers">Work Better Magazine</span>
+                </td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_pct_1" data-edit-type="text">55%</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_val_1" data-edit-type="text">$20,350</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_jul_1" data-edit-type="text">$3,850</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_aug_1" data-edit-type="text">$8,250</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_sep_1" data-edit-type="text">$8,250</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_oct_1" data-edit-type="text">$0</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_nov_1" data-edit-type="text">$0</td>
               </tr>
               <tr class="row-market-india">
-                <td><span class="platform-badge pinterest">Pinterest</span></td>
-                <td>Awareness</td>
-                <td class="audience-desc">Interests targeting</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="text-right font-mono">15%</td>
-                <td class="text-right font-mono font-bold">$5,550</td>
-                <td class="text-right font-mono">$1,050</td>
-                <td class="text-right font-mono">$2,250</td>
-                <td class="text-right font-mono">$2,250</td>
-                <td class="text-right font-mono text-muted">$0</td>
-                <td class="text-right font-mono text-muted">$0</td>
+                <td>
+                  <span class="platform-badge pinterest editable-dropdown" data-edit-key="bgt_plat_2" data-dropdown-group="platforms">Pinterest</span>
+                </td>
+                <td class="editable-target" data-edit-key="bgt_obj_2" data-edit-type="text">Awareness</td>
+                <td class="audience-desc editable-target" data-edit-key="bgt_aud_2" data-edit-type="multiline">Interests targeting</td>
+                <td>
+                  <span class="offer-tag editable-dropdown" data-edit-key="bgt_offer_2" data-dropdown-group="offers">Work Better Magazine</span>
+                </td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_pct_2" data-edit-type="text">15%</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_val_2" data-edit-type="text">$5,550</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_jul_2" data-edit-type="text">$1,050</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_aug_2" data-edit-type="text">$2,250</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_sep_2" data-edit-type="text">$2,250</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_oct_2" data-edit-type="text">$0</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_nov_2" data-edit-type="text">$0</td>
               </tr>
               <tr class="row-market-india border-group-end">
-                <td><span class="platform-badge meta">Meta / IG</span></td>
-                <td>Lead Generation</td>
-                <td class="audience-desc">Lookalikes, Interest Audiences</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="text-right font-mono">30%</td>
-                <td class="text-right font-mono font-bold">$11,100</td>
-                <td class="text-right font-mono">$2,100</td>
-                <td class="text-right font-mono">$4,500</td>
-                <td class="text-right font-mono">$4,500</td>
-                <td class="text-right font-mono text-muted">$0</td>
-                <td class="text-right font-mono text-muted">$0</td>
+                <td>
+                  <span class="platform-badge meta editable-dropdown" data-edit-key="bgt_plat_3" data-dropdown-group="platforms">Meta / IG</span>
+                </td>
+                <td class="editable-target" data-edit-key="bgt_obj_3" data-edit-type="text">Lead Generation</td>
+                <td class="audience-desc editable-target" data-edit-key="bgt_aud_3" data-edit-type="multiline">Lookalikes, Interest Audiences</td>
+                <td>
+                  <span class="offer-tag editable-dropdown" data-edit-key="bgt_offer_3" data-dropdown-group="offers">Work Better Magazine</span>
+                </td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_pct_3" data-edit-type="text">30%</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_val_3" data-edit-type="text">$11,100</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_jul_3" data-edit-type="text">$2,100</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_aug_3" data-edit-type="text">$4,500</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_sep_3" data-edit-type="text">$4,500</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_oct_3" data-edit-type="text">$0</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_nov_3" data-edit-type="text">$0</td>
               </tr>
 
               <!-- Singapore Rows -->
               <tr class="row-market-singapore">
-                <td class="font-bold cell-market" rowspan="2"><span class="market-tag sg">Singapore</span></td>
-                <td><span class="platform-badge linkedin">LinkedIn LeadGen</span></td>
-                <td>Lead Generation</td>
-                <td class="audience-desc">Workplace Leaders, CRE, Architects</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="text-right font-mono">60%</td>
-                <td class="text-right font-mono font-bold">$9,000</td>
-                <td class="text-right font-mono">$1,800</td>
-                <td class="text-right font-mono">$3,600</td>
-                <td class="text-right font-mono">$3,600</td>
-                <td class="text-right font-mono text-muted">$0</td>
-                <td class="text-right font-mono text-muted">$0</td>
+                <td class="font-bold cell-market" rowspan="2">
+                  <span class="market-tag sg editable-dropdown" data-edit-key="bgt_mkt_2" data-dropdown-group="markets">Singapore</span>
+                </td>
+                <td>
+                  <span class="platform-badge linkedin editable-dropdown" data-edit-key="bgt_plat_4" data-dropdown-group="platforms">LinkedIn LeadGen</span>
+                </td>
+                <td class="editable-target" data-edit-key="bgt_obj_4" data-edit-type="text">Lead Generation</td>
+                <td class="audience-desc editable-target" data-edit-key="bgt_aud_4" data-edit-type="multiline">Workplace Leaders, CRE, Architects</td>
+                <td>
+                  <span class="offer-tag editable-dropdown" data-edit-key="bgt_offer_4" data-dropdown-group="offers">Work Better Magazine</span>
+                </td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_pct_4" data-edit-type="text">60%</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_val_4" data-edit-type="text">$9,000</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_jul_4" data-edit-type="text">$1,800</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_aug_4" data-edit-type="text">$3,600</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_sep_4" data-edit-type="text">$3,600</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_oct_4" data-edit-type="text">$0</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_nov_4" data-edit-type="text">$0</td>
               </tr>
               <tr class="row-market-singapore border-group-end">
-                <td><span class="platform-badge meta">Meta / IG</span></td>
-                <td>Lead Generation</td>
-                <td class="audience-desc">Lookalikes, Interest Audiences</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="text-right font-mono">40%</td>
-                <td class="text-right font-mono font-bold">$6,000</td>
-                <td class="text-right font-mono">$1,200</td>
-                <td class="text-right font-mono">$2,400</td>
-                <td class="text-right font-mono">$2,400</td>
-                <td class="text-right font-mono text-muted">$0</td>
-                <td class="text-right font-mono text-muted">$0</td>
+                <td>
+                  <span class="platform-badge meta editable-dropdown" data-edit-key="bgt_plat_5" data-dropdown-group="platforms">Meta / IG</span>
+                </td>
+                <td class="editable-target" data-edit-key="bgt_obj_5" data-edit-type="text">Lead Generation</td>
+                <td class="audience-desc editable-target" data-edit-key="bgt_aud_5" data-edit-type="multiline">Lookalikes, Interest Audiences</td>
+                <td>
+                  <span class="offer-tag editable-dropdown" data-edit-key="bgt_offer_5" data-dropdown-group="offers">Work Better Magazine</span>
+                </td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_pct_5" data-edit-type="text">40%</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_val_5" data-edit-type="text">$6,000</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_jul_5" data-edit-type="text">$1,200</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_aug_5" data-edit-type="text">$2,400</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_sep_5" data-edit-type="text">$2,400</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_oct_5" data-edit-type="text">$0</td>
+                <td class="text-right font-mono text-muted editable-target" data-edit-key="bgt_nov_5" data-edit-type="text">$0</td>
               </tr>
 
               <!-- China Row -->
               <tr class="row-market-china border-group-end">
-                <td class="font-bold cell-market"><span class="market-tag cn">China</span></td>
-                <td><span class="platform-badge wechat">WeChat</span></td>
-                <td>Prospecting / Lead Generation</td>
-                <td class="audience-desc">Website Visitors, CRM</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="text-right font-mono">100%</td>
-                <td class="text-right font-mono font-bold">$67,000</td>
-                <td class="text-right font-mono">$7,000</td>
-                <td class="text-right font-mono">$15,000</td>
-                <td class="text-right font-mono">$15,000</td>
-                <td class="text-right font-mono">$15,000</td>
-                <td class="text-right font-mono">$15,000</td>
+                <td class="font-bold cell-market">
+                  <span class="market-tag cn editable-dropdown" data-edit-key="bgt_mkt_3" data-dropdown-group="markets">China</span>
+                </td>
+                <td>
+                  <span class="platform-badge wechat editable-dropdown" data-edit-key="bgt_plat_6" data-dropdown-group="platforms">WeChat</span>
+                </td>
+                <td class="editable-target" data-edit-key="bgt_obj_6" data-edit-type="text">Prospecting / Lead Generation</td>
+                <td class="audience-desc editable-target" data-edit-key="bgt_aud_6" data-edit-type="multiline">Website Visitors, CRM</td>
+                <td>
+                  <span class="offer-tag editable-dropdown" data-edit-key="bgt_offer_6" data-dropdown-group="offers">Work Better Magazine</span>
+                </td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_pct_6" data-edit-type="text">100%</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_val_6" data-edit-type="text">$67,000</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_jul_6" data-edit-type="text">$7,000</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_aug_6" data-edit-type="text">$15,000</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_sep_6" data-edit-type="text">$15,000</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_oct_6" data-edit-type="text">$15,000</td>
+                <td class="text-right font-mono editable-target" data-edit-key="bgt_nov_6" data-edit-type="text">$15,000</td>
               </tr>
             </tbody>
             <tfoot>
               <tr class="total-row">
-                <td colspan="5" class="font-bold">Total Program Spend</td>
-                <td class="text-right font-mono font-bold">100%</td>
-                <td class="text-right font-mono font-bold text-accent">$118,500</td>
-                <td class="text-right font-mono font-bold">$17,000</td>
-                <td class="text-right font-mono font-bold">$36,000</td>
-                <td class="text-right font-mono font-bold">$36,000</td>
-                <td class="text-right font-mono font-bold">$15,000</td>
-                <td class="text-right font-mono font-bold">$15,000</td>
+                <td colspan="5" class="font-bold editable-target" data-edit-key="bgt_tot_label" data-edit-type="text">Total Program Spend</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_tot_pct" data-edit-type="text">100%</td>
+                <td class="text-right font-mono font-bold text-accent editable-target" data-edit-key="bgt_tot_val" data-edit-type="text">$118,500</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_tot_jul" data-edit-type="text">$17,000</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_tot_aug" data-edit-type="text">$36,000</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_tot_sep" data-edit-type="text">$36,000</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_tot_oct" data-edit-type="text">$15,000</td>
+                <td class="text-right font-mono font-bold editable-target" data-edit-key="bgt_tot_nov" data-edit-type="text">$15,000</td>
               </tr>
             </tfoot>
           </table>
@@ -251,10 +332,10 @@
       <section id="channel-linkedin" class="content-section">
         <div class="section-header">
           <div class="channel-badge-header">
-            <span class="platform-badge linkedin large">LinkedIn</span>
+            <span class="platform-badge linkedin large editable-dropdown" data-edit-key="sec_li_badge" data-dropdown-group="platforms">LinkedIn</span>
           </div>
-          <h2 class="section-title">Channel: LinkedIn</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-target" data-edit-key="sec_li_title" data-edit-type="text">Channel: LinkedIn</h2>
+          <p class="section-subtitle editable-target" data-edit-key="sec_li_desc" data-edit-type="multiline">
             Precision targeting across job functions, seniority, company size, and warm retargeting in India and Singapore.
           </p>
         </div>
@@ -278,118 +359,122 @@
             <tbody>
               <!-- India LinkedIn -->
               <tr>
-                <td rowspan="5" class="cell-market font-bold"><span class="market-tag in">India</span></td>
-                <td class="font-semibold">CRE / Workplace Leaders</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Reach people closest to office transformation, workplace planning, and fit-out decisions</td>
-                <td class="detail-cell">Titles: Workplace Director, Head of CRE, Facilities Director, Real Estate Manager, Workplace Experience Manager</td>
-                <td class="detail-cell text-muted">Residential real estate agents, junior admin roles, students, entry-level profiles, freelancers</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 4–8</td>
-                <td class="font-mono font-bold text-accent">USD 45–85</td>
-                <td class="text-right font-mono font-semibold">35–40%</td>
+                <td rowspan="5" class="cell-market font-bold">
+                  <span class="market-tag in editable-dropdown" data-edit-key="li_mkt_1" data-dropdown-group="markets">India</span>
+                </td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_1" data-edit-type="text">CRE / Workplace Leaders</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="li_prio_1" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="li_purp_1" data-edit-type="multiline">Reach people closest to office transformation, workplace planning, and fit-out decisions</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_1" data-edit-type="multiline">Titles: Workplace Director, Head of CRE, Facilities Director, Real Estate Manager, Workplace Experience Manager</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_1" data-edit-type="multiline">Residential real estate agents, junior admin roles, students, entry-level profiles, freelancers</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_1" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_1" data-edit-type="text">USD 4–8</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_1" data-edit-type="text">USD 45–85</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_1" data-edit-type="text">35–40%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Enterprise Decision Makers</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Capture senior enterprise contacts in large organizations</td>
-                <td class="detail-cell">Seniority: Director+, VP+, CXO, Head of Dept. Company size: 500+, 1,000+, 5,000+. Functions: Operations, HR, Real Estate, Facilities</td>
-                <td class="detail-cell text-muted">Small businesses under 200 employees, students, entry level, freelancers, retail buyers</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 5–9</td>
-                <td class="font-mono font-bold text-accent">USD 50–95</td>
-                <td class="text-right font-mono font-semibold">25–30%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_2" data-edit-type="text">Enterprise Decision Makers</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="li_prio_2" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="li_purp_2" data-edit-type="multiline">Capture senior enterprise contacts in large organizations</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_2" data-edit-type="multiline">Seniority: Director+, VP+, CXO, Head of Dept. Company size: 500+, 1,000+, 5,000+. Functions: Operations, HR, Real Estate, Facilities</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_2" data-edit-type="multiline">Small businesses under 200 employees, students, entry level, freelancers, retail buyers</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_2" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_2" data-edit-type="text">USD 5–9</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_2" data-edit-type="text">USD 50–95</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_2" data-edit-type="text">25–30%</td>
               </tr>
               <tr>
-                <td class="font-semibold">A&D / Design Influencers</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach architects and designers who influence workplace projects</td>
-                <td class="detail-cell">Titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Design Services</td>
-                <td class="detail-cell text-muted">Students, junior-only designers if CPL is high, hobby/interior decor profiles</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 4–7</td>
-                <td class="font-mono font-bold text-accent">USD 40–80</td>
-                <td class="text-right font-mono font-semibold">15–20%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_3" data-edit-type="text">A&D / Design Influencers</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="li_prio_3" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="li_purp_3" data-edit-type="multiline">Reach architects and designers who influence workplace projects</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_3" data-edit-type="multiline">Titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Design Services</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_3" data-edit-type="multiline">Students, junior-only designers if CPL is high, hobby/interior decor profiles</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_3" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_3" data-edit-type="text">USD 4–7</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_3" data-edit-type="text">USD 40–80</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_3" data-edit-type="text">15–20%</td>
               </tr>
               <tr>
-                <td class="font-semibold">HR / People Leaders</td>
-                <td><span class="priority-badge low-med">Low-med</span></td>
-                <td>Test workplace experience and employee-experience narrative</td>
-                <td class="detail-cell">Job titles/functions: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders</td>
-                <td class="detail-cell text-muted">Recruiters, junior HR, HR vendors, training providers</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 4–8</td>
-                <td class="font-mono font-bold text-accent">USD 50–95</td>
-                <td class="text-right font-mono font-semibold">5–10%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_4" data-edit-type="text">HR / People Leaders</td>
+                <td><span class="priority-badge low-med editable-dropdown" data-edit-key="li_prio_4" data-dropdown-group="priorities">Low-med</span></td>
+                <td class="editable-target" data-edit-key="li_purp_4" data-edit-type="multiline">Test workplace experience and employee-experience narrative</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_4" data-edit-type="multiline">Job titles/functions: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_4" data-edit-type="multiline">Recruiters, junior HR, HR vendors, training providers</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_4" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_4" data-edit-type="text">USD 4–8</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_4" data-edit-type="text">USD 50–95</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_4" data-edit-type="text">5–10%</td>
               </tr>
               <tr class="border-group-end">
-                <td class="font-semibold">Warm Retargeting / Engaged Audiences</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Convert already-exposed audiences into contacts</td>
-                <td class="detail-cell">Website visitors, LinkedIn page engagers, video viewers, previous lead form openers, CRM lists, event/webinar registrants</td>
-                <td class="detail-cell text-muted">Existing Steelcase employees, invalid CRM contacts, already-converted contacts if applicable</td>
-                <td><span class="offer-tag">Work Better Magazine download or webinar invite</span></td>
-                <td class="font-mono">USD 3–6</td>
-                <td class="font-mono font-bold text-accent">USD 20–50</td>
-                <td class="text-right font-mono font-semibold">10–15%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_5" data-edit-type="text">Warm Retargeting / Engaged Audiences</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="li_prio_5" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="li_purp_5" data-edit-type="multiline">Convert already-exposed audiences into contacts</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_5" data-edit-type="multiline">Website visitors, LinkedIn page engagers, video viewers, previous lead form openers, CRM lists, event/webinar registrants</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_5" data-edit-type="multiline">Existing Steelcase employees, invalid CRM contacts, already-converted contacts if applicable</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_5" data-dropdown-group="offers">Work Better Magazine download or webinar invite</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_5" data-edit-type="text">USD 3–6</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_5" data-edit-type="text">USD 20–50</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_5" data-edit-type="text">10–15%</td>
               </tr>
 
               <!-- Singapore LinkedIn -->
               <tr>
-                <td rowspan="5" class="cell-market font-bold"><span class="market-tag sg">Singapore</span></td>
-                <td class="font-semibold">CRE / Workplace Leaders</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Reach strongest B2B workplace decision audience in a small market</td>
-                <td class="detail-cell">Titles: Workplace Director, Head of Real Estate, Facilities Director, Corporate Real Estate Manager, Workplace Strategy Director</td>
-                <td class="detail-cell text-muted">Residential agents, junior admin, students, job seekers, unrelated property sales</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 7–12</td>
-                <td class="font-mono font-bold text-accent">USD 60–110</td>
-                <td class="text-right font-mono font-semibold">35–40%</td>
+                <td rowspan="5" class="cell-market font-bold">
+                  <span class="market-tag sg editable-dropdown" data-edit-key="li_mkt_2" data-dropdown-group="markets">Singapore</span>
+                </td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_6" data-edit-type="text">CRE / Workplace Leaders</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="li_prio_6" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="li_purp_6" data-edit-type="multiline">Reach strongest B2B workplace decision audience in a small market</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_6" data-edit-type="multiline">Titles: Workplace Director, Head of Real Estate, Facilities Director, Corporate Real Estate Manager, Workplace Strategy Director</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_6" data-edit-type="multiline">Residential agents, junior admin, students, job seekers, unrelated property sales</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_6" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_6" data-edit-type="text">USD 7–12</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_6" data-edit-type="text">USD 60–110</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_6" data-edit-type="text">35–40%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Enterprise Decision Makers</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Capture senior contacts from enterprise organizations</td>
-                <td class="detail-cell">Seniority: Manager+, Director+, VP+, CXO. Company size: 200+, 500+, 1,000+. Functions: Operations, HR, Real Estate, Facilities, Business Admin</td>
-                <td class="detail-cell text-muted">Small companies, entry-level profiles, freelancers, students, retail buyers</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 8–14</td>
-                <td class="font-mono font-bold text-accent">USD 70–130</td>
-                <td class="text-right font-mono font-semibold">30–35%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_7" data-edit-type="text">Enterprise Decision Makers</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="li_prio_7" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="li_purp_7" data-edit-type="multiline">Capture senior contacts from enterprise organizations</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_7" data-edit-type="multiline">Seniority: Manager+, Director+, VP+, CXO. Company size: 200+, 500+, 1,000+. Functions: Operations, HR, Real Estate, Facilities, Business Admin</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_7" data-edit-type="multiline">Small companies, entry-level profiles, freelancers, students, retail buyers</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_7" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_7" data-edit-type="text">USD 8–14</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_7" data-edit-type="text">USD 70–130</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_7" data-edit-type="text">30–35%</td>
               </tr>
               <tr>
-                <td class="font-semibold">A&D / Design Influencers</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach architects, designers, and project specifiers</td>
-                <td class="detail-cell">Job titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Construction</td>
-                <td class="detail-cell text-muted">Students, junior designers if CPL is inefficient, decor-only profiles</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 6–11</td>
-                <td class="font-mono font-bold text-accent">USD 65–120</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_8" data-edit-type="text">A&D / Design Influencers</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="li_prio_8" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="li_purp_8" data-edit-type="multiline">Reach architects, designers, and project specifiers</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_8" data-edit-type="multiline">Job titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Construction</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_8" data-edit-type="multiline">Students, junior designers if CPL is inefficient, decor-only profiles</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_8" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_8" data-edit-type="text">USD 6–11</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_8" data-edit-type="text">USD 65–120</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_8" data-edit-type="text">15%</td>
               </tr>
               <tr>
-                <td class="font-semibold">HR / People Leaders</td>
-                <td><span class="priority-badge low-med">Low-med</span></td>
-                <td>Test Work Better relevance to people / workplace experience leaders</td>
-                <td class="detail-cell">Job titles: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders</td>
-                <td class="detail-cell text-muted">Recruiters, junior HR, training vendors, HR software sellers</td>
-                <td><span class="offer-tag">Work Better Magazine download</span></td>
-                <td class="font-mono">USD 7–13</td>
-                <td class="font-mono font-bold text-accent">USD 80–150</td>
-                <td class="text-right font-mono font-semibold">5%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_9" data-edit-type="text">HR / People Leaders</td>
+                <td><span class="priority-badge low-med editable-dropdown" data-edit-key="li_prio_9" data-dropdown-group="priorities">Low-med</span></td>
+                <td class="editable-target" data-edit-key="li_purp_9" data-edit-type="multiline">Test Work Better relevance to people / workplace experience leaders</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_9" data-edit-type="multiline">Job titles: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_9" data-edit-type="multiline">Recruiters, junior HR, training vendors, HR software sellers</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_9" data-dropdown-group="offers">Work Better Magazine download</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_9" data-edit-type="text">USD 7–13</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_9" data-edit-type="text">USD 80–150</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_9" data-edit-type="text">5%</td>
               </tr>
               <tr class="border-group-end">
-                <td class="font-semibold">Warm Retargeting / Engaged Audiences</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Maximize conversion from small existing pool</td>
-                <td class="detail-cell">Website visitors, LinkedIn page engagers, video viewers, previous campaign engagers, CRM lists</td>
-                <td class="detail-cell text-muted">Employees, invalid contacts, already-converted contacts if applicable</td>
-                <td><span class="offer-tag">Work Better Magazine download or event/webinar invite</span></td>
-                <td class="font-mono">USD 5–9</td>
-                <td class="font-mono font-bold text-accent">USD 45–90</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="li_aud_10" data-edit-type="text">Warm Retargeting / Engaged Audiences</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="li_prio_10" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="li_purp_10" data-edit-type="multiline">Maximize conversion from small existing pool</td>
+                <td class="detail-cell editable-target" data-edit-key="li_targ_10" data-edit-type="multiline">Website visitors, LinkedIn page engagers, video viewers, previous campaign engagers, CRM lists</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="li_excl_10" data-edit-type="multiline">Employees, invalid contacts, already-converted contacts if applicable</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="li_offer_10" data-dropdown-group="offers">Work Better Magazine download or event/webinar invite</span></td>
+                <td class="font-mono editable-target" data-edit-key="li_cpc_10" data-edit-type="text">USD 5–9</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="li_cpl_10" data-edit-type="text">USD 45–90</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="li_split_10" data-edit-type="text">15%</td>
               </tr>
             </tbody>
           </table>
@@ -400,10 +485,10 @@
       <section id="channel-meta" class="content-section">
         <div class="section-header">
           <div class="channel-badge-header">
-            <span class="platform-badge meta large">Meta | Instagram</span>
+            <span class="platform-badge meta large editable-dropdown" data-edit-key="sec_meta_badge" data-dropdown-group="platforms">Meta | Instagram</span>
           </div>
-          <h2 class="section-title">Channel: Meta | Instagram</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-target" data-edit-key="sec_meta_title" data-edit-type="text">Channel: Meta | Instagram</h2>
+          <p class="section-subtitle editable-target" data-edit-key="sec_meta_desc" data-edit-type="multiline">
             Cost-efficient lower-funnel retargeting, custom CRM lookalikes, and targeted interest testing across Facebook and Instagram.
           </p>
         </div>
@@ -427,140 +512,144 @@
             <tbody>
               <!-- India Meta -->
               <tr>
-                <td rowspan="6" class="cell-market font-bold"><span class="market-tag in">India</span></td>
-                <td class="font-semibold">Website Visitors Retargeting (30/90 Days)</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Convert known visitors into contacts</td>
-                <td class="detail-cell">All website visitors, key content page visitors, Work Better page visitors</td>
-                <td class="detail-cell text-muted">Existing leads, employees, recent converters</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 0.50–1.50</td>
-                <td class="font-mono font-bold text-accent">USD 8–20</td>
-                <td class="text-right font-mono font-semibold">25%</td>
+                <td rowspan="6" class="cell-market font-bold">
+                  <span class="market-tag in editable-dropdown" data-edit-key="meta_mkt_1" data-dropdown-group="markets">India</span>
+                </td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_1" data-edit-type="text">Website Visitors Retargeting (30/90 Days)</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="meta_prio_1" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_1" data-edit-type="multiline">Convert known visitors into contacts</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_1" data-edit-type="multiline">All website visitors, key content page visitors, Work Better page visitors</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_1" data-edit-type="multiline">Existing leads, employees, recent converters</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_1" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_1" data-edit-type="text">USD 0.50–1.50</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_1" data-edit-type="text">USD 8–20</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_1" data-edit-type="text">25%</td>
               </tr>
               <tr>
-                <td class="font-semibold">CRM Lookalike 1%</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Find similar users to existing contacts/customers</td>
-                <td class="detail-cell">CRM upload, HubSpot contact lists, MQL lists, webinar registrants</td>
-                <td class="detail-cell text-muted">Existing CRM contacts</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 0.80–2.00</td>
-                <td class="font-mono font-bold text-accent">USD 12–25</td>
-                <td class="text-right font-mono font-semibold">20%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_2" data-edit-type="text">CRM Lookalike 1%</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="meta_prio_2" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_2" data-edit-type="multiline">Find similar users to existing contacts/customers</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_2" data-edit-type="multiline">CRM upload, HubSpot contact lists, MQL lists, webinar registrants</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_2" data-edit-type="multiline">Existing CRM contacts</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_2" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_2" data-edit-type="text">USD 0.80–2.00</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_2" data-edit-type="text">USD 12–25</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_2" data-edit-type="text">20%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Video Viewers Retargeting</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Convert engaged content consumers</td>
-                <td class="detail-cell">50%+, 75%+, 95% video viewers across campaign creative</td>
-                <td class="detail-cell text-muted">Existing leads</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 0.60–1.60</td>
-                <td class="font-mono font-bold text-accent">USD 10–25</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_3" data-edit-type="text">Video Viewers Retargeting</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="meta_prio_3" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_3" data-edit-type="multiline">Convert engaged content consumers</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_3" data-edit-type="multiline">50%+, 75%+, 95% video viewers across campaign creative</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_3" data-edit-type="multiline">Existing leads</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_3" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_3" data-edit-type="text">USD 0.60–1.60</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_3" data-edit-type="text">USD 10–25</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_3" data-edit-type="text">15%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Workplace Transformation Interests</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach workplace-interested professionals</td>
-                <td class="detail-cell">Office design, workplace strategy, commercial interiors, hybrid work, employee experience</td>
-                <td class="detail-cell text-muted">Generic furniture shoppers, residential decor only</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 0.80–2.50</td>
-                <td class="font-mono font-bold text-accent">USD 20–40</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_4" data-edit-type="text">Workplace Transformation Interests</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="meta_prio_4" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_4" data-edit-type="multiline">Reach workplace-interested professionals</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_4" data-edit-type="multiline">Office design, workplace strategy, commercial interiors, hybrid work, employee experience</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_4" data-edit-type="multiline">Generic furniture shoppers, residential decor only</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_4" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_4" data-edit-type="text">USD 0.80–2.50</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_4" data-edit-type="text">USD 20–40</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_4" data-edit-type="text">15%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Architecture & Design Community</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach designers and specifiers</td>
-                <td class="detail-cell">Interior design, architecture, workplace design, commercial design publications</td>
-                <td class="detail-cell text-muted">Residential renovation interests</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 0.70–2.20</td>
-                <td class="font-mono font-bold text-accent">USD 15–35</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_5" data-edit-type="text">Architecture & Design Community</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="meta_prio_5" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_5" data-edit-type="multiline">Reach designers and specifiers</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_5" data-edit-type="multiline">Interior design, architecture, workplace design, commercial design publications</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_5" data-edit-type="multiline">Residential renovation interests</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_5" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_5" data-edit-type="text">USD 0.70–2.20</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_5" data-edit-type="text">USD 15–35</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_5" data-edit-type="text">15%</td>
               </tr>
               <tr class="border-group-end">
-                <td class="font-semibold">Broad AI + Future of Work</td>
-                <td><span class="priority-badge low">Low</span></td>
-                <td>Scale audience pool cheaply</td>
-                <td class="detail-cell">AI, future of work, technology leadership, workplace innovation</td>
-                <td class="detail-cell text-muted">Existing warm audiences</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 0.60–2.00</td>
-                <td class="font-mono font-bold text-accent">USD 25–50</td>
-                <td class="text-right font-mono font-semibold">10%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_6" data-edit-type="text">Broad AI + Future of Work</td>
+                <td><span class="priority-badge low editable-dropdown" data-edit-key="meta_prio_6" data-dropdown-group="priorities">Low</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_6" data-edit-type="multiline">Scale audience pool cheaply</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_6" data-edit-type="multiline">AI, future of work, technology leadership, workplace innovation</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_6" data-edit-type="multiline">Existing warm audiences</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_6" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_6" data-edit-type="text">USD 0.60–2.00</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_6" data-edit-type="text">USD 25–50</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_6" data-edit-type="text">10%</td>
               </tr>
 
               <!-- Singapore Meta -->
               <tr>
-                <td rowspan="6" class="cell-market font-bold"><span class="market-tag sg">Singapore</span></td>
-                <td class="font-semibold">Website Visitors Retargeting (30/90 Days)</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Convert limited traffic pool into contacts</td>
-                <td class="detail-cell">Website visitors, Work Better page visitors, campaign landing page visitors</td>
-                <td class="detail-cell text-muted">Existing leads, employees</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 1.00–2.50</td>
-                <td class="font-mono font-bold text-accent">USD 18–40</td>
-                <td class="text-right font-mono font-semibold">30%</td>
+                <td rowspan="6" class="cell-market font-bold">
+                  <span class="market-tag sg editable-dropdown" data-edit-key="meta_mkt_2" data-dropdown-group="markets">Singapore</span>
+                </td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_7" data-edit-type="text">Website Visitors Retargeting (30/90 Days)</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="meta_prio_7" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_7" data-edit-type="multiline">Convert limited traffic pool into contacts</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_7" data-edit-type="multiline">Website visitors, Work Better page visitors, campaign landing page visitors</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_7" data-edit-type="multiline">Existing leads, employees</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_7" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_7" data-edit-type="text">USD 1.00–2.50</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_7" data-edit-type="text">USD 18–40</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_7" data-edit-type="text">30%</td>
               </tr>
               <tr>
-                <td class="font-semibold">CRM Lookalike 1%</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Extend reach using known-quality profiles</td>
-                <td class="detail-cell">CRM, event attendees, webinar registrants, MQL lists</td>
-                <td class="detail-cell text-muted">Existing CRM contacts</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 1.50–3.00</td>
-                <td class="font-mono font-bold text-accent">USD 20–45</td>
-                <td class="text-right font-mono font-semibold">20%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_8" data-edit-type="text">CRM Lookalike 1%</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="meta_prio_8" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_8" data-edit-type="multiline">Extend reach using known-quality profiles</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_8" data-edit-type="multiline">CRM, event attendees, webinar registrants, MQL lists</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_8" data-edit-type="multiline">Existing CRM contacts</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_8" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_8" data-edit-type="text">USD 1.50–3.00</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_8" data-edit-type="text">USD 20–45</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_8" data-edit-type="text">20%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Video Viewers Retargeting</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Convert engaged audiences into contacts</td>
-                <td class="detail-cell">50%+, 75%+, 95% video viewers across active creatives</td>
-                <td class="detail-cell text-muted">Existing leads</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 1.20–2.50</td>
-                <td class="font-mono font-bold text-accent">USD 20–40</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_9" data-edit-type="text">Video Viewers Retargeting</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="meta_prio_9" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_9" data-edit-type="multiline">Convert engaged audiences into contacts</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_9" data-edit-type="multiline">50%+, 75%+, 95% video viewers across active creatives</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_9" data-edit-type="multiline">Existing leads</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_9" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_9" data-edit-type="text">USD 1.20–2.50</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_9" data-edit-type="text">USD 20–40</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_9" data-edit-type="text">15%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Workplace Transformation Interests</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach potential workplace decision influencers</td>
-                <td class="detail-cell">Hybrid work, workplace strategy, office design, employee experience</td>
-                <td class="detail-cell text-muted">Residential shoppers, students</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 1.50–3.50</td>
-                <td class="font-mono font-bold text-accent">USD 30–60</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_10" data-edit-type="text">Workplace Transformation Interests</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="meta_prio_10" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_10" data-edit-type="multiline">Reach potential workplace decision influencers</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_10" data-edit-type="multiline">Hybrid work, workplace strategy, office design, employee experience</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_10" data-edit-type="multiline">Residential shoppers, students</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_10" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_10" data-edit-type="text">USD 1.50–3.50</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_10" data-edit-type="text">USD 30–60</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_10" data-edit-type="text">15%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Architecture & Design Community</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach architects and designers</td>
-                <td class="detail-cell">Interior design, architecture firms, workplace design publications</td>
-                <td class="detail-cell text-muted">Residential DIY and home improvement interests</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 1.20–3.00</td>
-                <td class="font-mono font-bold text-accent">USD 25–55</td>
-                <td class="text-right font-mono font-semibold">10%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_11" data-edit-type="text">Architecture & Design Community</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="meta_prio_11" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_11" data-edit-type="multiline">Reach architects and designers</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_11" data-edit-type="multiline">Interior design, architecture firms, workplace design publications</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_11" data-edit-type="multiline">Residential DIY and home improvement interests</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_11" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_11" data-edit-type="text">USD 1.20–3.00</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_11" data-edit-type="text">USD 25–55</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_11" data-edit-type="text">10%</td>
               </tr>
               <tr class="border-group-end">
-                <td class="font-semibold">Broad AI + Future of Work</td>
-                <td><span class="priority-badge low">Low</span></td>
-                <td>Build audience for future retargeting</td>
-                <td class="detail-cell">AI, technology, business innovation, digital transformation</td>
-                <td class="detail-cell text-muted">Non-business users</td>
-                <td><span class="offer-tag">Work Better Magazine Download</span></td>
-                <td class="font-mono">USD 1.20–3.50</td>
-                <td class="font-mono font-bold text-accent">USD 35–70</td>
-                <td class="text-right font-mono font-semibold">10%</td>
+                <td class="font-semibold editable-target" data-edit-key="meta_aud_12" data-edit-type="text">Broad AI + Future of Work</td>
+                <td><span class="priority-badge low editable-dropdown" data-edit-key="meta_prio_12" data-dropdown-group="priorities">Low</span></td>
+                <td class="editable-target" data-edit-key="meta_purp_12" data-edit-type="multiline">Build audience for future retargeting</td>
+                <td class="detail-cell editable-target" data-edit-key="meta_targ_12" data-edit-type="multiline">AI, technology, business innovation, digital transformation</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="meta_excl_12" data-edit-type="multiline">Non-business users</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="meta_offer_12" data-dropdown-group="offers">Work Better Magazine Download</span></td>
+                <td class="font-mono editable-target" data-edit-key="meta_cpc_12" data-edit-type="text">USD 1.20–3.50</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="meta_cpl_12" data-edit-type="text">USD 35–70</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="meta_split_12" data-edit-type="text">10%</td>
               </tr>
             </tbody>
           </table>
@@ -571,10 +660,10 @@
       <section id="channel-pinterest" class="content-section">
         <div class="section-header">
           <div class="channel-badge-header">
-            <span class="platform-badge pinterest large">Pinterest</span>
+            <span class="platform-badge pinterest large editable-dropdown" data-edit-key="sec_pin_badge" data-dropdown-group="platforms">Pinterest</span>
           </div>
-          <h2 class="section-title">Channel: Pinterest</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-target" data-edit-key="sec_pin_title" data-edit-type="text">Channel: Pinterest</h2>
+          <p class="section-subtitle editable-target" data-edit-key="sec_pin_desc" data-edit-type="multiline">
             Visual inspiration, commercial interiors, and upper-funnel audience building in India.
           </p>
         </div>
@@ -585,7 +674,8 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           </div>
           <div class="callout-content">
-            <strong>Strategic Recommendation:</strong> Recommend reallocating Pinterest budget to LinkedIn until GTM access is granted and the Pinterest pixel is installed and validated, as Pinterest's value in this plan depends primarily on its ability to build measurable retargeting audiences rather than direct lead generation.
+            <strong class="editable-target" data-edit-key="pin_callout_label" data-edit-type="text">Strategic Recommendation:</strong>
+            <span class="editable-target" data-edit-key="pin_callout_body" data-edit-type="multiline">Recommend reallocating Pinterest budget to LinkedIn until GTM access is granted and the Pinterest pixel is installed and validated, as Pinterest's value in this plan depends primarily on its ability to build measurable retargeting audiences rather than direct lead generation.</span>
           </div>
         </div>
 
@@ -606,59 +696,59 @@
             </thead>
             <tbody>
               <tr>
-                <td class="font-semibold">Workplace Design Inspiration</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Build audience of workplace-focused professionals</td>
-                <td class="detail-cell">Commercial interiors, workplace design, office design, hybrid workplace, workspace planning, workplace trends</td>
-                <td class="detail-cell text-muted">Residential renovation, DIY hobbies, home decor only</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.20–0.60</td>
-                <td class="font-mono font-bold text-accent">USD 25–60</td>
-                <td class="text-right font-mono font-semibold">25%</td>
+                <td class="font-semibold editable-target" data-edit-key="pin_aud_1" data-edit-type="text">Workplace Design Inspiration</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="pin_prio_1" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="pin_purp_1" data-edit-type="multiline">Build audience of workplace-focused professionals</td>
+                <td class="detail-cell editable-target" data-edit-key="pin_targ_1" data-edit-type="multiline">Commercial interiors, workplace design, office design, hybrid workplace, workspace planning, workplace trends</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="pin_excl_1" data-edit-type="multiline">Residential renovation, DIY hobbies, home decor only</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="pin_offer_1" data-dropdown-group="offers">Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="pin_cpc_1" data-edit-type="text">USD 0.20–0.60</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="pin_cpl_1" data-edit-type="text">USD 25–60</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="pin_split_1" data-edit-type="text">25%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Architecture & Design Community</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach architects and interior designers who influence projects</td>
-                <td class="detail-cell">Architecture, workplace design, commercial interiors, architecture publications, design software interests</td>
-                <td class="detail-cell text-muted">Students, hobby designers, residential-only design interests</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.25–0.70</td>
-                <td class="font-mono font-bold text-accent">USD 20–50</td>
-                <td class="text-right font-mono font-semibold">25%</td>
+                <td class="font-semibold editable-target" data-edit-key="pin_aud_2" data-edit-type="text">Architecture & Design Community</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="pin_prio_2" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="pin_purp_2" data-edit-type="multiline">Reach architects and interior designers who influence projects</td>
+                <td class="detail-cell editable-target" data-edit-key="pin_targ_2" data-edit-type="multiline">Architecture, workplace design, commercial interiors, architecture publications, design software interests</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="pin_excl_2" data-edit-type="multiline">Students, hobby designers, residential-only design interests</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="pin_offer_2" data-dropdown-group="offers">Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="pin_cpc_2" data-edit-type="text">USD 0.25–0.70</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="pin_cpl_2" data-edit-type="text">USD 20–50</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="pin_split_2" data-edit-type="text">25%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Corporate Office Inspiration</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Reach professionals researching office environments</td>
-                <td class="detail-cell">Office furniture, office layouts, hybrid workspaces, workplace innovation</td>
-                <td class="detail-cell text-muted">Consumer home-office shoppers</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.30–0.80</td>
-                <td class="font-mono font-bold text-accent">USD 30–70</td>
-                <td class="text-right font-mono font-semibold">20%</td>
+                <td class="font-semibold editable-target" data-edit-key="pin_aud_3" data-edit-type="text">Corporate Office Inspiration</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="pin_prio_3" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="pin_purp_3" data-edit-type="multiline">Reach professionals researching office environments</td>
+                <td class="detail-cell editable-target" data-edit-key="pin_targ_3" data-edit-type="multiline">Office furniture, office layouts, hybrid workspaces, workplace innovation</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="pin_excl_3" data-edit-type="multiline">Consumer home-office shoppers</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="pin_offer_3" data-dropdown-group="offers">Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="pin_cpc_3" data-edit-type="text">USD 0.30–0.80</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="pin_cpl_3" data-edit-type="text">USD 30–70</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="pin_split_3" data-edit-type="text">20%</td>
               </tr>
               <tr>
-                <td class="font-semibold">AI + Future of Work</td>
-                <td><span class="priority-badge low">Low</span></td>
-                <td>Build audience around the campaign theme</td>
-                <td class="detail-cell">AI workplace, future of work, workplace technology, innovation, productivity</td>
-                <td class="detail-cell text-muted">Consumer AI hobbyists, gaming, crypto interests</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.30–0.90</td>
-                <td class="font-mono font-bold text-accent">USD 35–80</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="pin_aud_4" data-edit-type="text">AI + Future of Work</td>
+                <td><span class="priority-badge low editable-dropdown" data-edit-key="pin_prio_4" data-dropdown-group="priorities">Low</span></td>
+                <td class="editable-target" data-edit-key="pin_purp_4" data-edit-type="multiline">Build audience around the campaign theme</td>
+                <td class="detail-cell editable-target" data-edit-key="pin_targ_4" data-edit-type="multiline">AI workplace, future of work, workplace technology, innovation, productivity</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="pin_excl_4" data-edit-type="multiline">Consumer AI hobbyists, gaming, crypto interests</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="pin_offer_4" data-dropdown-group="offers">Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="pin_cpc_4" data-edit-type="text">USD 0.30–0.90</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="pin_cpl_4" data-edit-type="text">USD 35–80</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="pin_split_4" data-edit-type="text">15%</td>
               </tr>
               <tr class="border-group-end">
-                <td class="font-semibold">Lookalike Audience (Website/CRM)</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Scale beyond existing audience</td>
-                <td class="detail-cell">Pinterest actalikes from website visitors, CRM uploads, engaged users</td>
-                <td class="detail-cell text-muted">Existing leads, employees</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.25–0.65</td>
-                <td class="font-mono font-bold text-accent">USD 25–55</td>
-                <td class="text-right font-mono font-semibold">15%</td>
+                <td class="font-semibold editable-target" data-edit-key="pin_aud_5" data-edit-type="text">Lookalike Audience (Website/CRM)</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="pin_prio_5" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="pin_purp_5" data-edit-type="multiline">Scale beyond existing audience</td>
+                <td class="detail-cell editable-target" data-edit-key="pin_targ_5" data-edit-type="multiline">Pinterest actalikes from website visitors, CRM uploads, engaged users</td>
+                <td class="detail-cell text-muted editable-target" data-edit-key="pin_excl_5" data-edit-type="multiline">Existing leads, employees</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="pin_offer_5" data-dropdown-group="offers">Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="pin_cpc_5" data-edit-type="text">USD 0.25–0.65</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="pin_cpl_5" data-edit-type="text">USD 25–55</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="pin_split_5" data-edit-type="text">15%</td>
               </tr>
             </tbody>
           </table>
@@ -669,10 +759,10 @@
       <section id="channel-wechat" class="content-section">
         <div class="section-header">
           <div class="channel-badge-header">
-            <span class="platform-badge wechat large">WeChat</span>
+            <span class="platform-badge wechat large editable-dropdown" data-edit-key="sec_wc_badge" data-dropdown-group="platforms">WeChat</span>
           </div>
-          <h2 class="section-title">Channel: WeChat</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-target" data-edit-key="sec_wc_title" data-edit-type="text">Channel: WeChat</h2>
+          <p class="section-subtitle editable-target" data-edit-key="sec_wc_desc" data-edit-type="multiline">
             Localized enterprise strategy in China combining building-level geo-fencing, CBD radius targeting, and Official Account follower conversion.
           </p>
         </div>
@@ -693,44 +783,44 @@
             </thead>
             <tbody>
               <tr>
-                <td class="font-semibold">Office Building Geo-Fence</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Reach workplace decision-makers around target buildings</td>
-                <td class="detail-cell"><strong>Building-level location targeting:</strong> Target users within a defined radius of premium office buildings, CBDs, technology parks, and Grade A office towers</td>
-                <td><span class="offer-tag">Follow Official Account + Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.20–0.80</td>
-                <td class="font-mono font-bold text-accent">USD 10–25</td>
-                <td class="text-right font-mono font-semibold">30%</td>
+                <td class="font-semibold editable-target" data-edit-key="wc_aud_1" data-edit-type="text">Office Building Geo-Fence</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="wc_prio_1" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="wc_purp_1" data-edit-type="multiline">Reach workplace decision-makers around target buildings</td>
+                <td class="detail-cell editable-target" data-edit-key="wc_targ_1" data-edit-type="multiline"><strong>Building-level location targeting:</strong> Target users within a defined radius of premium office buildings, CBDs, technology parks, and Grade A office towers</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="wc_offer_1" data-dropdown-group="offers">Follow Official Account + Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="wc_cpc_1" data-edit-type="text">USD 0.20–0.80</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="wc_cpl_1" data-edit-type="text">USD 10–25</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="wc_split_1" data-edit-type="text">30%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Retargeting / CRM Matching</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>Convert existing warm contacts in China</td>
-                <td class="detail-cell">Official Account followers, CRM phone/email upload matching, past event/webinar attendees</td>
-                <td><span class="offer-tag">Follow Official Account + Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.15–0.60</td>
-                <td class="font-mono font-bold text-accent">USD 8–20</td>
-                <td class="text-right font-mono font-semibold">25%</td>
+                <td class="font-semibold editable-target" data-edit-key="wc_aud_2" data-edit-type="text">Retargeting / CRM Matching</td>
+                <td><span class="priority-badge high editable-dropdown" data-edit-key="wc_prio_2" data-dropdown-group="priorities">High</span></td>
+                <td class="editable-target" data-edit-key="wc_purp_2" data-edit-type="multiline">Convert existing warm contacts in China</td>
+                <td class="detail-cell editable-target" data-edit-key="wc_targ_2" data-edit-type="multiline">Official Account followers, CRM phone/email upload matching, past event/webinar attendees</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="wc_offer_2" data-dropdown-group="offers">Follow Official Account + Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="wc_cpc_2" data-edit-type="text">USD 0.15–0.60</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="wc_cpl_2" data-edit-type="text">USD 8–20</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="wc_split_2" data-edit-type="text">25%</td>
               </tr>
               <tr>
-                <td class="font-semibold">Industry & Title Targeting</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Engage enterprise procurement and workplace leaders</td>
-                <td class="detail-cell">Industries: Technology, Commercial Real Estate, Architecture & Design, MNCs; Roles: Management, Admin, Facilities, HR</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.25–0.90</td>
-                <td class="font-mono font-bold text-accent">USD 12–30</td>
-                <td class="text-right font-mono font-semibold">25%</td>
+                <td class="font-semibold editable-target" data-edit-key="wc_aud_3" data-edit-type="text">Industry & Title Targeting</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="wc_prio_3" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="wc_purp_3" data-edit-type="multiline">Engage enterprise procurement and workplace leaders</td>
+                <td class="detail-cell editable-target" data-edit-key="wc_targ_3" data-edit-type="multiline">Industries: Technology, Commercial Real Estate, Architecture & Design, MNCs; Roles: Management, Admin, Facilities, HR</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="wc_offer_3" data-dropdown-group="offers">Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="wc_cpc_3" data-edit-type="text">USD 0.25–0.90</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="wc_cpl_3" data-edit-type="text">USD 12–30</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="wc_split_3" data-edit-type="text">25%</td>
               </tr>
               <tr class="border-group-end">
-                <td class="font-semibold">Lookalike Expansion Audience</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>Scale beyond known audiences</td>
-                <td class="detail-cell"><strong>Lookalike modelling:</strong> Similar profiles to followers, CRM contacts, event attendees</td>
-                <td><span class="offer-tag">Work Better Magazine</span></td>
-                <td class="font-mono">USD 0.30–1.00</td>
-                <td class="font-mono font-bold text-accent">USD 15–30</td>
-                <td class="text-right font-mono font-semibold">20%</td>
+                <td class="font-semibold editable-target" data-edit-key="wc_aud_4" data-edit-type="text">Lookalike Expansion Audience</td>
+                <td><span class="priority-badge medium editable-dropdown" data-edit-key="wc_prio_4" data-dropdown-group="priorities">Medium</span></td>
+                <td class="editable-target" data-edit-key="wc_purp_4" data-edit-type="multiline">Scale beyond known audiences</td>
+                <td class="detail-cell editable-target" data-edit-key="wc_targ_4" data-edit-type="multiline"><strong>Lookalike modelling:</strong> Similar profiles to followers, CRM contacts, event attendees</td>
+                <td><span class="offer-tag editable-dropdown" data-edit-key="wc_offer_4" data-dropdown-group="offers">Work Better Magazine</span></td>
+                <td class="font-mono editable-target" data-edit-key="wc_cpc_4" data-edit-type="text">USD 0.30–1.00</td>
+                <td class="font-mono font-bold text-accent editable-target" data-edit-key="wc_cpl_4" data-edit-type="text">USD 15–30</td>
+                <td class="text-right font-mono font-semibold editable-target" data-edit-key="wc_split_4" data-edit-type="text">20%</td>
               </tr>
             </tbody>
           </table>
@@ -740,16 +830,76 @@
       <!-- Footer Notes -->
       <footer class="document-footer">
         <div class="footer-card">
-          <p class="footer-text">
+          <p class="footer-text editable-target" data-edit-key="footer_cpl_note" data-edit-type="multiline">
             * <strong>Note on Expected CPL:</strong> Projections are based on benchmark engagement rates, typical B2B conversion metrics, and initial landing page optimization assumptions for Steelcase APAC. Final CPL may vary based on live creative performance, audience saturation, and landing page conversion efficiency.
           </p>
           <div class="footer-meta">
-            <span>Confidential · Prepared for Steelcase APAC</span>
-            <span>Ref: go.steelcase.com/july2026_mediaplan</span>
+            <span class="editable-target" data-edit-key="footer_confidential_tag" data-edit-type="text">Confidential · Prepared for Steelcase APAC</span>
+            <span class="editable-target" data-edit-key="footer_ref_tag" data-edit-type="text">Ref: go.steelcase.com/july2026_mediaplan</span>
           </div>
         </div>
       </footer>
     </main>
+  </div>
+
+  <!-- Auth Modal (Registration & Login) -->
+  <div id="authModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-tabs">
+          <button type="button" id="tabSignIn" class="modal-tab active">Sign In</button>
+          <button type="button" id="tabRegister" class="modal-tab">Create Account</button>
+        </div>
+        <button type="button" id="closeAuthModalBtn" class="modal-close-btn" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form id="authForm" class="modal-body" novalidate>
+        <p id="modalSubtitle" class="modal-subtitle">Sign in to edit titles, descriptions, and custom dropdowns.</p>
+
+        <div id="authErrorMsg" class="auth-error-banner" style="display: none;"></div>
+
+        <div class="form-group">
+          <label for="authEmail">Work Email</label>
+          <input type="email" id="authEmail" class="form-input" placeholder="name@steelcase.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="authPassword">Password</label>
+          <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+          <span class="form-hint" id="passwordHint" style="display: none;">Must be at least 6 characters.</span>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" id="authSubmitBtn" class="btn btn-primary full-width">Sign In</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Floating Dropdown Menu Component -->
+  <div id="customDropdownPopup" class="custom-dropdown-popup" style="display: none;">
+    <div class="dropdown-header">
+      <span class="dropdown-header-title" id="dropdownGroupLabel">Select Option</span>
+      <span class="dropdown-header-close" id="closeDropdownPopupBtn">✕</span>
+    </div>
+    <div class="dropdown-items-scroll" id="dropdownOptionsContainer">
+      <!-- Options dynamically rendered here -->
+    </div>
+    <!-- Add New Item Form -->
+    <div class="dropdown-add-section">
+      <div class="dropdown-add-row">
+        <input type="text" id="newDropdownOptionInput" class="dropdown-add-input" placeholder="+ Add new option...">
+        <button type="button" id="addDropdownOptionBtn" class="btn btn-primary btn-sm">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Toast Notification -->
+  <div id="saveToast" class="save-toast" style="display: none;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span id="saveToastText">Changes saved automatically</span>
   </div>
 
   <script src="app.js"></script>
