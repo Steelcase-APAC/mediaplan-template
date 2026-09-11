@@ -2530,20 +2530,146 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   gap: 12px;
 }
 
+/* ==========================================================================
+   Print & Save as PDF Styles
+   ========================================================================== */
+
 @media print {
-  body { background: #ffffff !important; color: #000000 !important; }
-  .top-nav, .outline-sidebar, .btn, #themeToggle, .edit-mode-notice, #customDropdownPopup, #saveToast, .edit-mode-only {
+  @page {
+    size: A4 landscape;
+    margin: 10mm 12mm;
+  }
+
+  /* Force exact background colors & eliminate shadows */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 12px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide interactive, editing, and navigation elements */
+  .top-nav,
+  .outline-sidebar,
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-add-line-item,
+  .btn-delete-row-inline,
+  .btn-minus-strategy-line,
+  .btn-add-strategy-header,
+  .btn-add-channel-header,
+  .btn-add-strategy-line,
+  .btn-delete-section,
+  .header-controls-group,
+  .edit-mode-notice,
+  .modal-backdrop,
+  .modal,
+  #themeSettingsModal,
+  #customDropdownPopup,
+  #saveToast,
+  .edit-mode-only,
+  iframe,
+  [class*="feedback"],
+  [class*="widget-fixed"],
+  [id*="chat"] {
     display: none !important;
   }
-  .layout-wrapper { padding: 0 !important; display: block !important; }
-  .main-content { gap: 20px !important; }
-  .content-section, .overview-section, .hero-section, .footer-card {
-    border: 1px solid #d1d5db !important;
+
+  /* Clean up editable text outlines */
+  .editable-field,
+  .editable-field:hover,
+  .editable-field:focus {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
     box-shadow: none !important;
-    page-break-inside: avoid;
+    padding: 0 !important;
   }
-  .proposal-table th, .proposal-table td {
-    padding: 8px 10px !important;
+
+  /* Main layout adjustments */
+  .layout-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    max-width: 100% !important;
+  }
+
+  .main-content {
+    gap: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Preserve signature dark headers (#2b2b2b) and crisp white text */
+  .hero-section,
+  .channel-strategy-main-header {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+    border: 1px solid #2b2b2b !important;
+    border-radius: 12px !important;
+    padding: 24px 28px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .hero-section h1,
+  .hero-section p,
+  .channel-strategy-main-header .section-main-heading,
+  .channel-strategy-main-header .section-subtitle {
+    color: #ffffff !important;
+  }
+
+  /* Content sections page break handling */
+  .content-section,
+  .overview-section,
+  .footer-card,
+  .country-strategy-block {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 20px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+  }
+
+  /* Table formatting for landscape PDF */
+  .proposal-table-wrapper,
+  .strategy-table-wrapper {
+    overflow: visible !important;
+  }
+
+  .proposal-table,
+  .strategy-table {
+    width: 100% !important;
     font-size: 11px !important;
+    border-collapse: collapse !important;
+  }
+
+  .proposal-table th,
+  .proposal-table td,
+  .strategy-table th,
+  .strategy-table td {
+    padding: 8px 10px !important;
+  }
+
+  /* Preserve badge backgrounds & pill formatting */
+  .status-badge,
+  .market-tag,
+  .platform-badge,
+  .priority-badge,
+  .brand-pill {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
