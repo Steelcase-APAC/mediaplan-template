@@ -815,7 +815,15 @@ body.theme-night .moon-icon { display: block; }
 /* Color palettes for breakdown bars */
 .bar-in { background: #f97316; }
 .bar-sg { background: #ef4444; }
-.bar-cn { background: #9333ea; }
+.bar-cn { background: #8b5cf6; }
+.bar-us { background: #2563eb; }
+.bar-uk { background: #0891b2; }
+.bar-au { background: #16a34a; }
+.bar-jp { background: #e11d48; }
+.bar-de { background: #ca8a04; }
+.bar-hk { background: #ea580c; }
+.bar-kr { background: #4f46e5; }
+.bar-ae { background: #d97706; }
 .bar-generic { background: #0096a7; }
 
 .bar-linkedin { background: #0a66c2; }
@@ -1348,17 +1356,45 @@ body.edit-mode-active td.edit-mode-only {
 .text-accent { color: var(--primary); }
 
 .market-tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 3px 8px;
   border-radius: var(--radius-sm);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11.5px;
+  line-height: 1.3;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.market-tag.in { background: rgba(249, 115, 22, 0.1); color: #ea580c; }
-.market-tag.sg { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
-.market-tag.cn { background: rgba(168, 85, 247, 0.1); color: #9333ea; }
-.market-tag.generic { background: var(--badge-generic-bg); color: var(--badge-generic-color); }
+/* Fixed, Dedicated Country Color Palette (Soft Tinted Background + Crisp Colored Text + Border) */
+.market-tag.in, .market-tag.tag-in { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+.market-tag.sg, .market-tag.tag-sg { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.market-tag.cn, .market-tag.tag-cn { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+.market-tag.us, .market-tag.tag-us { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.market-tag.uk, .market-tag.tag-uk { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
+.market-tag.au, .market-tag.tag-au { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.market-tag.jp, .market-tag.tag-jp { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+.market-tag.de, .market-tag.tag-de { background: #fefce8; color: #a16207; border-color: #fef08a; }
+.market-tag.hk, .market-tag.tag-hk { background: #fff7ed; color: #ea580c; border-color: #ffedd5; }
+.market-tag.kr, .market-tag.tag-kr { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+.market-tag.ae, .market-tag.tag-ae { background: #fef9c3; color: #b45309; border-color: #fde047; }
+.market-tag.generic, .market-tag.tag-generic { background: rgba(0, 150, 167, 0.08); color: #00838f; border-color: rgba(0, 150, 167, 0.25); }
+
+/* In dropdown popup items */
+.dropdown-item .market-tag {
+  pointer-events: none;
+  font-size: 12px;
+  padding: 3px 9px;
+}
+
+.dropdown-item .platform-badge,
+.dropdown-item .priority-badge,
+.dropdown-item .offer-tag {
+  pointer-events: none;
+}
 
 .platform-badge {
   display: inline-flex;
@@ -1965,6 +2001,16 @@ body.theme-night .save-toast {
   .crumb-folder { display: none; }
   .auth-bar { flex-wrap: wrap; }
 }
+
+body.theme-night .market-tag.in, body.theme-night .market-tag.tag-in { background: rgba(249, 115, 22, 0.2); color: #fb923c; border-color: rgba(249, 115, 22, 0.4); }
+body.theme-night .market-tag.sg, body.theme-night .market-tag.tag-sg { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
+body.theme-night .market-tag.cn, body.theme-night .market-tag.tag-cn { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border-color: rgba(139, 92, 246, 0.4); }
+body.theme-night .market-tag.us, body.theme-night .market-tag.tag-us { background: rgba(37, 99, 235, 0.2); color: #60a5fa; border-color: rgba(37, 99, 235, 0.4); }
+body.theme-night .market-tag.uk, body.theme-night .market-tag.tag-uk { background: rgba(8, 145, 178, 0.2); color: #38bdf8; border-color: rgba(8, 145, 178, 0.4); }
+body.theme-night .market-tag.au, body.theme-night .market-tag.tag-au { background: rgba(22, 163, 74, 0.2); color: #4ade80; border-color: rgba(22, 163, 74, 0.4); }
+body.theme-night .market-tag.jp, body.theme-night .market-tag.tag-jp { background: rgba(225, 29, 72, 0.2); color: #fb7185; border-color: rgba(225, 29, 72, 0.4); }
+body.theme-night .market-tag.de, body.theme-night .market-tag.tag-de { background: rgba(202, 138, 4, 0.2); color: #facc15; border-color: rgba(202, 138, 4, 0.4); }
+body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic { background: rgba(0, 150, 167, 0.2); color: #22d3ee; border-color: rgba(0, 150, 167, 0.4); }
 
 @media print {
   body { background: #ffffff !important; color: #000000 !important; }

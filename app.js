@@ -64,6 +64,27 @@ function getStratKey(platformName) {
   return p.replace(/[^a-z0-9]/g, '_');
 }
 
+function getCountryCode(val) {
+  if (!val) return 'generic';
+  const str = String(val).toLowerCase().trim();
+  if (str === 'in' || str.includes('india')) return 'in';
+  if (str === 'sg' || str.includes('singapore')) return 'sg';
+  if (str === 'cn' || str.includes('china')) return 'cn';
+  if (str === 'us' || str.includes('united states') || str.includes('usa') || str.includes('america')) return 'us';
+  if (str === 'uk' || str.includes('united kingdom') || str.includes('britain') || str.includes('england')) return 'uk';
+  if (str === 'au' || str.includes('australia')) return 'au';
+  if (str === 'jp' || str.includes('japan')) return 'jp';
+  if (str === 'de' || str.includes('germany')) return 'de';
+  if (str === 'hk' || str.includes('hong kong')) return 'hk';
+  if (str === 'kr' || str.includes('korea')) return 'kr';
+  if (str === 'ae' || str.includes('uae') || str.includes('dubai')) return 'ae';
+  return 'generic';
+}
+
+function getCountryColorClass(codeOrName) {
+  return `bar-${getCountryCode(codeOrName)}`;
+}
+
 // Preset 1: Default Steelcase APAC Media Plan (July 2026 Flight)
 const DEFAULT_MEDIA_PLAN = {
   meta: {
@@ -391,7 +412,7 @@ const BudgetStore = {
 
       countryMap[market.name] = {
         name: market.name,
-        code: market.code || market.name.toLowerCase().slice(0, 2),
+        code: getCountryCode(market.code || market.name),
         total: marketTotal,
         channelCount: market.channels.length,
         channelsSummary: channelSummaryParts.join(' · '),
@@ -474,7 +495,7 @@ const BudgetStore = {
     // 1. Resolve or create market
     let market = this.data.markets.find(m => m.name.toLowerCase() === cleanCountry.toLowerCase());
     if (!market) {
-      const code = cleanCountry.toLowerCase().slice(0, 2);
+      const code = getCountryCode(cleanCountry);
       market = {
         id: `mkt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
         name: cleanCountry,
@@ -822,12 +843,12 @@ function renderOverviewWidgets() {
       countryBreakdown.forEach(item => {
         const card = document.createElement('div');
         card.className = 'kpi-card';
-        const codeClass = getCountryColorClass(item.code);
+        const code = getCountryCode(item.name || item.code);
 
         card.innerHTML = `
           <div class="kpi-card-header">
             <span class="kpi-card-title">
-              <span class="market-tag ${item.code} ${codeClass}" style="padding: 1px 6px; font-size: 10px;">${item.code.toUpperCase()}</span>
+              <span class="market-tag tag-${code}" style="padding: 1px 6px; font-size: 10px;">${code.toUpperCase()}</span>
               ${item.name.toUpperCase()}
             </span>
             <span class="kpi-card-type-badge">${item.percent.toFixed(1)}%</span>
@@ -835,7 +856,7 @@ function renderOverviewWidgets() {
           <div class="kpi-card-value">$${formatNumber(item.total)}</div>
           <div class="kpi-card-desc">${item.channelsSummary || `${item.channelCount} channel placement(s)`}</div>
           <div class="kpi-card-bar-bg">
-            <div class="kpi-card-bar-fill ${codeClass}" style="width: ${Math.min(100, Math.max(3, item.percent))}%;"></div>
+            <div class="kpi-card-bar-fill bar-${code}" style="width: ${Math.min(100, Math.max(3, item.percent))}%;"></div>
           </div>
         `;
         kpiDeckEl.appendChild(card);
@@ -872,7 +893,7 @@ function renderOverviewWidgets() {
   renderMultiSegmentBar('countryMultiBar', countryBreakdown.map(c => ({
     name: c.name,
     percent: c.percent,
-    className: getCountryColorClass(c.code)
+    className: `bar-${getCountryCode(c.name || c.code)}`
   })));
 
   renderMultiSegmentBar('platformMultiBar', platformBreakdown.map(p => ({
@@ -896,12 +917,12 @@ function renderOverviewWidgets() {
     countryBreakdown.forEach(item => {
       const row = document.createElement('div');
       row.className = 'breakdown-row';
-      const codeClass = getCountryColorClass(item.code);
+      const code = getCountryCode(item.name || item.code);
 
       row.innerHTML = `
         <div class="breakdown-top-line">
           <div class="breakdown-entity">
-            <span class="market-tag ${item.code} ${codeClass}">${item.name}</span>
+            <span class="market-tag tag-${code}">${item.name}</span>
             <span class="text-muted" style="font-size: 11px;">(${item.channelCount} placement${item.channelCount > 1 ? 's' : ''})</span>
           </div>
           <div class="breakdown-figures">
@@ -910,7 +931,7 @@ function renderOverviewWidgets() {
           </div>
         </div>
         <div class="breakdown-bar-bg">
-          <div class="breakdown-bar-fill ${codeClass}" style="width: ${Math.min(100, Math.max(2, item.percent))}%"></div>
+          <div class="breakdown-bar-fill bar-${code}" style="width: ${Math.min(100, Math.max(2, item.percent))}%"></div>
         </div>
       `;
       countryListEl.appendChild(row);
@@ -1011,7 +1032,7 @@ function renderMainBudgetTable() {
 
   filteredMarkets.forEach(market => {
     const rowCount = market.channels.length;
-    const marketCodeClass = getCountryColorClass(market.code);
+    const countryCode = getCountryCode(market.name || market.code);
 
     market.channels.forEach((channel, idx) => {
       const tr = document.createElement('tr');
@@ -1026,7 +1047,7 @@ function renderMainBudgetTable() {
         html += `
           <td rowspan="${rowCount}" class="cell-market font-bold">
             <div class="market-cell-content">
-              <span class="market-tag ${market.code} ${marketCodeClass} dropdown-trigger" data-market-id="${market.id}" data-dropdown-group="markets" title="Click to rename or change market">
+              <span class="market-tag tag-${countryCode} dropdown-trigger" data-market-id="${market.id}" data-dropdown-group="markets" title="Click to rename or change market">
                 ${market.name}
               </span>
               <span class="market-subtotal-badge">
@@ -1330,12 +1351,12 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
     const tr = document.createElement('tr');
     if (idx === rows.length - 1) tr.classList.add('border-group-end');
 
-    const mktClass = getCountryColorClass(row.market ? row.market.toLowerCase().slice(0, 2) : 'in');
+    const countryCode = getCountryCode(row.market);
     const prioClass = (row.priority || 'medium').toLowerCase();
 
     tr.innerHTML = `
       <td class="cell-market font-bold">
-        <span class="market-tag ${mktClass} dropdown-trigger" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="market" data-dropdown-group="markets">
+        <span class="market-tag tag-${countryCode} dropdown-trigger" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="market" data-dropdown-group="markets" title="Click to change market">
           ${row.market}
         </span>
       </td>
@@ -1623,8 +1644,22 @@ function openDropdownMenu(targetEl) {
       item.classList.add('selected');
     }
 
+    let contentHtml = `<span>${opt}</span>`;
+    if (group === 'markets') {
+      const code = getCountryCode(opt);
+      contentHtml = `<span class="market-tag tag-${code}">${opt}</span>`;
+    } else if (group === 'platforms') {
+      const platClass = getPlatformBadgeClass(opt);
+      contentHtml = `<span class="platform-badge ${platClass}">${opt}</span>`;
+    } else if (group === 'priorities') {
+      const prioClass = (opt || 'medium').toLowerCase();
+      contentHtml = `<span class="priority-badge ${prioClass}">${opt}</span>`;
+    } else if (group === 'offers') {
+      contentHtml = `<span class="offer-tag">${opt}</span>`;
+    }
+
     item.innerHTML = `
-      <span>${opt}</span>
+      ${contentHtml}
       ${opt.toLowerCase() === currentValue.toLowerCase() ? '<span class="dropdown-item-check">✓</span>' : ''}
     `;
 
@@ -1669,7 +1704,7 @@ function selectDropdownOption(value) {
     const market = BudgetStore.data.markets.find(m => m.id === marketId);
     if (market) {
       market.name = value;
-      market.code = value.toLowerCase().slice(0, 2);
+      market.code = getCountryCode(value);
       BudgetStore.save();
       renderAll();
       showToast(`Market updated to "${value}"`);
@@ -2249,15 +2284,6 @@ function parseNumericInput(val) {
   return isNaN(n) ? 0 : Math.round(n);
 }
 
-function getCountryColorClass(code) {
-  const c = String(code).toLowerCase();
-  if (c === 'in') return 'bar-in';
-  if (c === 'sg') return 'bar-sg';
-  if (c === 'cn') return 'bar-cn';
-  if (c === 'us') return 'bar-linkedin';
-  if (c === 'uk') return 'bar-meta';
-  return 'bar-generic';
-}
 
 function getPlatformBadgeClass(name) {
   const n = String(name).toLowerCase();
