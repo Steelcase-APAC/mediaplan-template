@@ -652,8 +652,9 @@ body.theme-night .moon-icon { display: block; }
 .kpi-cards-row .kpi-card {
   flex: 1 1 0;
   min-width: 140px;
-  background: var(--bg-surface);
-  border: 1.5px dashed rgba(0, 150, 167, 0.35);
+  background: color-mix(in srgb, var(--hero-bg, #2b2b2b) 80%, white 20%);
+  color: #ffffff;
+  border: 1.5px solid color-mix(in srgb, var(--hero-bg, #2b2b2b) 65%, white 35%);
   border-radius: 10px;
   padding: 10px 13px;
   display: flex;
@@ -669,14 +670,15 @@ body.theme-night .moon-icon { display: block; }
 
 .kpi-card:hover {
   border-color: var(--primary);
-  box-shadow: 0 4px 14px rgba(0, 150, 167, 0.14);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
   transform: translateY(-2px);
 }
 
 .kpi-card.kpi-total-card {
   border-style: solid;
   border-color: var(--primary);
-  background: linear-gradient(135deg, var(--bg-surface), rgba(0, 150, 167, 0.04));
+  background: var(--hero-bg, #2b2b2b);
+  color: #ffffff;
 }
 
 .kpi-card-header {
@@ -684,7 +686,7 @@ body.theme-night .moon-icon { display: block; }
   align-items: center;
   justify-content: space-between;
   padding-bottom: 4px;
-  border-bottom: 1px dashed var(--border-subtle);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.25);
 }
 
 .kpi-card-title {
@@ -692,7 +694,7 @@ body.theme-night .moon-icon { display: block; }
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -701,20 +703,28 @@ body.theme-night .moon-icon { display: block; }
   text-overflow: ellipsis;
 }
 
+.kpi-card-title svg {
+  stroke: #ffffff;
+}
+
 .kpi-card.kpi-total-card .kpi-card-title {
-  color: var(--primary);
+  color: #ffffff;
+}
+
+.kpi-card.kpi-total-card .kpi-card-title svg {
+  stroke: #ffffff;
 }
 
 .kpi-card-type-badge {
   font-size: 9.5px;
   font-weight: 700;
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: var(--radius-pill);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: var(--bg-body);
-  color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
 }
 
@@ -722,19 +732,19 @@ body.theme-night .moon-icon { display: block; }
   font-size: 20px;
   font-weight: 800;
   font-family: 'JetBrains Mono', monospace;
-  color: var(--text-primary);
+  color: #ffffff;
   line-height: 1.15;
   margin: 1px 0;
   letter-spacing: -0.02em;
 }
 
 .kpi-card.kpi-total-card .kpi-card-value {
-  color: var(--primary);
+  color: #ffffff;
 }
 
 .kpi-card-desc {
   font-size: 10.5px;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.82);
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -743,7 +753,7 @@ body.theme-night .moon-icon { display: block; }
 
 .kpi-card-bar-bg {
   height: 3.5px;
-  background: var(--border-subtle);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: var(--radius-pill);
   overflow: hidden;
   margin-top: 2px;
