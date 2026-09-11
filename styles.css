@@ -868,6 +868,11 @@ body.theme-night .moon-icon { display: block; }
 /* Color palettes for breakdown bars */
 .bar-in { background: #f97316; }
 .bar-sg { background: #ef4444; }
+.bar-my { background: #0d9488; }
+.bar-id { background: #e11d48; }
+.bar-th { background: #9333ea; }
+.bar-vn { background: #d97706; }
+.bar-ph { background: #2563eb; }
 .bar-cn { background: #8b5cf6; }
 .bar-us { background: #2563eb; }
 .bar-uk { background: #0891b2; }
@@ -1516,6 +1521,11 @@ body.edit-mode-active td.edit-mode-only {
 /* Fixed, Dedicated Country Color Palette (Soft Tinted Background + Crisp Colored Text + Border) */
 .market-tag.in, .market-tag.tag-in { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
 .market-tag.sg, .market-tag.tag-sg { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.market-tag.my, .market-tag.tag-my { background: #f0fdfa; color: #0f766e; border-color: #99f6e4; }
+.market-tag.id, .market-tag.tag-id { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+.market-tag.th, .market-tag.tag-th { background: #faf5ff; color: #7e22ce; border-color: #e9d5ff; }
+.market-tag.vn, .market-tag.tag-vn { background: #fefce8; color: #a16207; border-color: #fef08a; }
+.market-tag.ph, .market-tag.tag-ph { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
 .market-tag.cn, .market-tag.tag-cn { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
 .market-tag.us, .market-tag.tag-us { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
 .market-tag.uk, .market-tag.tag-uk { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
@@ -2251,6 +2261,11 @@ body.theme-night .save-toast {
 
 body.theme-night .market-tag.in, body.theme-night .market-tag.tag-in { background: rgba(249, 115, 22, 0.2); color: #fb923c; border-color: rgba(249, 115, 22, 0.4); }
 body.theme-night .market-tag.sg, body.theme-night .market-tag.tag-sg { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
+body.theme-night .market-tag.my, body.theme-night .market-tag.tag-my { background: rgba(20, 184, 166, 0.2); color: #2dd4bf; border-color: rgba(20, 184, 166, 0.4); }
+body.theme-night .market-tag.id, body.theme-night .market-tag.tag-id { background: rgba(225, 29, 72, 0.2); color: #fb7185; border-color: rgba(225, 29, 72, 0.4); }
+body.theme-night .market-tag.th, body.theme-night .market-tag.tag-th { background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4); }
+body.theme-night .market-tag.vn, body.theme-night .market-tag.tag-vn { background: rgba(234, 179, 8, 0.2); color: #fde047; border-color: rgba(234, 179, 8, 0.4); }
+body.theme-night .market-tag.ph, body.theme-night .market-tag.tag-ph { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4); }
 body.theme-night .market-tag.cn, body.theme-night .market-tag.tag-cn { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border-color: rgba(139, 92, 246, 0.4); }
 body.theme-night .market-tag.us, body.theme-night .market-tag.tag-us { background: rgba(37, 99, 235, 0.2); color: #60a5fa; border-color: rgba(37, 99, 235, 0.4); }
 body.theme-night .market-tag.uk, body.theme-night .market-tag.tag-uk { background: rgba(8, 145, 178, 0.2); color: #38bdf8; border-color: rgba(8, 145, 178, 0.4); }

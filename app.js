@@ -80,6 +80,11 @@ function getCountryCode(val) {
   const str = String(val).toLowerCase().trim();
   if (str === 'in' || str.includes('india')) return 'in';
   if (str === 'sg' || str.includes('singapore')) return 'sg';
+  if (str === 'my' || str.includes('malaysia')) return 'my';
+  if (str === 'id' || str.includes('indonesia')) return 'id';
+  if (str === 'th' || str.includes('thailand')) return 'th';
+  if (str === 'vn' || str.includes('vietnam')) return 'vn';
+  if (str === 'ph' || str.includes('philippine')) return 'ph';
   if (str === 'cn' || str.includes('china')) return 'cn';
   if (str === 'us' || str.includes('united states') || str.includes('usa') || str.includes('america')) return 'us';
   if (str === 'uk' || str.includes('united kingdom') || str.includes('britain') || str.includes('england')) return 'uk';
@@ -347,7 +352,180 @@ const BudgetStore = {
       this.data = JSON.parse(JSON.stringify(DEFAULT_MEDIA_PLAN));
     }
     if (!this.data.deletedSections) this.data.deletedSections = [];
+    if (!this.data.strategyTables) this.data.strategyTables = {};
+    if (!this.data.markets) this.data.markets = [];
+    if (!this.data.dropdownOptions) this.data.dropdownOptions = { markets: [], platforms: [], offers: [] };
+
+    this.reconcileStrategyWithBudget();
     this.recalculate();
+  },
+
+  reconcileStrategyWithBudget() {
+    if (!this.data.strategyTables || !this.data.markets) return;
+    const tables = this.data.strategyTables;
+    const deletedSections = this.data.deletedSections || [];
+
+    Object.keys(tables).forEach(stratKey => {
+      if (deletedSections.includes(stratKey)) return;
+      const rows = tables[stratKey];
+      if (!Array.isArray(rows)) return;
+
+      rows.forEach(row => {
+        if (!row.market) row.market = "India";
+        if (!row.channelId) {
+          row.channelId = `ch_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+        }
+
+        // Check if this channel placement exists in any market
+        let found = false;
+        for (const m of this.data.markets) {
+          const ch = m.channels.find(c => c.id === row.channelId);
+          if (ch) {
+            found = true;
+            break;
+          }
+        }
+
+        // If not found by ID, check if there is an existing matching placement
+        if (!found) {
+          for (const m of this.data.markets) {
+            if (m.name.toLowerCase() === row.market.toLowerCase()) {
+              const ch = m.channels.find(c => getStratKey(c.platform) === stratKey && c.audienceType === row.audience);
+              if (ch) {
+                row.channelId = ch.id;
+                found = true;
+                break;
+              }
+            }
+          }
+        }
+
+        // If still not found, create a new placement in the budget table populated with what is known
+        if (!found) {
+          let market = this.data.markets.find(m => m.name.toLowerCase() === row.market.toLowerCase());
+          if (!market) {
+            const code = getCountryCode(row.market);
+            market = {
+              id: `mkt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+              name: row.market,
+              code,
+              channels: []
+            };
+            this.data.markets.push(market);
+          }
+
+          const emptyMonths = {};
+          ALL_MONTHS.forEach(m => { emptyMonths[m] = 0; });
+
+          market.channels.push({
+            id: row.channelId,
+            platform: getPlatformDisplayName(stratKey),
+            objective: row.purpose || "Lead Generation",
+            audienceType: row.audience || "Target Audience Segment",
+            offer: row.offer || "Work Better Magazine",
+            budgetUSD: 0,
+            activeMonths: [],
+            months: emptyMonths
+          });
+
+          // Ensure dropdowns include this market and platform
+          if (this.data.dropdownOptions && Array.isArray(this.data.dropdownOptions.markets) && !this.data.dropdownOptions.markets.includes(row.market)) {
+            this.data.dropdownOptions.markets.push(row.market);
+          }
+          const pName = getPlatformDisplayName(stratKey);
+          if (this.data.dropdownOptions && Array.isArray(this.data.dropdownOptions.platforms) && !this.data.dropdownOptions.platforms.includes(pName)) {
+            this.data.dropdownOptions.platforms.push(pName);
+          }
+        }
+      });
+    });
+  },
+
+  syncStrategyRowToBudget(stratKey, stratRow, changedField) {
+    if (!stratRow || !this.data.markets) return;
+    const channelId = stratRow.channelId;
+    if (!channelId) return;
+
+    let targetMarket = null;
+    let targetChannel = null;
+
+    // Find existing channel in markets
+    for (const m of this.data.markets) {
+      const ch = m.channels.find(c => c.id === channelId);
+      if (ch) {
+        targetMarket = m;
+        targetChannel = ch;
+        break;
+      }
+    }
+
+    const cleanMarketName = (stratRow.market || "India").trim();
+
+    if (targetChannel && targetMarket) {
+      // If market changed, move the channel to the new market
+      if (targetMarket.name.toLowerCase() !== cleanMarketName.toLowerCase()) {
+        targetMarket.channels = targetMarket.channels.filter(c => c.id !== channelId);
+        if (targetMarket.channels.length === 0) {
+          this.data.markets = this.data.markets.filter(m => m.id !== targetMarket.id);
+        }
+
+        let destMarket = this.data.markets.find(m => m.name.toLowerCase() === cleanMarketName.toLowerCase());
+        if (!destMarket) {
+          destMarket = {
+            id: `mkt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+            name: cleanMarketName,
+            code: getCountryCode(cleanMarketName),
+            channels: []
+          };
+          this.data.markets.push(destMarket);
+        }
+        destMarket.channels.push(targetChannel);
+        targetMarket = destMarket;
+      }
+
+      // Update known attributes
+      if (stratRow.audience) targetChannel.audienceType = stratRow.audience;
+      if (stratRow.purpose) targetChannel.objective = stratRow.purpose;
+      if (stratRow.offer) targetChannel.offer = stratRow.offer;
+      targetChannel.platform = getPlatformDisplayName(stratKey);
+    } else {
+      // If placement was missing, create it
+      let market = this.data.markets.find(m => m.name.toLowerCase() === cleanMarketName.toLowerCase());
+      if (!market) {
+        market = {
+          id: `mkt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+          name: cleanMarketName,
+          code: getCountryCode(cleanMarketName),
+          channels: []
+        };
+        this.data.markets.push(market);
+      }
+
+      const emptyMonths = {};
+      ALL_MONTHS.forEach(m => { emptyMonths[m] = 0; });
+
+      market.channels.push({
+        id: stratRow.channelId,
+        platform: getPlatformDisplayName(stratKey),
+        objective: stratRow.purpose || "Lead Generation",
+        audienceType: stratRow.audience || "Target Audience Segment",
+        offer: stratRow.offer || "Work Better Magazine",
+        budgetUSD: 0,
+        activeMonths: [],
+        months: emptyMonths
+      });
+    }
+
+    // Ensure dropdown options
+    if (this.data.dropdownOptions) {
+      if (Array.isArray(this.data.dropdownOptions.markets) && !this.data.dropdownOptions.markets.includes(cleanMarketName)) {
+        this.data.dropdownOptions.markets.push(cleanMarketName);
+      }
+      const pName = getPlatformDisplayName(stratKey);
+      if (Array.isArray(this.data.dropdownOptions.platforms) && !this.data.dropdownOptions.platforms.includes(pName)) {
+        this.data.dropdownOptions.platforms.push(pName);
+      }
+    }
   },
 
   save() {
@@ -697,35 +875,98 @@ const BudgetStore = {
     if (this.data.deletedSections) {
       this.data.deletedSections = this.data.deletedSections.filter(k => k !== stratKey);
     }
-    
+
+    const cleanMarket = (rowData.market || "India").trim();
+    const cleanAudience = (rowData.audience || "New Audience Segment").trim();
+    const cleanPurpose = (rowData.purpose || "Strategic audience engagement").trim();
+    const cleanOffer = (rowData.offer || "Work Better Magazine download").trim();
+    const cleanTargeting = (rowData.targeting || "Target criteria").trim();
+    const cleanExclusions = (rowData.exclusions || "Negative exclusions").trim();
+    const cleanPriority = rowData.priority || "High";
+    const cleanSplit = rowData.split || "25%";
+    const cleanCpc = rowData.cpc || "USD 4–8";
+    const cleanCpl = rowData.cpl || "USD 45–85";
+    const platName = getPlatformDisplayName(stratKey);
+    const channelPlacementId = `ch_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+
+    // 1. Add to Strategy Table
     this.data.strategyTables[stratKey].push({
-      market: rowData.market || "India",
-      audience: rowData.audience || "New Audience Segment",
-      priority: rowData.priority || "High",
-      purpose: rowData.purpose || "Strategic audience engagement",
-      targeting: rowData.targeting || "Target criteria",
-      exclusions: rowData.exclusions || "Negative exclusions",
-      offer: rowData.offer || "Work Better Magazine download",
-      cpc: rowData.cpc || "USD 4–8",
-      cpl: rowData.cpl || "USD 45–85",
-      split: rowData.split || "25%"
+      channelId: channelPlacementId,
+      market: cleanMarket,
+      audience: cleanAudience,
+      priority: cleanPriority,
+      purpose: cleanPurpose,
+      targeting: cleanTargeting,
+      exclusions: cleanExclusions,
+      offer: cleanOffer,
+      cpc: cleanCpc,
+      cpl: cleanCpl,
+      split: cleanSplit
     });
 
-    if (rowData.market && !this.data.dropdownOptions.markets.includes(rowData.market)) {
-      this.data.dropdownOptions.markets.push(rowData.market);
+    // 2. Also populate a corresponding line item in the Budget Breakdown table with what is known
+    let market = this.data.markets.find(m => m.name.toLowerCase() === cleanMarket.toLowerCase());
+    if (!market) {
+      const code = getCountryCode(cleanMarket);
+      market = {
+        id: `mkt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        name: cleanMarket,
+        code,
+        channels: []
+      };
+      this.data.markets.push(market);
+    }
+
+    const emptyMonths = {};
+    ALL_MONTHS.forEach(m => { emptyMonths[m] = 0; });
+
+    const newBudgetChannel = {
+      id: channelPlacementId,
+      platform: platName,
+      objective: cleanPurpose || "Lead Generation",
+      audienceType: cleanAudience,
+      offer: cleanOffer,
+      budgetUSD: 0,
+      activeMonths: [],
+      months: emptyMonths
+    };
+    market.channels.push(newBudgetChannel);
+
+    // 3. Ensure dropdown options have new market and platform
+    if (!this.data.dropdownOptions.markets.includes(cleanMarket)) {
+      this.data.dropdownOptions.markets.push(cleanMarket);
+    }
+    if (!this.data.dropdownOptions.platforms.includes(platName)) {
+      this.data.dropdownOptions.platforms.push(platName);
     }
 
     this.save();
     renderAll();
-    const platName = getPlatformDisplayName(stratKey);
-    showToast(`Added audience line item to ${platName}`);
+    showToast(`Added line item to ${platName} & synchronized to budget`);
   },
 
   deleteStrategyLineItem(stratKey, rowIdx) {
     if (!this.data.strategyTables || !this.data.strategyTables[stratKey]) return;
     const item = this.data.strategyTables[stratKey][rowIdx];
     const audName = item ? item.audience : 'Line item';
+    const channelId = item ? item.channelId : null;
+
     this.data.strategyTables[stratKey].splice(rowIdx, 1);
+
+    // If there is an unbudgeted placement in the main budget table linked to this strategy row, remove it
+    if (channelId) {
+      this.data.markets.forEach(m => {
+        const cIdx = m.channels.findIndex(c => c.id === channelId);
+        if (cIdx !== -1 && (m.channels[cIdx].budgetUSD === 0 || !m.channels[cIdx].budgetUSD)) {
+          if (m.channels.length <= 1) {
+            this.deleteCountry(m.id);
+          } else {
+            m.channels.splice(cIdx, 1);
+          }
+        }
+      });
+    }
+
     this.save();
     renderAll();
     showToast(`Removed: "${audName}"`);
@@ -742,11 +983,27 @@ const BudgetStore = {
     if (!this.data.strategyTables[stratKey]) {
       this.data.strategyTables[stratKey] = [];
     }
+
+    const channelPlacementId = `ch_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
     
+    let targetRow = null;
     if (initialRow) {
-      this.data.strategyTables[stratKey].push(initialRow);
+      targetRow = {
+        channelId: channelPlacementId,
+        market: initialRow.market || "India",
+        audience: initialRow.audience || `${cleanName} Target Audience`,
+        priority: initialRow.priority || "High",
+        purpose: initialRow.purpose || subtitle || `Drive B2B awareness and pipeline on ${cleanName}`,
+        targeting: initialRow.targeting || "Enterprise decision makers, CRE, Facilities",
+        exclusions: initialRow.exclusions || "Competitors, junior roles, non-business consumer queries",
+        offer: initialRow.offer || "Work Better Magazine download",
+        cpc: initialRow.cpc || "USD 2–5",
+        cpl: initialRow.cpl || "USD 35–70",
+        split: initialRow.split || "100%"
+      };
     } else {
-      this.data.strategyTables[stratKey].push({
+      targetRow = {
+        channelId: channelPlacementId,
         market: "India",
         audience: `${cleanName} Target Audience`,
         priority: "High",
@@ -757,12 +1014,44 @@ const BudgetStore = {
         cpc: "USD 2–5",
         cpl: "USD 35–70",
         split: "100%"
-      });
+      };
     }
+
+    this.data.strategyTables[stratKey].push(targetRow);
+
+    // Also sync initial row to budget table with $0 budget
+    let market = this.data.markets.find(m => m.name.toLowerCase() === targetRow.market.toLowerCase());
+    if (!market) {
+      const code = getCountryCode(targetRow.market);
+      market = {
+        id: `mkt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        name: targetRow.market,
+        code,
+        channels: []
+      };
+      this.data.markets.push(market);
+    }
+
+    const emptyMonths = {};
+    ALL_MONTHS.forEach(m => { emptyMonths[m] = 0; });
+
+    market.channels.push({
+      id: channelPlacementId,
+      platform: cleanName,
+      objective: targetRow.purpose || "Lead Generation",
+      audienceType: targetRow.audience,
+      offer: targetRow.offer,
+      budgetUSD: 0,
+      activeMonths: [],
+      months: emptyMonths
+    });
     
     // Ensure dropdown options have new platform
     if (!this.data.dropdownOptions.platforms.includes(cleanName)) {
       this.data.dropdownOptions.platforms.push(cleanName);
+    }
+    if (!this.data.dropdownOptions.markets.includes(targetRow.market)) {
+      this.data.dropdownOptions.markets.push(targetRow.market);
     }
     
     this.save();
@@ -1781,9 +2070,11 @@ function attachStrategyTableListeners() {
         cell.contentEditable = 'false';
         const newVal = cell.textContent.trim();
         if (BudgetStore.data.strategyTables[tableKey] && BudgetStore.data.strategyTables[tableKey][idx]) {
-          BudgetStore.data.strategyTables[tableKey][idx][field] = newVal;
+          const row = BudgetStore.data.strategyTables[tableKey][idx];
+          row[field] = newVal;
+          BudgetStore.syncStrategyRowToBudget(tableKey, row, field);
           BudgetStore.save();
-          renderStrategyTables();
+          renderAll();
         }
         cell.removeEventListener('blur', commit);
       }
@@ -1981,10 +2272,14 @@ function selectDropdownOption(value) {
   const stratIdx = target.getAttribute('data-strategy-idx');
   if (stratTable && stratIdx !== null && field) {
     const idx = parseInt(stratIdx, 10);
-    BudgetStore.data.strategyTables[stratTable][idx][field] = value;
-    BudgetStore.save();
-    renderStrategyTables();
-    showToast(`Updated to "${value}"`);
+    const row = BudgetStore.data.strategyTables[stratTable] ? BudgetStore.data.strategyTables[stratTable][idx] : null;
+    if (row) {
+      row[field] = value;
+      BudgetStore.syncStrategyRowToBudget(stratTable, row, field);
+      BudgetStore.save();
+      renderAll();
+      showToast(`Updated to "${value}"`);
+    }
   }
 }
 
