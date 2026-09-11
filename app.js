@@ -3048,32 +3048,12 @@ function showToast(message) {
 }
 
 function initThemeAndNav() {
-  const themeToggle = document.getElementById('themeToggle');
   const body = document.body;
-  const savedTheme = localStorage.getItem('steelcase_theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  if (savedTheme === 'night' || (!savedTheme && prefersDark)) {
-    body.classList.remove('theme-light');
-    body.classList.add('theme-night');
-  } else {
-    body.classList.remove('theme-night');
-    body.classList.add('theme-light');
-  }
-
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      if (body.classList.contains('theme-night')) {
-        body.classList.remove('theme-night');
-        body.classList.add('theme-light');
-        localStorage.setItem('steelcase_theme', 'light');
-      } else {
-        body.classList.remove('theme-light');
-        body.classList.add('theme-night');
-        localStorage.setItem('steelcase_theme', 'night');
-      }
-    });
-  }
+  
+  // Enforce clean light (black & white) mode always and remove any dark theme persistence
+  localStorage.removeItem('steelcase_theme');
+  body.classList.remove('theme-night');
+  body.classList.add('theme-light');
 
   const printBtn = document.getElementById('printBtn');
   if (printBtn) {
@@ -3122,20 +3102,20 @@ const THEME_PRESETS = {
     '--text-secondary': '#475569',
     '--border-subtle': '#e2e8f0'
   },
-  midnight: {
-    name: 'Midnight Indigo',
-    '--header-bg': '#0f172a',
-    '--header-text': '#f8fafc',
-    '--hero-bg': '#1e293b',
-    '--hero-text': '#f8fafc',
-    '--bg-strategy-header': '#1e293b',
-    '--primary': '#38bdf8',
-    '--bg-body': '#090d16',
-    '--bg-surface': '#111827',
-    '--table-header-bg': '#1e293b',
-    '--text-primary': '#f8fafc',
-    '--text-secondary': '#94a3b8',
-    '--border-subtle': '#334155'
+  monochrome: {
+    name: 'Black & White Clean',
+    '--header-bg': '#ffffff',
+    '--header-text': '#0f172a',
+    '--hero-bg': '#ffffff',
+    '--hero-text': '#0f172a',
+    '--bg-strategy-header': '#f8fafc',
+    '--primary': '#0f172a',
+    '--bg-body': '#ffffff',
+    '--bg-surface': '#ffffff',
+    '--table-header-bg': '#f8fafc',
+    '--text-primary': '#0f172a',
+    '--text-secondary': '#475569',
+    '--border-subtle': '#e2e8f0'
   },
   nordic: {
     name: 'Nordic Slate',
