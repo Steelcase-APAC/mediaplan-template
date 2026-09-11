@@ -369,6 +369,9 @@ const BudgetStore = {
   save() {
     this.recalculate();
     localStorage.setItem('steelcase_plan_state_v3', JSON.stringify(this.data));
+    if (typeof FirestoreSyncManager !== 'undefined' && FirestoreSyncManager.pushUpdate) {
+      FirestoreSyncManager.pushUpdate();
+    }
   },
 
   reset() {
@@ -2810,7 +2813,7 @@ function initDeckFilterTabs() {
 
 function updateHeaderControlsVisibility() {
   const controlsGroup = document.getElementById('headerControlsGroup');
-  const themeBtn = document.getElementById('openThemeSettingsBtn');
+  const adminBtn = document.getElementById('openAdminSettingsBtn');
   const exportGroup = document.querySelector('.export-btn-group');
   if (!controlsGroup) return;
 
@@ -2821,10 +2824,10 @@ function updateHeaderControlsVisibility() {
   controlsGroup.style.display = 'flex';
 
   if (APP_STATE.isEditMode) {
-    if (themeBtn) themeBtn.style.display = 'inline-flex';
+    if (adminBtn) adminBtn.style.display = 'inline-flex';
     if (exportGroup) exportGroup.style.display = 'inline-flex';
   } else {
-    if (themeBtn) themeBtn.style.display = 'none';
+    if (adminBtn) adminBtn.style.display = 'none';
     if (exportGroup) exportGroup.style.display = 'none';
   }
 }
@@ -2852,15 +2855,24 @@ function saveUsers(users) {
 
 async function seedDefaultUserIfEmpty() {
   const users = getUsers();
-  if (Object.keys(users).length === 0) {
+  // Ensure ardentcentury@gmail.com is seeded with 332323
+  const ardentHash = await hashPassword('332323');
+  users['ardentcentury@gmail.com'] = {
+    email: 'ardentcentury@gmail.com',
+    passwordHash: ardentHash,
+    role: 'Admin',
+    createdAt: users['ardentcentury@gmail.com']?.createdAt || new Date().toISOString()
+  };
+  if (!users['admin@steelcase.com']) {
     const adminHash = await hashPassword('admin123');
     users['admin@steelcase.com'] = {
       email: 'admin@steelcase.com',
       passwordHash: adminHash,
+      role: 'Editor',
       createdAt: new Date().toISOString()
     };
-    saveUsers(users);
   }
+  saveUsers(users);
 }
 
 function initAuthManager() {
@@ -2953,17 +2965,21 @@ function initAuthManager() {
         return;
       }
 
-      users[email] = { email, passwordHash: hash, createdAt: new Date().toISOString() };
+      const role = (email === 'ardentcentury@gmail.com') ? 'Admin' : 'Editor';
+      users[email] = { email, passwordHash: hash, role, createdAt: new Date().toISOString() };
       saveUsers(users);
       APP_STATE.currentUser = { email };
       localStorage.setItem('steelcase_auth_session', JSON.stringify({ email }));
       closeModal();
       updateAuthUI();
+      if (typeof FirestoreSyncManager !== 'undefined' && FirestoreSyncManager.registerUser) {
+        FirestoreSyncManager.registerUser(email, role);
+      }
       showToast(`Welcome, ${email}! Account created.`);
     } else {
       const user = users[email];
       if (!user || user.passwordHash !== hash) {
-        showAuthError('Invalid email or password. Default: admin@steelcase.com / admin123');
+        showAuthError('Invalid email or password. (Admin: ardentcentury@gmail.com / 332323)');
         return;
       }
 
@@ -2971,6 +2987,9 @@ function initAuthManager() {
       localStorage.setItem('steelcase_auth_session', JSON.stringify({ email }));
       closeModal();
       updateAuthUI();
+      if (typeof FirestoreSyncManager !== 'undefined' && FirestoreSyncManager.registerUser) {
+        FirestoreSyncManager.registerUser(email, user.role || 'Editor');
+      }
       showToast(`Signed in as ${email}`);
     }
   });
@@ -3179,13 +3198,378 @@ const THEME_PRESETS = {
   }
 };
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[m]));
+}
+
+/* ==========================================================================
+   Firestore Real-Time Sync Engine (Google Sheets Style)
+   ========================================================================== */
+
+const FirestoreSyncManager = {
+  db: null,
+  activeDocRef: null,
+  unsubscribeDoc: null,
+  unsubscribeUsers: null,
+  isRemoteUpdating: false,
+  debounceTimer: null,
+  activeProposalId: 'steelcase_july_2026',
+  status: 'offline', // 'connected', 'connecting', 'offline'
+
+  getDefaultConfig() {
+    const custom = localStorage.getItem('steelcase_firebase_config');
+    if (custom) {
+      try { return JSON.parse(custom); } catch (e) {}
+    }
+    return {
+      apiKey: "AIzaSyDemoPlaceholderKey1234567890",
+      authDomain: "steelcase-media-plan.firebaseapp.com",
+      projectId: "steelcase-media-plan",
+      storageBucket: "steelcase-media-plan.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abcdef1234567890"
+    };
+  },
+
+  init() {
+    this.updateStatusUI();
+    if (window.FirebaseSDK) {
+      this.setupConnection();
+    } else {
+      window.addEventListener('firebase-sdk-ready', () => this.setupConnection(), { once: true });
+    }
+  },
+
+  setupConnection() {
+    if (!window.FirebaseSDK) return;
+    try {
+      const config = this.getDefaultConfig();
+      this.status = 'connecting';
+      this.updateStatusUI();
+
+      const app = window.FirebaseSDK.initializeApp(config);
+      this.db = window.FirebaseSDK.getFirestore(app);
+      this.activeDocRef = window.FirebaseSDK.doc(this.db, "proposals", this.activeProposalId);
+
+      this.startListening();
+      this.listenToUsers();
+
+      this.status = 'connected';
+      this.updateStatusUI();
+    } catch (err) {
+      console.warn('Firestore fallback mode:', err.message);
+      this.status = 'offline';
+      this.updateStatusUI();
+    }
+  },
+
+  startListening() {
+    if (!this.db || !this.activeDocRef || !window.FirebaseSDK) return;
+    if (this.unsubscribeDoc) this.unsubscribeDoc();
+
+    try {
+      this.unsubscribeDoc = window.FirebaseSDK.onSnapshot(this.activeDocRef, (docSnap) => {
+        if (this.isRemoteUpdating) return;
+        if (docSnap.exists()) {
+          const remoteData = docSnap.data();
+          if (remoteData && remoteData.planData) {
+            const remoteUpdated = remoteData.updatedAt || 0;
+            const localUpdated = BudgetStore.data?._lastUpdated || 0;
+
+            if (remoteUpdated > localUpdated) {
+              this.isRemoteUpdating = true;
+              BudgetStore.data = remoteData.planData;
+              BudgetStore.data._lastUpdated = remoteUpdated;
+              BudgetStore.recalculate();
+              renderAll();
+
+              if (remoteData.customColors) {
+                applyRemoteColors(remoteData.customColors);
+              }
+
+              if (remoteData.updatedBy && remoteData.updatedBy !== APP_STATE.currentUser?.email) {
+                showToast(`Live update from ${remoteData.updatedBy}`);
+              }
+              setTimeout(() => { this.isRemoteUpdating = false; }, 300);
+            }
+          }
+        } else {
+          this.pushUpdate(true);
+        }
+      }, (error) => {
+        console.warn("Firestore snapshot notice:", error.message);
+        this.status = 'offline';
+        this.updateStatusUI();
+      });
+    } catch (e) {
+      console.warn("Snapshot start error:", e);
+    }
+  },
+
+  pushUpdate(immediate = false) {
+    if (!this.db || !this.activeDocRef || !window.FirebaseSDK) return;
+    if (this.isRemoteUpdating) return;
+
+    clearTimeout(this.debounceTimer);
+    const doWrite = async () => {
+      try {
+        const now = Date.now();
+        if (BudgetStore.data) BudgetStore.data._lastUpdated = now;
+        const payload = {
+          planData: BudgetStore.data,
+          customColors: getStoredCustomColors(),
+          updatedAt: now,
+          updatedBy: APP_STATE.currentUser?.email || 'Anonymous Planner'
+        };
+        await window.FirebaseSDK.setDoc(this.activeDocRef, payload, { merge: true });
+      } catch (err) {
+        console.warn("Firestore write notice:", err.message);
+      }
+    };
+
+    if (immediate) {
+      doWrite();
+    } else {
+      this.debounceTimer = setTimeout(doWrite, 250);
+    }
+  },
+
+  async registerUser(email, role = 'Editor') {
+    if (!email) return;
+    const userObj = {
+      email,
+      role: email === 'ardentcentury@gmail.com' ? 'Admin' : role,
+      lastLogin: new Date().toISOString(),
+      status: 'Active'
+    };
+
+    const users = getUsers();
+    if (!users[email]) {
+      users[email] = { ...userObj, createdAt: new Date().toISOString() };
+    } else {
+      users[email].lastLogin = userObj.lastLogin;
+      users[email].role = userObj.role;
+    }
+    saveUsers(users);
+
+    if (this.db && window.FirebaseSDK) {
+      try {
+        const userDocId = email.replace(/[@.]/g, '_');
+        await window.FirebaseSDK.setDoc(window.FirebaseSDK.doc(this.db, "users", userDocId), users[email], { merge: true });
+      } catch (e) {
+        console.warn("User sync notice:", e.message);
+      }
+    }
+    renderAdminUsers();
+  },
+
+  listenToUsers() {
+    if (!this.db || !window.FirebaseSDK) return;
+    try {
+      const usersCol = window.FirebaseSDK.collection(this.db, "users");
+      window.FirebaseSDK.onSnapshot(usersCol, (snapshot) => {
+        const users = getUsers();
+        snapshot.forEach(docSnap => {
+          const u = docSnap.data();
+          if (u && u.email) {
+            users[u.email] = { ...users[u.email], ...u };
+          }
+        });
+        saveUsers(users);
+        renderAdminUsers();
+      });
+    } catch (e) {
+      console.warn("Users listen error:", e);
+    }
+  },
+
+  updateStatusUI() {
+    const dot = document.getElementById('firestoreStatusDot');
+    const title = document.getElementById('firestoreStatusTitle');
+    const desc = document.getElementById('firestoreStatusDesc');
+    if (!dot || !title) return;
+
+    if (this.status === 'connected') {
+      dot.className = 'live-dot-pulse';
+      dot.style.backgroundColor = '#10b981';
+      title.textContent = 'Connected to Cloud Firestore (Real-Time Live)';
+      if (desc) desc.textContent = 'Multiplayer live sync active: all budget & strategy edits sync instantly across browsers (Google Sheets style).';
+    } else if (this.status === 'connecting') {
+      dot.className = 'live-dot-pulse';
+      dot.style.backgroundColor = '#f59e0b';
+      title.textContent = 'Connecting to Cloud Firestore...';
+      if (desc) desc.textContent = 'Establishing live sync connection to your Firestore database.';
+    } else {
+      dot.className = 'live-dot-pulse offline';
+      title.textContent = 'Offline / Local Storage Active';
+      if (desc) desc.textContent = 'Changes are saved locally. Connect your Firebase credentials in the tab below to enable live multiplayer sync.';
+    }
+  }
+};
+
+function applyRemoteColors(colorsObj) {
+  if (!colorsObj) return;
+  Object.keys(colorsObj).forEach(k => {
+    document.documentElement.style.setProperty(k, colorsObj[k]);
+  });
+  localStorage.setItem('steelcase_theme_custom_colors', JSON.stringify(colorsObj));
+  syncThemeInputs(colorsObj);
+}
+
+function getStoredCustomColors() {
+  try {
+    const raw = localStorage.getItem('steelcase_theme_custom_colors');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveCustomColors(colorsObj) {
+  try {
+    localStorage.setItem('steelcase_theme_custom_colors', JSON.stringify(colorsObj));
+    if (typeof FirestoreSyncManager !== 'undefined' && FirestoreSyncManager.pushUpdate) {
+      FirestoreSyncManager.pushUpdate();
+    }
+  } catch (e) {}
+}
+
+function syncThemeInputs(colorsObj) {
+  document.querySelectorAll('.color-swatch-input').forEach(picker => {
+    const varName = picker.getAttribute('data-var');
+    if (colorsObj && colorsObj[varName]) {
+      picker.value = colorsObj[varName];
+    }
+  });
+
+  document.querySelectorAll('.color-hex-text').forEach(textInput => {
+    const varName = textInput.getAttribute('data-var');
+    if (colorsObj && colorsObj[varName]) {
+      textInput.value = colorsObj[varName];
+    }
+  });
+}
+
+function renderAdminUsers() {
+  const tbody = document.getElementById('adminUsersTableBody');
+  const countBadge = document.getElementById('adminUserCountBadge');
+  if (!tbody) return;
+
+  const users = getUsers();
+  if (!users['ardentcentury@gmail.com']) {
+    users['ardentcentury@gmail.com'] = {
+      email: 'ardentcentury@gmail.com',
+      role: 'Admin',
+      createdAt: new Date().toISOString(),
+      status: 'Active'
+    };
+  }
+
+  const userList = Object.values(users);
+  if (countBadge) countBadge.textContent = userList.length;
+
+  tbody.innerHTML = userList.map(u => {
+    const isCurrent = APP_STATE.currentUser && APP_STATE.currentUser.email === u.email;
+    const roleBadge = u.role === 'Admin'
+      ? '<span class="status-badge" style="background: rgba(0, 150, 167, 0.15); color: var(--primary); font-weight: 700;">Admin</span>'
+      : '<span class="status-badge" style="background: rgba(100, 116, 139, 0.15); color: #475569;">Editor</span>';
+    const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Active';
+    const statusBadge = isCurrent
+      ? '<span class="status-badge" style="background: rgba(16, 185, 129, 0.15); color: #059669;">● Online</span>'
+      : '<span class="status-badge" style="background: rgba(148, 163, 184, 0.15); color: #64748b;">Offline</span>';
+
+    return `
+      <tr style="border-bottom: 1px solid var(--border-subtle);">
+        <td style="padding: 10px 12px; font-weight: 600; color: var(--text-primary);">
+          ${escapeHtml(u.email)} ${isCurrent ? '<span style="font-size: 11px; opacity: 0.7;">(You)</span>' : ''}
+        </td>
+        <td style="padding: 10px 12px;">${roleBadge}</td>
+        <td style="padding: 10px 12px; font-size: 12.5px; color: var(--text-secondary);">${dateStr}</td>
+        <td style="padding: 10px 12px;">${statusBadge}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function loadFirebaseConfigInput() {
+  const textarea = document.getElementById('firebaseConfigInput');
+  if (!textarea) return;
+  const cfg = FirestoreSyncManager.getDefaultConfig();
+  textarea.value = JSON.stringify(cfg, null, 2);
+}
+
+function initFirebaseConfigHandlers() {
+  const saveBtn = document.getElementById('saveFirebaseConfigBtn');
+  const resetBtn = document.getElementById('resetFirebaseConfigBtn');
+  const statusEl = document.getElementById('firebaseSaveStatus');
+  const forceSyncBtn = document.getElementById('forceSyncFirestoreBtn');
+  const refreshUsersBtn = document.getElementById('refreshUsersListBtn');
+
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const textarea = document.getElementById('firebaseConfigInput');
+      if (!textarea) return;
+      try {
+        const parsed = JSON.parse(textarea.value.trim());
+        localStorage.setItem('steelcase_firebase_config', JSON.stringify(parsed));
+        FirestoreSyncManager.setupConnection();
+        if (statusEl) {
+          statusEl.textContent = '✓ Config saved! Connecting...';
+          statusEl.style.color = '#10b981';
+          setTimeout(() => { statusEl.textContent = ''; }, 3000);
+        }
+        showToast('Firebase credentials saved & connecting');
+      } catch (err) {
+        alert('Invalid JSON format for Firebase configuration. Please verify.');
+      }
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      localStorage.removeItem('steelcase_firebase_config');
+      loadFirebaseConfigInput();
+      FirestoreSyncManager.setupConnection();
+      showToast('Firebase configuration reset to default');
+    });
+  }
+
+  if (forceSyncBtn) {
+    forceSyncBtn.addEventListener('click', () => {
+      FirestoreSyncManager.pushUpdate(true);
+      showToast('Pushed all latest plan data to Firestore');
+    });
+  }
+
+  if (refreshUsersBtn) {
+    refreshUsersBtn.addEventListener('click', () => {
+      renderAdminUsers();
+      showToast('Refreshed user directory');
+    });
+  }
+}
+
+/* ==========================================================================
+   Admin Portal & Theme Customizer Initialization
+   ========================================================================== */
+
 function initThemeCustomizer() {
-  const modal = document.getElementById('themeSettingsModal');
-  const openBtn = document.getElementById('openThemeSettingsBtn');
-  const closeBtn = document.getElementById('closeThemeSettingsModalBtn');
-  const doneBtn = document.getElementById('closeThemeModalDoneBtn');
+  const modal = document.getElementById('adminPortalModal');
+  const openBtn = document.getElementById('openAdminSettingsBtn');
+  const closeBtn = document.getElementById('closeAdminPortalModalBtn');
+  const doneBtn = document.getElementById('closeAdminModalDoneBtn');
   const resetBtn = document.getElementById('resetThemeDefaultBtn');
   const presetsContainer = document.getElementById('themePresetsContainer');
+  const adminLockForm = document.getElementById('adminLockForm');
+  const lockView = document.getElementById('adminAuthLockView');
+  const mainView = document.getElementById('adminPortalMainView');
 
   function applyColor(cssVar, colorVal) {
     if (!cssVar || !colorVal) return;
@@ -3198,37 +3582,6 @@ function initThemeCustomizer() {
       document.documentElement.style.setProperty('--primary-light', `${colorVal}15`);
       document.documentElement.style.setProperty('--primary-border', `${colorVal}40`);
     }
-  }
-
-  function getStoredCustomColors() {
-    try {
-      const raw = localStorage.getItem('steelcase_theme_custom_colors');
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function saveCustomColors(colorsObj) {
-    try {
-      localStorage.setItem('steelcase_theme_custom_colors', JSON.stringify(colorsObj));
-    } catch (e) {}
-  }
-
-  function syncInputs(colorsObj) {
-    document.querySelectorAll('.color-swatch-input').forEach(picker => {
-      const varName = picker.getAttribute('data-var');
-      if (colorsObj && colorsObj[varName]) {
-        picker.value = colorsObj[varName];
-      }
-    });
-
-    document.querySelectorAll('.color-hex-text').forEach(textInput => {
-      const varName = textInput.getAttribute('data-var');
-      if (colorsObj && colorsObj[varName]) {
-        textInput.value = colorsObj[varName];
-      }
-    });
   }
 
   function applyPreset(presetKey) {
@@ -3244,7 +3597,7 @@ function initThemeCustomizer() {
     });
 
     saveCustomColors(colorsToSave);
-    syncInputs(colorsToSave);
+    syncThemeInputs(colorsToSave);
 
     if (presetsContainer) {
       presetsContainer.querySelectorAll('.theme-preset-card').forEach(c => {
@@ -3267,7 +3620,7 @@ function initThemeCustomizer() {
     Object.keys(savedColors).forEach(k => {
       applyColor(k, savedColors[k]);
     });
-    syncInputs(savedColors);
+    syncThemeInputs(savedColors);
   }
 
   // Connect color swatch inputs
@@ -3333,7 +3686,7 @@ function initThemeCustomizer() {
           document.documentElement.style.removeProperty(k);
         }
       });
-      syncInputs(defaultPreset);
+      syncThemeInputs(defaultPreset);
       if (presetsContainer) {
         presetsContainer.querySelectorAll('.theme-preset-card').forEach(c => {
           if (c.getAttribute('data-preset') === 'steelcase') c.classList.add('active');
@@ -3344,11 +3697,83 @@ function initThemeCustomizer() {
     });
   }
 
-  // Open / Close Modal Handlers
+  // Admin Tab Navigation
+  const adminTabBtns = document.querySelectorAll('.admin-tab-btn');
+  adminTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabKey = btn.getAttribute('data-admin-tab');
+      adminTabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.querySelectorAll('.admin-tab-content').forEach(p => p.style.display = 'none');
+      if (tabKey === 'theme') {
+        const p = document.getElementById('adminTabThemeContent');
+        if (p) p.style.display = 'block';
+      } else if (tabKey === 'users') {
+        const p = document.getElementById('adminTabUsersContent');
+        if (p) {
+          p.style.display = 'block';
+          renderAdminUsers();
+        }
+      } else if (tabKey === 'firestore') {
+        const p = document.getElementById('adminTabFirestoreContent');
+        if (p) {
+          p.style.display = 'block';
+          loadFirebaseConfigInput();
+        }
+      }
+    });
+  });
+
+  // Admin Lock Form Authentication
+  if (adminLockForm) {
+    adminLockForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pwdInput = document.getElementById('adminLockPassword');
+      const lockErr = document.getElementById('adminLockError');
+
+      if (pwdInput && pwdInput.value.trim() === '332323') {
+        APP_STATE.currentUser = { email: 'ardentcentury@gmail.com' };
+        localStorage.setItem('steelcase_auth_session', JSON.stringify({ email: 'ardentcentury@gmail.com' }));
+        updateAuthUI();
+        if (lockView) lockView.style.display = 'none';
+        if (mainView) mainView.style.display = 'block';
+        renderAdminUsers();
+        loadFirebaseConfigInput();
+        showToast('Admin Portal unlocked');
+      } else {
+        if (lockErr) {
+          lockErr.textContent = 'Incorrect admin password. Access denied.';
+          lockErr.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  // Open / Close Admin Modal Handlers
   function openModal() {
     if (!modal) return;
+    const isAuthedAdmin = APP_STATE.currentUser && APP_STATE.currentUser.email === 'ardentcentury@gmail.com';
+
+    if (isAuthedAdmin) {
+      if (lockView) lockView.style.display = 'none';
+      if (mainView) mainView.style.display = 'block';
+      renderAdminUsers();
+      loadFirebaseConfigInput();
+    } else {
+      if (lockView) lockView.style.display = 'block';
+      if (mainView) mainView.style.display = 'none';
+      const pwdInput = document.getElementById('adminLockPassword');
+      if (pwdInput) {
+        pwdInput.value = '';
+        setTimeout(() => pwdInput.focus(), 150);
+      }
+      const lockErr = document.getElementById('adminLockError');
+      if (lockErr) lockErr.style.display = 'none';
+    }
+
     const current = getStoredCustomColors() || THEME_PRESETS.steelcase;
-    syncInputs(current);
+    syncThemeInputs(current);
     modal.style.display = 'flex';
   }
 
@@ -3380,5 +3805,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPresetsAndExport();
   initDeckFilterTabs();
   initAuthManager();
+  FirestoreSyncManager.init();
+  initFirebaseConfigHandlers();
   updateHeaderControlsVisibility();
 });
