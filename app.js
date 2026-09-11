@@ -335,6 +335,7 @@ const BudgetStore = {
     } else {
       this.data = JSON.parse(JSON.stringify(DEFAULT_MEDIA_PLAN));
     }
+    if (!this.data.deletedSections) this.data.deletedSections = [];
     this.recalculate();
   },
 
@@ -445,6 +446,8 @@ const BudgetStore = {
     if (!this.data.strategyTables[stratKey]) {
       this.data.strategyTables[stratKey] = [];
     }
+    if (!this.data.deletedSections) this.data.deletedSections = [];
+    this.data.deletedSections = this.data.deletedSections.filter(k => k !== stratKey);
 
     const pLower = (channel.platform || '').toLowerCase();
     let cpcEstimate = "USD 4–8";
@@ -593,21 +596,18 @@ const BudgetStore = {
     }
   },
 
-  deleteChannel(marketId, channelId) {
+  executeDeleteChannel(marketId, channelId) {
     const market = this.data.markets.find(m => m.id === marketId);
     if (!market) return;
 
     if (market.channels.length <= 1) {
-      if (confirm(`Deleting this last line item will also remove the country "${market.name}". Continue?`)) {
-        this.deleteCountry(marketId);
-      }
+      this.deleteCountry(marketId);
       return;
     }
 
     const idx = market.channels.findIndex(ch => ch.id === channelId);
     if (idx !== -1) {
       const ch = market.channels[idx];
-      const chName = ch.platform;
       const stratKey = getStratKey(ch.platform);
 
       // Clean up strategy table entry
@@ -620,8 +620,62 @@ const BudgetStore = {
       market.channels.splice(idx, 1);
       this.save();
       renderAll();
-      showToast(`Removed line item: ${chName}`);
     }
+  },
+
+  deleteChannel(marketId, channelId) {
+    const market = this.data.markets.find(m => m.id === marketId);
+    if (!market) return;
+    const channel = market.channels.find(ch => ch.id === channelId);
+    if (!channel) return;
+
+    const stratKey = getStratKey(channel.platform);
+    const platformName = channel.platform;
+
+    // Count how many placements of this platform remain across all markets
+    let totalPlacements = 0;
+    this.data.markets.forEach(m => {
+      m.channels.forEach(c => {
+        if (getStratKey(c.platform) === stratKey) {
+          totalPlacements++;
+        }
+      });
+    });
+
+    const isLastPlacement = totalPlacements <= 1;
+
+    if (isLastPlacement) {
+      if (typeof openConfirmSectionDeleteModal === 'function') {
+        openConfirmSectionDeleteModal({
+          platformName,
+          stratKey,
+          marketId,
+          channelId,
+          marketName: market.name,
+          isLastInMarket: market.channels.length <= 1,
+          isDirectSectionDelete: false
+        });
+      } else {
+        this.executeDeleteChannel(marketId, channelId);
+        showToast(`Removed line item: ${platformName}`);
+      }
+    } else {
+      this.executeDeleteChannel(marketId, channelId);
+      showToast(`Removed line item: ${platformName}`);
+    }
+  },
+
+  deleteChannelStrategySection(stratKey, platformName) {
+    if (!this.data.deletedSections) this.data.deletedSections = [];
+    if (!this.data.deletedSections.includes(stratKey)) {
+      this.data.deletedSections.push(stratKey);
+    }
+    if (this.data.strategyTables && this.data.strategyTables[stratKey]) {
+      this.data.strategyTables[stratKey] = [];
+    }
+    this.save();
+    renderAll();
+    showToast(`Removed strategy section for ${platformName || stratKey}`);
   },
 
   updateChannelField(marketId, channelId, fieldPath, rawValue) {
@@ -1196,33 +1250,56 @@ function renderMarketFilterPills() {
  * - Dynamically creates and renders YouTube Channel section when active
  */
 function renderStrategyTables() {
-  const tables = BudgetStore.data.strategyTables;
-  if (!tables) return;
+  const tables = BudgetStore.data.strategyTables || {};
+  const deletedSections = BudgetStore.data.deletedSections || [];
 
-  // Injects/updates KPI bar in standard static sections
-  const updateStaticKpiBar = (sectionId, platformName) => {
-    const sec = document.getElementById(sectionId);
+  const standardSections = [
+    { key: 'linkedin', id: 'channel-linkedin', name: 'LinkedIn', bodyId: 'strategyBodyLinkedIn' },
+    { key: 'meta', id: 'channel-meta', name: 'Meta / IG', bodyId: 'strategyBodyMeta' },
+    { key: 'pinterest', id: 'channel-pinterest', name: 'Pinterest', bodyId: 'strategyBodyPinterest' },
+    { key: 'wechat', id: 'channel-wechat', name: 'WeChat', bodyId: 'strategyBodyWeChat' }
+  ];
+
+  standardSections.forEach(def => {
+    const sec = document.getElementById(def.id);
     if (!sec) return;
-    const header = sec.querySelector('.section-header');
-    if (!header) return;
 
-    let kpiBar = header.querySelector('.channel-kpi-bar');
-    if (!kpiBar) {
-      kpiBar = document.createElement('div');
-      header.appendChild(kpiBar);
+    const hasPlacements = (BudgetStore.summary.platformBreakdown || []).some(p => getStratKey(p.name) === def.key && p.total > 0);
+    const hasRows = Array.isArray(tables[def.key]) && tables[def.key].length > 0;
+    const isDeleted = deletedSections.includes(def.key);
+
+    if (isDeleted || (!hasPlacements && !hasRows)) {
+      sec.style.display = 'none';
+    } else {
+      sec.style.display = 'block';
+
+      // Update KPI Bar and Delete button in section header
+      const header = sec.querySelector('.section-header');
+      if (header) {
+        let badgeHeader = header.querySelector('.channel-badge-header');
+        if (badgeHeader && !badgeHeader.querySelector('.btn-delete-section')) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn-delete-section edit-mode-only';
+          delBtn.setAttribute('data-action', 'delete-strategy-section');
+          delBtn.setAttribute('data-strat-key', def.key);
+          delBtn.setAttribute('data-platform-name', def.name);
+          delBtn.title = `Delete ${def.name} strategy section`;
+          delBtn.innerHTML = `✕ Delete Section`;
+          badgeHeader.appendChild(delBtn);
+        }
+
+        let kpiBar = header.querySelector('.channel-kpi-bar');
+        if (!kpiBar) {
+          kpiBar = document.createElement('div');
+          header.appendChild(kpiBar);
+        }
+        kpiBar.outerHTML = getChannelKpiBarHtml(def.name);
+      }
+
+      renderSingleStrategyTable(def.bodyId, tables[def.key] || [], def.key);
     }
-    kpiBar.outerHTML = getChannelKpiBarHtml(platformName);
-  };
-
-  updateStaticKpiBar('channel-linkedin', 'LinkedIn');
-  updateStaticKpiBar('channel-meta', 'Meta / IG');
-  updateStaticKpiBar('channel-pinterest', 'Pinterest');
-  updateStaticKpiBar('channel-wechat', 'WeChat');
-
-  renderSingleStrategyTable('strategyBodyLinkedIn', tables.linkedin, 'linkedin');
-  renderSingleStrategyTable('strategyBodyMeta', tables.meta, 'meta');
-  renderSingleStrategyTable('strategyBodyPinterest', tables.pinterest, 'pinterest');
-  renderSingleStrategyTable('strategyBodyWeChat', tables.wechat, 'wechat');
+  });
 
   // Dynamic deep-dive sections container (YouTube, Google, TikTok, etc.)
   const dynamicContainer = document.getElementById('dynamicStrategySections');
@@ -1236,7 +1313,7 @@ function renderStrategyTables() {
     // Ensure YouTube and any other active platform in plan have strategy rows
     allPlatformsInPlan.forEach(platName => {
       const key = getStratKey(platName);
-      if (!standardKeys.includes(key)) {
+      if (!standardKeys.includes(key) && !deletedSections.includes(key)) {
         if (!tables[key] || tables[key].length === 0) {
           tables[key] = [];
           BudgetStore.data.markets.forEach(m => {
@@ -1249,7 +1326,7 @@ function renderStrategyTables() {
     });
 
     Object.keys(tables).forEach(key => {
-      if (!standardKeys.includes(key) && Array.isArray(tables[key]) && tables[key].length > 0) {
+      if (!standardKeys.includes(key) && !deletedSections.includes(key) && Array.isArray(tables[key]) && tables[key].length > 0) {
         const rows = tables[key];
         const rawName = key === 'youtube' ? 'YouTube' : key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         const platClass = getPlatformBadgeClass(rawName);
@@ -1261,6 +1338,9 @@ function renderStrategyTables() {
           <div class="section-header">
             <div class="channel-badge-header">
               <span class="platform-badge ${platClass} large">${rawName}</span>
+              <button type="button" class="btn-delete-section edit-mode-only" data-action="delete-strategy-section" data-strat-key="${key}" data-platform-name="${rawName}" title="Delete ${rawName} strategy section">
+                ✕ Delete Section
+              </button>
             </div>
             <h2 class="section-title">Channel Strategy: ${rawName}</h2>
             <p class="section-subtitle">
@@ -1312,31 +1392,34 @@ function renderSidebarOutline() {
     { href: '#budget-breakdown', label: 'Budget Breakdown' }
   ];
 
-  // Dynamic channel links based on platforms present in plan
-  const platforms = BudgetStore.summary.platformBreakdown || [];
+  const deletedSections = BudgetStore.data.deletedSections || [];
   const channelLinks = [];
 
-  platforms.forEach(p => {
-    const key = getStratKey(p.name);
-    const href = `#channel-${key}`;
-    if (!channelLinks.some(l => l.href === href)) {
-      channelLinks.push({ href, label: `Channel: ${p.name}` });
-    }
-  });
-
-  // Ensure default channels exist if present in strategyTables
+  // Default standard keys
   const defaultKeys = [
-    { key: 'linkedin', name: 'LinkedIn' },
-    { key: 'meta', name: 'Meta | Instagram' },
-    { key: 'pinterest', name: 'Pinterest' },
-    { key: 'wechat', name: 'WeChat' }
+    { key: 'linkedin', id: 'channel-linkedin', name: 'LinkedIn' },
+    { key: 'meta', id: 'channel-meta', name: 'Meta | Instagram' },
+    { key: 'pinterest', id: 'channel-pinterest', name: 'Pinterest' },
+    { key: 'wechat', id: 'channel-wechat', name: 'WeChat' }
   ];
 
   defaultKeys.forEach(def => {
-    const href = `#channel-${def.key}`;
-    if (!channelLinks.some(l => l.href === href)) {
-      if (BudgetStore.data.strategyTables && BudgetStore.data.strategyTables[def.key] && BudgetStore.data.strategyTables[def.key].length > 0) {
-        channelLinks.push({ href, label: `Channel: ${def.name}` });
+    const sec = document.getElementById(def.id);
+    const isVisible = sec && sec.style.display !== 'none';
+    if (isVisible && !deletedSections.includes(def.key)) {
+      channelLinks.push({ href: `#${def.id}`, label: `Channel: ${def.name}` });
+    }
+  });
+
+  // Dynamic keys (YouTube, Google, etc.)
+  const tables = BudgetStore.data.strategyTables || {};
+  Object.keys(tables).forEach(key => {
+    if (!defaultKeys.some(d => d.key === key) && !deletedSections.includes(key) && Array.isArray(tables[key]) && tables[key].length > 0) {
+      const sec = document.getElementById(`channel-${key}`);
+      const isVisible = sec && sec.style.display !== 'none';
+      if (isVisible) {
+        const rawName = key === 'youtube' ? 'YouTube' : key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        channelLinks.push({ href: `#channel-${key}`, label: `Channel: ${rawName}` });
       }
     }
   });
@@ -1355,6 +1438,8 @@ function renderSidebarOutline() {
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        nav.querySelectorAll('.outline-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
       }
     });
   });
@@ -1600,6 +1685,20 @@ function attachStrategyTableListeners() {
       if (!APP_STATE.isEditMode) return;
       e.stopPropagation();
       openDropdownMenu(trigger);
+    });
+  });
+
+  // Strategy table delete section buttons
+  document.querySelectorAll('.btn-delete-section').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const stratKey = btn.getAttribute('data-strat-key');
+      const platformName = btn.getAttribute('data-platform-name');
+      openConfirmSectionDeleteModal({
+        platformName,
+        stratKey,
+        isDirectSectionDelete: true
+      });
     });
   });
 }
@@ -1974,6 +2073,88 @@ function initAddLineItemModal() {
       // Smooth scroll to table
       const tableEl = document.getElementById('budget-breakdown');
       if (tableEl) tableEl.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+}
+
+/* ==========================================================================
+   Confirm Delete Section Modal Controller
+   ========================================================================== */
+
+let pendingSectionDeletion = null;
+
+function openConfirmSectionDeleteModal(options) {
+  const modal = document.getElementById('confirmDeleteSectionModal');
+  if (!modal) return;
+
+  pendingSectionDeletion = options;
+  const titleEl = document.getElementById('confirmDeleteSectionTitle');
+  const subtitleEl = document.getElementById('confirmDeleteSectionSubtitle');
+  const bodyEl = document.getElementById('confirmDeleteSectionBody');
+  const keepBtn = document.getElementById('btnKeepSectionOnly');
+
+  const { platformName, stratKey, marketName, isDirectSectionDelete } = options;
+
+  if (isDirectSectionDelete) {
+    if (titleEl) titleEl.textContent = `Delete Channel Strategy Section?`;
+    if (subtitleEl) subtitleEl.textContent = `Channel Strategy: ${platformName}`;
+    if (bodyEl) bodyEl.innerHTML = `Are you sure you want to remove the entire <strong>Channel Strategy: ${platformName}</strong> section and its targeting table from the document?`;
+    if (keepBtn) keepBtn.style.display = 'none';
+  } else {
+    if (titleEl) titleEl.textContent = `Delete Channel Strategy Section?`;
+    if (subtitleEl) subtitleEl.textContent = `Removed last ${platformName} placement (${marketName || 'Market'})`;
+    if (bodyEl) bodyEl.innerHTML = `You removed the last <strong>${platformName}</strong> placement from the budget. Do you also want to remove the entire <strong>Channel Strategy: ${platformName}</strong> section from the plan?`;
+    if (keepBtn) keepBtn.style.display = 'inline-flex';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeConfirmSectionDeleteModal() {
+  const modal = document.getElementById('confirmDeleteSectionModal');
+  if (modal) modal.style.display = 'none';
+  pendingSectionDeletion = null;
+}
+
+function initSectionDeleteConfirmModal() {
+  const modal = document.getElementById('confirmDeleteSectionModal');
+  const confirmBtn = document.getElementById('btnConfirmDeleteSection');
+  const keepBtn = document.getElementById('btnKeepSectionOnly');
+  const cancelBtn = document.getElementById('cancelDeleteSectionBtn');
+  const closeBtn = document.getElementById('closeConfirmDeleteSectionModalBtn');
+
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+      if (!pendingSectionDeletion) return;
+      const { marketId, channelId, stratKey, platformName } = pendingSectionDeletion;
+
+      if (marketId && channelId) {
+        BudgetStore.executeDeleteChannel(marketId, channelId);
+      }
+      BudgetStore.deleteChannelStrategySection(stratKey, platformName);
+      closeConfirmSectionDeleteModal();
+    });
+  }
+
+  if (keepBtn) {
+    keepBtn.addEventListener('click', () => {
+      if (!pendingSectionDeletion) return;
+      const { marketId, channelId, platformName } = pendingSectionDeletion;
+
+      if (marketId && channelId) {
+        BudgetStore.executeDeleteChannel(marketId, channelId);
+        showToast(`Removed line item: ${platformName} (kept strategy section)`);
+      }
+      closeConfirmSectionDeleteModal();
+    });
+  }
+
+  if (cancelBtn) cancelBtn.addEventListener('click', closeConfirmSectionDeleteModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeConfirmSectionDeleteModal);
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeConfirmSectionDeleteModal();
     });
   }
 }
@@ -2392,6 +2573,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAll();
   initDropdownManager();
   initAddLineItemModal();
+  initSectionDeleteConfirmModal();
   initPresetsAndExport();
   initDeckFilterTabs();
   initAuthManager();

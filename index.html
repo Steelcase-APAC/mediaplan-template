@@ -666,6 +666,32 @@
     </div>
   </div>
 
+  <!-- Modal: Confirm Delete Channel Strategy Section -->
+  <div id="confirmDeleteSectionModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card modal-confirm">
+      <div class="modal-header" style="display: flex; align-items: flex-start; gap: 12px;">
+        <div class="confirm-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"></path></svg>
+        </div>
+        <div style="flex: 1;">
+          <h3 class="modal-card-title" id="confirmDeleteSectionTitle" style="font-size: 16px; margin-bottom: 3px;">Delete Channel Strategy Section?</h3>
+          <p class="modal-subtitle" id="confirmDeleteSectionSubtitle" style="font-size: 12.5px;">You removed the last placement for this channel.</p>
+        </div>
+        <button type="button" id="closeConfirmDeleteSectionModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 14px 20px 6px;">
+        <p id="confirmDeleteSectionBody" style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+          Do you also want to remove the entire <strong>Channel Strategy: Pinterest</strong> section and its targeting table from the plan?
+        </p>
+      </div>
+      <div class="modal-footer" style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; padding: 14px 20px;">
+        <button type="button" id="cancelDeleteSectionBtn" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btnKeepSectionOnly" class="btn btn-secondary" style="font-size: 12px;">Keep Section (Delete Row Only)</button>
+        <button type="button" id="btnConfirmDeleteSection" class="btn btn-danger" style="background: #ef4444; color: #ffffff; border: 1px solid #dc2626; font-weight: 700;">Yes, Delete Section</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Custom Floating Dropdown Menu Component -->
   <div id="customDropdownPopup" class="custom-dropdown-popup" style="display: none;">
     <div class="dropdown-header">
