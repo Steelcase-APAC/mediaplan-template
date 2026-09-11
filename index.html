@@ -19,10 +19,7 @@
           <span class="brand-dot"></span>
           <span class="brand-name">Steelcase</span>
         </div>
-        <span class="crumb-separator">/</span>
-        <span class="crumb-folder">Media Proposals</span>
-        <span class="crumb-separator">/</span>
-        <span class="crumb-current" id="navPathDisplay">go.steelcase.com/july2026_mediaplan</span>
+        <span class="brand-subtitle font-semibold">Media Proposals</span>
       </div>
 
       <div class="nav-actions">
@@ -33,7 +30,7 @@
             <span>Plan Mode</span>
           </button>
           <button id="modePresentBtn" class="mode-pill" title="Presentation View: Clean executive view">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             <span>Present</span>
           </button>
         </div>
@@ -48,18 +45,14 @@
           </select>
         </div>
 
-        <!-- Add Line Item Primary Action -->
+        <!-- Add Line Item Primary Action (Single clean +) -->
         <button id="openAddLineItemModalBtn" class="btn btn-action-add btn-sm" title="Add a new marketing line item">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>+ Add Line Item</span>
+          <span>Add Line Item</span>
         </button>
 
-        <!-- Export & Reset Menu -->
+        <!-- Export & Reset Menu (CSV & Reset only) -->
         <div class="export-btn-group">
-          <button id="exportJsonBtn" class="btn btn-secondary btn-sm" title="Export budget plan as JSON">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            <span>JSON</span>
-          </button>
           <button id="exportCsvBtn" class="btn btn-secondary btn-sm" title="Export budget plan as CSV spreadsheet">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <span>CSV</span>
@@ -69,22 +62,10 @@
           </button>
         </div>
 
-        <!-- Google Sheet External Reference -->
-        <a href="https://docs.google.com/spreadsheets/d/10WFT3wfGnfo-2t_cMRrvIaEwQDoJPiLPdIIrHrtFF68/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View reference Google Sheet">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-          <span>Sheet V1</span>
-        </a>
-
         <!-- Print/PDF Button -->
         <button id="printBtn" class="btn btn-secondary btn-sm" title="Print or save proposal as PDF">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
           <span>Print</span>
-        </button>
-
-        <!-- Theme Switcher -->
-        <button id="themeToggle" class="btn btn-icon" aria-label="Toggle dark/light mode" title="Toggle theme">
-          <svg class="sun-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-          <svg class="moon-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </button>
 
         <!-- Optional User Account Pill -->
@@ -110,9 +91,9 @@
       <div class="sidebar-header">
         <span class="sidebar-title">PLAN NAVIGATION</span>
       </div>
-      <nav class="outline-nav">
+      <nav class="outline-nav" id="sidebarOutlineNav">
         <a href="#overview-deck" class="outline-link active">Executive Overview</a>
-        <a href="#budget-v2" class="outline-link">Budget Breakdown V2</a>
+        <a href="#budget-breakdown" class="outline-link">Budget Breakdown</a>
         <a href="#channel-linkedin" class="outline-link">Channel: LinkedIn</a>
         <a href="#channel-meta" class="outline-link">Channel: Meta | Instagram</a>
         <a href="#channel-pinterest" class="outline-link">Channel: Pinterest</a>
@@ -236,18 +217,15 @@
         </div>
       </section>
 
-      <!-- Section: Budget Breakdown V2 (Reactive Table) -->
-      <section id="budget-v2" class="content-section">
+      <!-- Section: Budget Breakdown (Reactive Table) -->
+      <section id="budget-breakdown" class="content-section">
         <div class="section-header">
           <div class="section-title-wrap">
-            <h2 class="section-title">Budget Breakdown V2</h2>
-            <a href="https://docs.google.com/spreadsheets/d/10WFT3wfGnfo-2t_cMRrvIaEwQDoJPiLPdIIrHrtFF68/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="sheet-link">
-              view Budget sheet V1 ↗
-            </a>
+            <h2 class="section-title">Budget Breakdown</h2>
           </div>
           <div class="table-actions-header">
             <p class="section-subtitle">
-              Consolidated market and channel allocations with full flight distribution. Click any budget cell to edit; auto-sums and percentages update live.
+              Consolidated market and channel allocations with full 12-month flight distribution. Click any budget cell to edit; auto-sums and percentages update live.
             </p>
             <div class="table-top-controls">
               <!-- Market Filter Pills -->
@@ -257,7 +235,7 @@
               <!-- Add Line Item button in section header -->
               <button id="addLineItemTableTopBtn" class="btn btn-action-add btn-sm" title="Add a new marketing line item">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>+ Add Line Item</span>
+                <span>Add Line Item</span>
               </button>
             </div>
           </div>
@@ -268,18 +246,25 @@
           <table class="proposal-table" id="mainBudgetTable">
             <thead>
               <tr>
-                <th style="min-width: 155px;">Market / Country</th>
-                <th style="min-width: 155px;">Platforms</th>
-                <th style="min-width: 160px;">Objective</th>
-                <th style="min-width: 250px;">Audience Type</th>
-                <th style="min-width: 175px;">Idea / Offer</th>
-                <th style="min-width: 95px;" class="text-right">Budget %</th>
-                <th style="min-width: 130px;" class="text-right">Budget (USD)</th>
-                <th style="min-width: 100px;" class="text-right">July</th>
-                <th style="min-width: 100px;" class="text-right">August</th>
-                <th style="min-width: 105px;" class="text-right">September</th>
-                <th style="min-width: 95px;" class="text-right">October</th>
-                <th style="min-width: 95px;" class="text-right">November</th>
+                <th style="min-width: 150px;">Market / Country</th>
+                <th style="min-width: 170px;">Platforms</th>
+                <th style="min-width: 150px;">Objective</th>
+                <th style="min-width: 220px;">Audience Type</th>
+                <th style="min-width: 160px;">Idea / Offer</th>
+                <th style="min-width: 85px;" class="text-right">Budget %</th>
+                <th style="min-width: 120px;" class="text-right">Budget (USD)</th>
+                <th style="min-width: 85px;" class="text-right">Jan</th>
+                <th style="min-width: 85px;" class="text-right">Feb</th>
+                <th style="min-width: 85px;" class="text-right">Mar</th>
+                <th style="min-width: 85px;" class="text-right">Apr</th>
+                <th style="min-width: 85px;" class="text-right">May</th>
+                <th style="min-width: 85px;" class="text-right">Jun</th>
+                <th style="min-width: 85px;" class="text-right">Jul</th>
+                <th style="min-width: 85px;" class="text-right">Aug</th>
+                <th style="min-width: 85px;" class="text-right">Sep</th>
+                <th style="min-width: 85px;" class="text-right">Oct</th>
+                <th style="min-width: 85px;" class="text-right">Nov</th>
+                <th style="min-width: 85px;" class="text-right">Dec</th>
                 <th style="width: 44px;" class="table-action-col text-center"></th>
               </tr>
             </thead>
@@ -296,7 +281,7 @@
         <div class="table-bottom-actions">
           <button id="addLineItemTableBottomBtn" class="btn btn-action-add full-width-sm" title="Add a new marketing line item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>+ Add New Line Item</span>
+            <span>Add Line Item</span>
           </button>
         </div>
       </section>
@@ -533,15 +518,44 @@
             </div>
           </div>
 
-          <!-- Timeline / Active Months -->
+          <!-- Timeline / Active Flight Months (All 12 Months + Dropdown) -->
           <div class="form-group">
-            <label>Timeline (Active Flight Months)</label>
-            <div class="month-selector-pills" id="monthSelectorPills">
-              <button type="button" class="month-pill active" data-month="july">July</button>
-              <button type="button" class="month-pill active" data-month="august">August</button>
-              <button type="button" class="month-pill" data-month="september">September</button>
-              <button type="button" class="month-pill" data-month="october">October</button>
-              <button type="button" class="month-pill" data-month="november">November</button>
+            <label for="monthFlightPresetSelect">Timeline (Active Flight Months)</label>
+            <select id="monthFlightPresetSelect" class="form-input" style="margin-bottom: 8px; font-weight: 500;">
+              <option value="all12">All 12 Months (Full Year: Jan – Dec)</option>
+              <option value="q1">Q1: Jan – Mar</option>
+              <option value="q2">Q2: Apr – Jun</option>
+              <option value="q3" selected>Q3: Jul – Sep (Standard)</option>
+              <option value="q4">Q4: Oct – Dec</option>
+              <option value="h1">H1: Jan – Jun</option>
+              <option value="h2">H2: Jul – Dec</option>
+              <option value="january">January Only</option>
+              <option value="february">February Only</option>
+              <option value="march">March Only</option>
+              <option value="april">April Only</option>
+              <option value="may">May Only</option>
+              <option value="june">June Only</option>
+              <option value="july">July Only</option>
+              <option value="august">August Only</option>
+              <option value="september">September Only</option>
+              <option value="october">October Only</option>
+              <option value="november">November Only</option>
+              <option value="december">December Only</option>
+              <option value="custom">Custom Selection (Click pills below)</option>
+            </select>
+            <div class="month-selector-pills month-grid-12" id="monthSelectorPills">
+              <button type="button" class="month-pill" data-month="january">Jan</button>
+              <button type="button" class="month-pill" data-month="february">Feb</button>
+              <button type="button" class="month-pill" data-month="march">Mar</button>
+              <button type="button" class="month-pill" data-month="april">Apr</button>
+              <button type="button" class="month-pill" data-month="may">May</button>
+              <button type="button" class="month-pill" data-month="june">Jun</button>
+              <button type="button" class="month-pill active" data-month="july">Jul</button>
+              <button type="button" class="month-pill active" data-month="august">Aug</button>
+              <button type="button" class="month-pill active" data-month="september">Sep</button>
+              <button type="button" class="month-pill" data-month="october">Oct</button>
+              <button type="button" class="month-pill" data-month="november">Nov</button>
+              <button type="button" class="month-pill" data-month="december">Dec</button>
             </div>
           </div>
         </div>
