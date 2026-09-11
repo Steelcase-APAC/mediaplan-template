@@ -1254,6 +1254,15 @@ body.theme-night .moon-icon { display: block; }
   line-height: 1.5;
 }
 
+.proposal-table th.table-action-col,
+.proposal-table td.table-action-col {
+  width: 38px;
+  min-width: 38px;
+  max-width: 44px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
 .proposal-table tr:hover td {
   background-color: rgba(0, 150, 167, 0.025);
 }

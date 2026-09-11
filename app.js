@@ -1469,6 +1469,7 @@ function renderStrategyTables() {
             <table class="proposal-table" id="strategyTable_${key}">
               <thead>
                 <tr>
+                  <th style="width: 38px;" class="table-action-col text-center"></th>
                   <th style="min-width: 100px;">Market</th>
                   <th style="min-width: 180px;">Audience</th>
                   <th style="min-width: 95px;">Priority</th>
@@ -1479,7 +1480,6 @@ function renderStrategyTables() {
                   <th style="min-width: 110px;">Expected CPC</th>
                   <th style="min-width: 115px;">Expected CPL*</th>
                   <th style="min-width: 120px;" class="text-right">Budget Split</th>
-                  <th style="width: 38px;" class="table-action-col text-center"></th>
                 </tr>
               </thead>
               <tbody id="strategyBody_${key}"></tbody>
@@ -1574,6 +1574,9 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
     const prioClass = (row.priority || 'medium').toLowerCase();
 
     tr.innerHTML = `
+      <td class="text-center table-action-col" style="width: 38px;">
+        <button type="button" class="btn-minus-strategy-line edit-mode-only" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" title="Delete this line item">-</button>
+      </td>
       <td class="cell-market font-bold">
         <span class="market-tag tag-${countryCode} dropdown-trigger" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="market" data-dropdown-group="markets" title="Click to change market">
           ${row.market}
@@ -1609,9 +1612,6 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
       </td>
       <td class="text-right font-mono font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="split">
         ${row.split}
-      </td>
-      <td class="text-center table-action-col">
-        <button type="button" class="btn-minus-strategy-line edit-mode-only" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" title="Delete this line item">-</button>
       </td>
     `;
 
