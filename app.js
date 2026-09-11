@@ -373,56 +373,130 @@ const BudgetStore = {
     };
   },
 
-  // Market & Channel Mutations
-  addCountry(name, initialPlatform = "LinkedIn LeadGen", initialBudget = 10000, flightMode = "3months") {
-    const code = name.toLowerCase().slice(0, 2);
-    const id = `mkt_${Date.now()}`;
-    const budget = Number(initialBudget) || 10000;
+  // Line Item & Market Mutations
+  addLineItem({ country, channel, totalBudget, activeMonths, objective, audienceType, offer }) {
+    const cleanCountry = (country || 'New Market').trim();
+    const cleanChannel = (channel || 'LinkedIn LeadGen').trim();
+    const totalB = Math.max(0, Math.round(Number(totalBudget) || 0));
+    const cleanObjective = (objective || 'Lead Generation').trim();
+    const cleanAudience = (audienceType || 'Enterprise Decision Makers & Strategists').trim();
+    const cleanOffer = (offer || 'Work Better Magazine').trim();
 
-    let months = { july: 0, august: 0, september: 0, october: 0, november: 0 };
-    if (flightMode === "3months") {
-      const split = Math.round(budget / 3);
-      months.july = split;
-      months.august = split;
-      months.september = budget - (split * 2);
-    } else if (flightMode === "5months") {
-      const split = Math.round(budget / 5);
-      months.july = split;
-      months.august = split;
-      months.september = split;
-      months.october = split;
-      months.november = budget - (split * 4);
-    } else if (flightMode === "frontload") {
-      months.july = Math.round(budget * 0.5);
-      months.august = Math.round(budget * 0.25);
-      months.september = budget - months.july - months.august;
+    // 1. Resolve or create market
+    let market = this.data.markets.find(m => m.name.toLowerCase() === cleanCountry.toLowerCase());
+    if (!market) {
+      const code = cleanCountry.toLowerCase().slice(0, 2);
+      market = {
+        id: `mkt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        name: cleanCountry,
+        code,
+        channels: []
+      };
+      this.data.markets.push(market);
     }
 
-    const newMarket = {
-      id,
-      name,
-      code,
-      channels: [
-        {
-          id: `ch_${Date.now()}`,
-          platform: initialPlatform,
-          objective: "Lead Generation",
-          audienceType: "Enterprise Decision Makers & Strategists",
-          offer: "Work Better Magazine",
-          budgetUSD: budget,
-          months
-        }
-      ]
+    // 2. Resolve active months and evenly divide budget
+    const monthKeys = ['july', 'august', 'september', 'october', 'november'];
+    let validActiveMonths = (Array.isArray(activeMonths) && activeMonths.length > 0)
+      ? activeMonths.filter(m => monthKeys.includes(m))
+      : ['july', 'august'];
+
+    if (validActiveMonths.length === 0) validActiveMonths = ['july', 'august'];
+
+    const splitEach = Math.floor(totalB / validActiveMonths.length);
+    const remainder = totalB - (splitEach * validActiveMonths.length);
+
+    const months = { july: 0, august: 0, september: 0, october: 0, november: 0 };
+    validActiveMonths.forEach((m, idx) => {
+      months[m] = splitEach + (idx === 0 ? remainder : 0);
+    });
+
+    // 3. Create channel placement
+    const newChannel = {
+      id: `ch_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      platform: cleanChannel,
+      objective: cleanObjective,
+      audienceType: cleanAudience,
+      offer: cleanOffer,
+      budgetUSD: totalB,
+      activeMonths: [...validActiveMonths],
+      months
     };
 
-    this.data.markets.push(newMarket);
-    if (!this.data.dropdownOptions.markets.includes(name)) {
-      this.data.dropdownOptions.markets.push(name);
+    market.channels.push(newChannel);
+
+    // 4. Synchronize into Strategy Table deep-dive
+    const pLower = cleanChannel.toLowerCase();
+    let stratKey = 'linkedin';
+    if (pLower.includes('linkedin')) stratKey = 'linkedin';
+    else if (pLower.includes('meta') || pLower.includes('ig') || pLower.includes('instagram')) stratKey = 'meta';
+    else if (pLower.includes('pinterest')) stratKey = 'pinterest';
+    else if (pLower.includes('wechat')) stratKey = 'wechat';
+    else {
+      stratKey = pLower.replace(/[^a-z0-9]/g, '_');
+    }
+
+    if (!this.data.strategyTables) this.data.strategyTables = {};
+    if (!this.data.strategyTables[stratKey]) {
+      this.data.strategyTables[stratKey] = [];
+    }
+
+    let cpcEstimate = "USD 4–8";
+    let cplEstimate = "USD 45–85";
+    if (pLower.includes('meta')) { cpcEstimate = "USD 0.80–2.00"; cplEstimate = "USD 12–25"; }
+    else if (pLower.includes('pinterest')) { cpcEstimate = "USD 0.25–0.70"; cplEstimate = "USD 25–55"; }
+    else if (pLower.includes('wechat')) { cpcEstimate = "USD 0.20–0.80"; cplEstimate = "USD 10–25"; }
+    else if (pLower.includes('google')) { cpcEstimate = "USD 2.50–5.50"; cplEstimate = "USD 40–80"; }
+
+    const newStrategyRow = {
+      market: cleanCountry,
+      audience: cleanAudience,
+      priority: "High",
+      purpose: `Drive ${cleanObjective} and acquisition for ${cleanOffer}`,
+      targeting: cleanAudience,
+      exclusions: "Competitors, junior admin roles, unrelated consumer queries",
+      offer: cleanOffer,
+      cpc: cpcEstimate,
+      cpl: cplEstimate,
+      split: "100%"
+    };
+
+    this.data.strategyTables[stratKey].push(newStrategyRow);
+
+    // 5. Ensure dropdown options have new country and platform
+    if (!this.data.dropdownOptions.markets.includes(cleanCountry)) {
+      this.data.dropdownOptions.markets.push(cleanCountry);
+    }
+    if (!this.data.dropdownOptions.platforms.includes(cleanChannel)) {
+      this.data.dropdownOptions.platforms.push(cleanChannel);
     }
 
     this.save();
     renderAll();
-    showToast(`Added ${name} with $${formatNumber(budget)} budget`);
+    showToast(`Added line item: ${cleanCountry} · ${cleanChannel} ($${formatNumber(totalB)})`);
+  },
+
+  // Backwards compatibility wrappers
+  addCountry(name, initialPlatform = "LinkedIn LeadGen", initialBudget = 10000, flightMode = "3months") {
+    let activeMonths = ['july', 'august', 'september'];
+    if (flightMode === "5months") activeMonths = ['july', 'august', 'september', 'october', 'november'];
+    this.addLineItem({
+      country: name,
+      channel: initialPlatform,
+      totalBudget: initialBudget,
+      activeMonths
+    });
+  },
+
+  addChannel(marketId, platform = "Meta / IG", budgetUSD = 5000) {
+    const market = this.data.markets.find(m => m.id === marketId);
+    if (!market) return;
+    this.addLineItem({
+      country: market.name,
+      channel: platform,
+      totalBudget: budgetUSD,
+      activeMonths: ['july', 'august', 'september']
+    });
   },
 
   deleteCountry(marketId) {
@@ -436,35 +510,12 @@ const BudgetStore = {
     }
   },
 
-  addChannel(marketId, platform = "Meta / IG", budgetUSD = 5000) {
-    const market = this.data.markets.find(m => m.id === marketId);
-    if (!market) return;
-
-    const b = Number(budgetUSD) || 5000;
-    const split = Math.round(b / 3);
-
-    const newChannel = {
-      id: `ch_${Date.now()}`,
-      platform,
-      objective: "Lead Generation",
-      audienceType: "Targeted Audience Segment",
-      offer: "Work Better Magazine",
-      budgetUSD: b,
-      months: { july: split, august: split, september: b - (split * 2), october: 0, november: 0 }
-    };
-
-    market.channels.push(newChannel);
-    this.save();
-    renderAll();
-    showToast(`Added ${platform} to ${market.name}`);
-  },
-
   deleteChannel(marketId, channelId) {
     const market = this.data.markets.find(m => m.id === marketId);
     if (!market) return;
 
     if (market.channels.length <= 1) {
-      if (confirm(`Deleting this last channel will also remove the market "${market.name}". Continue?`)) {
+      if (confirm(`Deleting this last line item will also remove the country "${market.name}". Continue?`)) {
         this.deleteCountry(marketId);
       }
       return;
@@ -476,7 +527,7 @@ const BudgetStore = {
       market.channels.splice(idx, 1);
       this.save();
       renderAll();
-      showToast(`Removed channel placement: ${chName}`);
+      showToast(`Removed line item: ${chName}`);
     }
   },
 
@@ -486,37 +537,73 @@ const BudgetStore = {
     const channel = market.channels.find(ch => ch.id === channelId);
     if (!channel) return;
 
-    if (fieldPath === 'budgetUSD') {
-      const num = parseNumericInput(rawValue);
-      const oldTotal = channel.budgetUSD || 1;
-      channel.budgetUSD = num;
+    const monthKeys = ['july', 'august', 'september', 'october', 'november'];
 
-      // Proportionally adjust active months
-      if (channel.months) {
-        const ratio = oldTotal > 0 ? num / oldTotal : 1;
-        let runningSum = 0;
-        const keys = Object.keys(channel.months);
-        keys.forEach((m, idx) => {
-          if (idx === keys.length - 1) {
-            channel.months[m] = Math.max(0, num - runningSum);
-          } else {
-            channel.months[m] = Math.round((channel.months[m] || 0) * ratio);
-            runningSum += channel.months[m];
-          }
+    // Ensure activeMonths is defined
+    if (!channel.activeMonths || !Array.isArray(channel.activeMonths) || channel.activeMonths.length === 0) {
+      channel.activeMonths = monthKeys.filter(m => (channel.months && (Number(channel.months[m]) || 0) > 0));
+      if (channel.activeMonths.length === 0) channel.activeMonths = ['july', 'august'];
+    }
+
+    if (fieldPath === 'budgetUSD') {
+      // Direct total budget edit: re-divide evenly across active months
+      const newTotal = parseNumericInput(rawValue);
+      channel.budgetUSD = newTotal;
+      const activeCount = channel.activeMonths.length;
+      const split = Math.floor(newTotal / activeCount);
+      const remainder = newTotal - (split * activeCount);
+
+      if (!channel.months) channel.months = {};
+      monthKeys.forEach(m => {
+        if (channel.activeMonths.includes(m)) {
+          const idx = channel.activeMonths.indexOf(m);
+          channel.months[m] = split + (idx === 0 ? remainder : 0);
+        } else {
+          channel.months[m] = 0;
+        }
+      });
+    } else if (fieldPath.startsWith('months.')) {
+      // Fixed total budget: zero-sum auto-balancing across remaining active months
+      const monthKey = fieldPath.split('.')[1];
+      const newVal = Math.max(0, parseNumericInput(rawValue));
+
+      if (!channel.months) channel.months = { july: 0, august: 0, september: 0, october: 0, november: 0 };
+
+      if (!channel.activeMonths.includes(monthKey)) {
+        channel.activeMonths.push(monthKey);
+      }
+
+      const otherActiveMonths = channel.activeMonths.filter(m => m !== monthKey);
+      const total = Number(channel.budgetUSD) || 0;
+
+      if (otherActiveMonths.length === 0) {
+        channel.budgetUSD = newVal;
+        channel.months[monthKey] = newVal;
+      } else if (newVal >= total) {
+        channel.months[monthKey] = newVal;
+        otherActiveMonths.forEach(m => {
+          channel.months[m] = 0;
+        });
+        if (newVal > total) {
+          channel.budgetUSD = newVal;
+        }
+      } else {
+        channel.months[monthKey] = newVal;
+        const remaining = total - newVal;
+        const split = Math.floor(remaining / otherActiveMonths.length);
+        const remainder = remaining - (split * otherActiveMonths.length);
+
+        otherActiveMonths.forEach((m, idx) => {
+          channel.months[m] = split + (idx === 0 ? remainder : 0);
         });
       }
-    } else if (fieldPath.startsWith('months.')) {
-      const monthKey = fieldPath.split('.')[1];
-      const num = parseNumericInput(rawValue);
-      if (!channel.months) channel.months = {};
-      channel.months[monthKey] = num;
 
-      // Auto-sum months to total channel budget
-      let sum = 0;
-      Object.keys(channel.months).forEach(m => {
-        sum += Number(channel.months[m]) || 0;
+      // Inactive months remain 0
+      monthKeys.forEach(m => {
+        if (!channel.activeMonths.includes(m)) {
+          channel.months[m] = 0;
+        }
       });
-      channel.budgetUSD = sum;
     } else {
       channel[fieldPath] = rawValue;
     }
@@ -803,8 +890,8 @@ function renderMainBudgetTable() {
                 Subtotal: $${formatNumber(market.totalBudget)}
               </span>
               <div class="market-actions-wrap" style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
-                <button type="button" class="btn-add-channel" data-action="add-channel" data-market-id="${market.id}" title="Add another channel placement to ${market.name}">
-                  + Channel
+                <button type="button" class="btn-add-channel" data-action="add-line-item-market" data-market-name="${market.name}" title="Add a line item to ${market.name}">
+                  + Line Item
                 </button>
                 <button type="button" class="btn-delete-market" data-action="delete-market" data-market-id="${market.id}" title="Delete entire ${market.name} market section">
                   Delete
@@ -923,6 +1010,58 @@ function renderStrategyTables() {
   renderSingleStrategyTable('strategyBodyMeta', tables.meta, 'meta');
   renderSingleStrategyTable('strategyBodyPinterest', tables.pinterest, 'pinterest');
   renderSingleStrategyTable('strategyBodyWeChat', tables.wechat, 'wechat');
+
+  // Dynamically render deep-dive sections for any custom platforms
+  const dynamicContainer = document.getElementById('dynamicStrategySections');
+  if (dynamicContainer) {
+    dynamicContainer.innerHTML = '';
+    const standardKeys = ['linkedin', 'meta', 'pinterest', 'wechat'];
+    Object.keys(tables).forEach(key => {
+      if (!standardKeys.includes(key) && Array.isArray(tables[key]) && tables[key].length > 0) {
+        const rows = tables[key];
+        const rawName = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const platClass = getPlatformBadgeClass(rawName);
+
+        const section = document.createElement('section');
+        section.id = `channel-${key}`;
+        section.className = 'content-section';
+        section.innerHTML = `
+          <div class="section-header">
+            <div class="channel-badge-header">
+              <span class="platform-badge ${platClass} large">${rawName}</span>
+            </div>
+            <h2 class="section-title">Channel Strategy: ${rawName}</h2>
+            <p class="section-subtitle">
+              Tactical segmentation, targeting criteria, and lead acquisition strategy for ${rawName}.
+            </p>
+          </div>
+          <div class="table-container">
+            <table class="proposal-table" id="strategyTable_${key}">
+              <thead>
+                <tr>
+                  <th style="min-width: 100px;">Market</th>
+                  <th style="min-width: 180px;">Audience</th>
+                  <th style="min-width: 95px;">Priority</th>
+                  <th style="min-width: 210px;">Audience Purpose</th>
+                  <th style="min-width: 260px;">Targeting</th>
+                  <th style="min-width: 210px;">Exclusions</th>
+                  <th style="min-width: 160px;">Offer / CTA</th>
+                  <th style="min-width: 110px;">Expected CPC</th>
+                  <th style="min-width: 115px;">Expected CPL*</th>
+                  <th style="min-width: 120px;" class="text-right">Budget Split</th>
+                </tr>
+              </thead>
+              <tbody id="strategyBody_${key}"></tbody>
+            </table>
+          </div>
+        `;
+        dynamicContainer.appendChild(section);
+        renderSingleStrategyTable(`strategyBody_${key}`, rows, key);
+      }
+    });
+  }
+
+  attachStrategyTableListeners();
 }
 
 function renderSingleStrategyTable(tbodyId, rows, tableKey) {
@@ -1002,7 +1141,7 @@ function renderMetaText() {
    ========================================================================== */
 
 function attachBudgetTableListeners() {
-  // 1. Action buttons (+ Channel, Delete Market, Delete Channel)
+  // 1. Action buttons (+ Line Item, Delete Market, Delete Line Item)
   document.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1010,10 +1149,20 @@ function attachBudgetTableListeners() {
       const marketId = btn.getAttribute('data-market-id');
       const channelId = btn.getAttribute('data-channel-id');
 
-      if (action === 'add-channel') {
-        BudgetStore.addChannel(marketId);
+      if (action === 'add-line-item-market') {
+        const marketName = btn.getAttribute('data-market-name');
+        if (window.openAddLineItemModal) {
+          window.openAddLineItemModal(marketName);
+        }
+      } else if (action === 'add-channel') {
+        const marketName = btn.getAttribute('data-market-name');
+        if (window.openAddLineItemModal) {
+          window.openAddLineItemModal(marketName);
+        } else {
+          BudgetStore.addChannel(marketId);
+        }
       } else if (action === 'delete-market') {
-        if (confirm('Delete this country and all its channels from the plan?')) {
+        if (confirm('Delete this country and all its line items from the plan?')) {
           BudgetStore.deleteCountry(marketId);
         }
       } else if (action === 'delete-channel') {
@@ -1104,7 +1253,18 @@ function attachBudgetTableListeners() {
     });
   });
 
-  // 4. Strategy table field edits
+  // 4. Dropdown triggers in Budget Table
+  document.querySelectorAll('#mainBudgetTableBody .dropdown-trigger').forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      if (!APP_STATE.isEditMode) return;
+      e.stopPropagation();
+      openDropdownMenu(trigger);
+    });
+  });
+}
+
+function attachStrategyTableListeners() {
+  // Strategy table field edits
   document.querySelectorAll('.editable-field[data-strategy-table]').forEach(cell => {
     cell.addEventListener('click', () => {
       if (!APP_STATE.isEditMode) return;
@@ -1120,9 +1280,11 @@ function attachBudgetTableListeners() {
       function commit() {
         cell.contentEditable = 'false';
         const newVal = cell.textContent.trim();
-        BudgetStore.data.strategyTables[tableKey][idx][field] = newVal;
-        BudgetStore.save();
-        renderStrategyTables();
+        if (BudgetStore.data.strategyTables[tableKey] && BudgetStore.data.strategyTables[tableKey][idx]) {
+          BudgetStore.data.strategyTables[tableKey][idx][field] = newVal;
+          BudgetStore.save();
+          renderStrategyTables();
+        }
         cell.removeEventListener('blur', commit);
       }
 
@@ -1136,8 +1298,8 @@ function attachBudgetTableListeners() {
     });
   });
 
-  // 5. Dropdown triggers
-  document.querySelectorAll('.dropdown-trigger').forEach(trigger => {
+  // Strategy table dropdown triggers
+  document.querySelectorAll('.content-section .dropdown-trigger[data-strategy-table]').forEach(trigger => {
     trigger.addEventListener('click', (e) => {
       if (!APP_STATE.isEditMode) return;
       e.stopPropagation();
@@ -1324,35 +1486,63 @@ function initDropdownManager() {
 }
 
 /* ==========================================================================
-   Add Country Modal Manager
+   Add Line Item Modal Manager
    ========================================================================== */
 
-function initAddCountryModal() {
-  const modal = document.getElementById('addCountryModal');
-  const openBtn1 = document.getElementById('openAddCountryModalBtn');
-  const openBtn2 = document.getElementById('addCountryTableTopBtn');
-  const openBtn3 = document.getElementById('addCountryTableBottomBtn');
-  const closeBtn = document.getElementById('closeAddCountryModalBtn');
-  const cancelBtn = document.getElementById('cancelAddCountryBtn');
-  const form = document.getElementById('addCountryForm');
-  const countryInput = document.getElementById('countryNameInput');
-  const platformSelect = document.getElementById('initialPlatformSelect');
-  const budgetInput = document.getElementById('initialBudgetInput');
-  const flightSelect = document.getElementById('initialFlightSelect');
+function initAddLineItemModal() {
+  const modal = document.getElementById('addLineItemModal');
+  const openBtn1 = document.getElementById('openAddLineItemModalBtn');
+  const openBtn2 = document.getElementById('addLineItemTableTopBtn');
+  const openBtn3 = document.getElementById('addLineItemTableBottomBtn');
+  const closeBtn = document.getElementById('closeAddLineItemModalBtn');
+  const cancelBtn = document.getElementById('cancelAddLineItemBtn');
+  const form = document.getElementById('addLineItemForm');
 
-  function openModal() {
+  const countryInput = document.getElementById('lineItemCountryInput');
+  const channelSelect = document.getElementById('lineItemChannelSelect');
+  const budgetInput = document.getElementById('lineItemBudgetInput');
+  const previewText = document.getElementById('budgetCalcPreviewText');
+  const objectiveInput = document.getElementById('lineItemObjectiveInput');
+  const offerInput = document.getElementById('lineItemOfferInput');
+  const audienceInput = document.getElementById('lineItemAudienceInput');
+
+  let activeMonths = ['july', 'august'];
+
+  function updatePreview() {
+    if (!previewText || !budgetInput) return;
+    const b = Math.max(0, Number(budgetInput.value) || 0);
+    const count = activeMonths.length;
+    const perMonth = count > 0 ? Math.round(b / count) : 0;
+    const monthNames = activeMonths.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(', ');
+    previewText.innerHTML = `Evenly divided: <strong>$${formatNumber(perMonth)} / month</strong> across ${count} selected month${count > 1 ? 's' : ''} (${monthNames || 'None selected'})`;
+  }
+
+  function openModal(prefillCountry = '') {
+    if (!modal) return;
     modal.style.display = 'flex';
-    countryInput.value = '';
-    countryInput.focus();
+    if (prefillCountry && countryInput) {
+      countryInput.value = prefillCountry;
+      if (budgetInput) budgetInput.focus();
+    } else {
+      if (countryInput) {
+        countryInput.value = '';
+        countryInput.focus();
+      }
+    }
+    updatePreview();
   }
 
   function closeModal() {
+    if (!modal) return;
     modal.style.display = 'none';
   }
 
-  if (openBtn1) openBtn1.addEventListener('click', openModal);
-  if (openBtn2) openBtn2.addEventListener('click', openModal);
-  if (openBtn3) openBtn3.addEventListener('click', openModal);
+  // Global window hook so table row buttons can trigger modal with prefill
+  window.openAddLineItemModal = openModal;
+
+  if (openBtn1) openBtn1.addEventListener('click', () => openModal());
+  if (openBtn2) openBtn2.addEventListener('click', () => openModal());
+  if (openBtn3) openBtn3.addEventListener('click', () => openModal());
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
@@ -1360,33 +1550,72 @@ function initAddCountryModal() {
     if (e.target === modal) closeModal();
   });
 
+  // Month pills selection
+  document.querySelectorAll('#monthSelectorPills .month-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const month = pill.getAttribute('data-month');
+      if (!month) return;
+
+      if (pill.classList.contains('active')) {
+        // Must have at least 1 month active
+        if (activeMonths.length <= 1) {
+          showToast('At least one flight month must be selected.');
+          return;
+        }
+        pill.classList.remove('active');
+        activeMonths = activeMonths.filter(m => m !== month);
+      } else {
+        pill.classList.add('active');
+        if (!activeMonths.includes(month)) activeMonths.push(month);
+      }
+      updatePreview();
+    });
+  });
+
+  if (budgetInput) {
+    budgetInput.addEventListener('input', updatePreview);
+  }
+
   // Quick suggestion chips
-  document.querySelectorAll('.quick-chip').forEach(chip => {
+  document.querySelectorAll('#addLineItemModal .quick-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const val = chip.getAttribute('data-val');
-      if (val) {
+      if (val && countryInput) {
         countryInput.value = val;
-        budgetInput.focus();
+        if (budgetInput) budgetInput.focus();
       }
     });
   });
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = countryInput.value.trim();
-    const platform = platformSelect.value;
-    const budget = Number(budgetInput.value) || 10000;
-    const flightMode = flightSelect.value;
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const country = countryInput ? countryInput.value.trim() : '';
+      const channel = channelSelect ? channelSelect.value : 'LinkedIn LeadGen';
+      const totalBudget = budgetInput ? (Number(budgetInput.value) || 5000) : 5000;
+      const objective = objectiveInput ? objectiveInput.value.trim() : 'Lead Generation';
+      const audienceType = audienceInput ? audienceInput.value.trim() : 'Enterprise Decision Makers';
+      const offer = offerInput ? offerInput.value.trim() : 'Work Better Magazine';
 
-    if (!name) return;
+      if (!country) return;
 
-    BudgetStore.addCountry(name, platform, budget, flightMode);
-    closeModal();
+      BudgetStore.addLineItem({
+        country,
+        channel,
+        totalBudget,
+        activeMonths: [...activeMonths],
+        objective,
+        audienceType,
+        offer
+      });
 
-    // Smooth scroll to table
-    const tableEl = document.getElementById('budget-v2');
-    if (tableEl) tableEl.scrollIntoView({ behavior: 'smooth' });
-  });
+      closeModal();
+
+      // Smooth scroll to table
+      const tableEl = document.getElementById('budget-v2');
+      if (tableEl) tableEl.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
 }
 
 /* ==========================================================================
@@ -1812,7 +2041,7 @@ document.addEventListener('DOMContentLoaded', () => {
   BudgetStore.init();
   renderAll();
   initDropdownManager();
-  initAddCountryModal();
+  initAddLineItemModal();
   initPresetsAndExport();
   initDeckFilterTabs();
   initAuthManager();

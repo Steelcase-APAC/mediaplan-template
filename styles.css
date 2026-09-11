@@ -1670,13 +1670,96 @@ body.edit-mode-active td.edit-mode-only {
   box-shadow: 0 0 0 3px rgba(0, 150, 167, 0.18);
 }
 
-.form-hint {
-  font-size: 11px;
+.modal-lg {
+  max-width: 680px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.input-prefix-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
   color: var(--text-muted);
 }
 
-.modal-footer {
+.form-input.with-prefix {
+  padding-left: 28px;
+}
+
+.month-selector-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 4px;
+}
+
+.month-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.month-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.month-pill.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 150, 167, 0.2);
+}
+
+.budget-calc-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(0, 150, 167, 0.08), rgba(2, 132, 199, 0.06));
+  border: 1px dashed var(--primary-border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.budget-calc-preview svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.modal-footer {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .btn.full-width {

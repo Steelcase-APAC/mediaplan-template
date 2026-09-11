@@ -48,10 +48,10 @@
           </select>
         </div>
 
-        <!-- Add Country Primary Action -->
-        <button id="openAddCountryModalBtn" class="btn btn-action-add btn-sm" title="Add a new Country/Market to the budget plan">
+        <!-- Add Line Item Primary Action -->
+        <button id="openAddLineItemModalBtn" class="btn btn-action-add btn-sm" title="Add a new marketing line item">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>+ Add Country</span>
+          <span>+ Add Line Item</span>
         </button>
 
         <!-- Export & Reset Menu -->
@@ -254,10 +254,10 @@
               <div class="market-filter-pills" id="marketFilterPills">
                 <button class="filter-pill active" data-mkt-filter="all">All Markets</button>
               </div>
-              <!-- Add Country button in section header -->
-              <button id="addCountryTableTopBtn" class="btn btn-action-add btn-sm" title="Add a new Country/Market">
+              <!-- Add Line Item button in section header -->
+              <button id="addLineItemTableTopBtn" class="btn btn-action-add btn-sm" title="Add a new marketing line item">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>+ Add Country</span>
+                <span>+ Add Line Item</span>
               </button>
             </div>
           </div>
@@ -292,11 +292,11 @@
           </table>
         </div>
 
-        <!-- Bottom Action Bar (Add Country) -->
+        <!-- Bottom Action Bar (Add Line Item) -->
         <div class="table-bottom-actions">
-          <button id="addCountryTableBottomBtn" class="btn btn-action-add full-width-sm" title="Add a new Country block to the table">
+          <button id="addLineItemTableBottomBtn" class="btn btn-action-add full-width-sm" title="Add a new marketing line item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>+ Add New Country / Market Block</span>
+            <span>+ Add New Line Item</span>
           </button>
         </div>
       </section>
@@ -448,6 +448,9 @@
         </div>
       </section>
 
+      <!-- Dynamic Strategy Deep Dive Sections for custom channels (Google Ads, TikTok, etc.) -->
+      <div id="dynamicStrategySections"></div>
+
       <!-- Footer Notes -->
       <footer class="document-footer">
         <div class="footer-card">
@@ -463,74 +466,130 @@
     </main>
   </div>
 
-  <!-- Modal: Add New Country / Market -->
-  <div id="addCountryModal" class="modal-backdrop" style="display: none;">
-    <div class="modal-card">
+  <!-- Modal: Add New Marketing Line Item -->
+  <div id="addLineItemModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card modal-lg">
       <div class="modal-header">
-        <h3 class="modal-card-title">Add Country / Regional Market</h3>
-        <button type="button" id="closeAddCountryModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+        <div>
+          <h3 class="modal-card-title">Add Marketing Line Item</h3>
+          <p class="modal-subtitle">Configure placement, budget, and active flight months. Budget will be evenly divided across selected months and synchronized to both tables.</p>
+        </div>
+        <button type="button" id="closeAddLineItemModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
       </div>
-      <form id="addCountryForm" class="modal-body">
-        <p class="modal-subtitle">Add a new market block to the budget planner. All overview cards and totals will auto-calculate.</p>
-        
-        <div class="form-group">
-          <label for="countryNameInput">Country / Market Name</label>
-          <input type="text" id="countryNameInput" class="form-input" placeholder="e.g. Australia, Japan, United Kingdom, United States" required list="commonCountriesList" autocomplete="off">
-          <datalist id="commonCountriesList">
-            <option value="Australia"></option>
-            <option value="Japan"></option>
-            <option value="United States"></option>
-            <option value="United Kingdom"></option>
-            <option value="Germany"></option>
-            <option value="South Korea"></option>
-            <option value="Hong Kong"></option>
-            <option value="United Arab Emirates"></option>
-            <option value="France"></option>
-            <option value="Canada"></option>
-          </datalist>
-          <!-- Quick country suggestion tags -->
-          <div class="quick-tags-row">
-            <span class="quick-tag-label">Quick select:</span>
-            <button type="button" class="quick-chip" data-val="Australia">Australia</button>
-            <button type="button" class="quick-chip" data-val="Japan">Japan</button>
-            <button type="button" class="quick-chip" data-val="United Kingdom">UK</button>
-            <button type="button" class="quick-chip" data-val="United States">USA</button>
-            <button type="button" class="quick-chip" data-val="Germany">Germany</button>
-            <button type="button" class="quick-chip" data-val="Hong Kong">Hong Kong</button>
+
+      <form id="addLineItemForm" class="modal-body">
+        <div class="form-grid-2">
+          <!-- Country / Market -->
+          <div class="form-group">
+            <label for="lineItemCountryInput">Country / Regional Market</label>
+            <input type="text" id="lineItemCountryInput" class="form-input" placeholder="e.g. India, Singapore, China, Australia, USA" required list="commonCountriesList" autocomplete="off">
+            <datalist id="commonCountriesList">
+              <option value="India"></option>
+              <option value="Singapore"></option>
+              <option value="China"></option>
+              <option value="Australia"></option>
+              <option value="Japan"></option>
+              <option value="United States"></option>
+              <option value="United Kingdom"></option>
+              <option value="Germany"></option>
+              <option value="Hong Kong"></option>
+              <option value="United Arab Emirates"></option>
+            </datalist>
+            <!-- Quick country suggestion tags -->
+            <div class="quick-tags-row">
+              <span class="quick-tag-label">Quick select:</span>
+              <button type="button" class="quick-chip" data-val="India">India</button>
+              <button type="button" class="quick-chip" data-val="Singapore">Singapore</button>
+              <button type="button" class="quick-chip" data-val="China">China</button>
+              <button type="button" class="quick-chip" data-val="Australia">Australia</button>
+              <button type="button" class="quick-chip" data-val="United States">USA</button>
+              <button type="button" class="quick-chip" data-val="United Kingdom">UK</button>
+            </div>
+          </div>
+
+          <!-- Channel / Platform -->
+          <div class="form-group">
+            <label for="lineItemChannelSelect">Channel / Media Platform (1 at a time)</label>
+            <select id="lineItemChannelSelect" class="form-input">
+              <option value="LinkedIn LeadGen">LinkedIn LeadGen</option>
+              <option value="Meta / IG">Meta / IG</option>
+              <option value="Google Ads">Google Ads</option>
+              <option value="Pinterest">Pinterest</option>
+              <option value="WeChat">WeChat</option>
+              <option value="TikTok">TikTok</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Programmatic">Programmatic</option>
+            </select>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="initialPlatformSelect">Initial Placement / Channel</label>
-          <select id="initialPlatformSelect" class="form-input">
-            <option value="LinkedIn LeadGen">LinkedIn LeadGen</option>
-            <option value="Meta / IG">Meta / IG</option>
-            <option value="Google Ads">Google Ads</option>
-            <option value="Pinterest">Pinterest</option>
-            <option value="WeChat">WeChat</option>
-            <option value="TikTok">TikTok</option>
-            <option value="YouTube">YouTube</option>
-            <option value="Programmatic">Programmatic</option>
-          </select>
+        <div class="form-grid-2">
+          <!-- Total Budget -->
+          <div class="form-group">
+            <label for="lineItemBudgetInput">Total Allocated Budget (USD)</label>
+            <div class="input-prefix-wrap">
+              <span class="input-prefix">$</span>
+              <input type="number" id="lineItemBudgetInput" class="form-input font-mono with-prefix" placeholder="5000" min="100" step="500" value="5000" required>
+            </div>
+          </div>
+
+          <!-- Timeline / Active Months -->
+          <div class="form-group">
+            <label>Timeline (Active Flight Months)</label>
+            <div class="month-selector-pills" id="monthSelectorPills">
+              <button type="button" class="month-pill active" data-month="july">July</button>
+              <button type="button" class="month-pill active" data-month="august">August</button>
+              <button type="button" class="month-pill" data-month="september">September</button>
+              <button type="button" class="month-pill" data-month="october">October</button>
+              <button type="button" class="month-pill" data-month="november">November</button>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="initialBudgetInput">Initial Budget (USD)</label>
-          <input type="number" id="initialBudgetInput" class="form-input font-mono" placeholder="10000" min="0" step="500" value="10000" required>
+        <!-- Live Allocation Preview Box -->
+        <div class="budget-calc-preview" id="budgetCalcPreview">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span id="budgetCalcPreviewText">Evenly divided: <strong>$2,500 / month</strong> across 2 selected months (July, August)</span>
         </div>
 
+        <div class="form-grid-2">
+          <!-- Objective -->
+          <div class="form-group">
+            <label for="lineItemObjectiveInput">Campaign Objective</label>
+            <input type="text" id="lineItemObjectiveInput" class="form-input" value="Lead Generation" placeholder="e.g. Lead Generation, Awareness" list="commonObjectivesList">
+            <datalist id="commonObjectivesList">
+              <option value="Lead Generation"></option>
+              <option value="Awareness"></option>
+              <option value="Prospecting / LeadGen"></option>
+              <option value="High Intent Search"></option>
+              <option value="Retargeting / Conversion"></option>
+            </datalist>
+          </div>
+
+          <!-- Offer / Idea -->
+          <div class="form-group">
+            <label for="lineItemOfferInput">Offer / Creative Idea / CTA</label>
+            <input type="text" id="lineItemOfferInput" class="form-input" value="Work Better Magazine" list="commonOffersList">
+            <datalist id="commonOffersList">
+              <option value="Work Better Magazine"></option>
+              <option value="Work Better Magazine download"></option>
+              <option value="Work Better Magazine download or webinar invite"></option>
+              <option value="Follow Official Account + Work Better Magazine"></option>
+              <option value="Webinar Registration"></option>
+              <option value="Consultation Request"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <!-- Audience Type -->
         <div class="form-group">
-          <label for="initialFlightSelect">Flight Distribution</label>
-          <select id="initialFlightSelect" class="form-input">
-            <option value="3months">Split across 3 months (July – September)</option>
-            <option value="5months">Split across 5 months (July – November)</option>
-            <option value="frontload">Frontloaded (50% July, 25% Aug, 25% Sep)</option>
-          </select>
+          <label for="lineItemAudienceInput">Audience Type / Targeting Criteria</label>
+          <input type="text" id="lineItemAudienceInput" class="form-input" value="CRE, Workplace Leaders, Architects, Designers" placeholder="e.g. Enterprise Decision Makers, CRE, Architects & Designers">
         </div>
 
         <div class="modal-footer">
-          <button type="button" id="cancelAddCountryBtn" class="btn btn-secondary">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Country Block</button>
+          <button type="button" id="cancelAddLineItemBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">+ Add Line Item to Plan</button>
         </div>
       </form>
     </div>
