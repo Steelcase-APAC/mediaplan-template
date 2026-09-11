@@ -23,50 +23,53 @@
       </div>
 
       <div class="nav-actions">
-        <!-- Planning vs Presentation View Mode Switch -->
-        <div class="mode-switch-group">
-          <button id="modePlanBtn" class="mode-pill active" title="Interactive Planning Mode: Edit budgets, add channels and countries">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            <span>Plan Mode</span>
+        <!-- Logged-in Header Action Controls Group -->
+        <div id="headerControlsGroup" class="header-controls-group">
+          <!-- Planning vs Presentation View Mode Switch -->
+          <div class="mode-switch-group">
+            <button id="modePlanBtn" class="mode-pill active" title="Interactive Planning Mode: Edit budgets, add channels and countries">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span>Plan Mode</span>
+            </button>
+            <button id="modePresentBtn" class="mode-pill" title="Presentation View: Clean executive view">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <span>Present</span>
+            </button>
+          </div>
+
+          <!-- Presets Selector for Ultimate Reusability -->
+          <div class="preset-selector-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <select id="presetPlanSelect" class="nav-select" title="Switch budget plan scenario / preset">
+              <option value="steelcase">Preset: Steelcase July 2026 Flight</option>
+              <option value="global">Preset: Global Multi-Region Plan (US, UK, APAC)</option>
+              <option value="blank">Preset: Start Blank Plan</option>
+            </select>
+          </div>
+
+          <!-- Theme & Appearance Customizer Action -->
+          <button id="openThemeSettingsBtn" class="btn btn-secondary btn-sm" title="Customize theme colors & appearance">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a7 7 0 0 0 0 14 3.5 3.5 0 0 0 3.5-3.5 1.5 1.5 0 0 1 1.5-1.5H19a3 3 0 0 0 3-3 10 10 0 0 0-10-6z"></path></svg>
+            <span>Theme & Colors</span>
           </button>
-          <button id="modePresentBtn" class="mode-pill" title="Presentation View: Clean executive view">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            <span>Present</span>
+
+          <!-- Export & Reset Menu (CSV & Reset only) -->
+          <div class="export-btn-group">
+            <button id="exportCsvBtn" class="btn btn-secondary btn-sm" title="Export budget plan as CSV spreadsheet">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <span>CSV</span>
+            </button>
+            <button id="resetDataBtn" class="btn btn-secondary btn-sm" title="Reset all changes back to original Steelcase media plan">
+              <span>Reset</span>
+            </button>
+          </div>
+
+          <!-- Save as PDF Action -->
+          <button id="printBtn" class="btn btn-secondary btn-sm" title="Save proposal as PDF document">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M12 18v-6"></path><path d="m9 15 3 3 3-3"></path></svg>
+            <span>Save as PDF</span>
           </button>
         </div>
-
-        <!-- Presets Selector for Ultimate Reusability -->
-        <div class="preset-selector-wrap">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          <select id="presetPlanSelect" class="nav-select" title="Switch budget plan scenario / preset">
-            <option value="steelcase">Preset: Steelcase July 2026 Flight</option>
-            <option value="global">Preset: Global Multi-Region Plan (US, UK, APAC)</option>
-            <option value="blank">Preset: Start Blank Plan</option>
-          </select>
-        </div>
-
-        <!-- Add Line Item Primary Action (Single clean +) -->
-        <button id="openAddLineItemModalBtn" class="btn btn-action-add btn-sm" title="Add a new marketing line item">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>Add Line Item</span>
-        </button>
-
-        <!-- Export & Reset Menu (CSV & Reset only) -->
-        <div class="export-btn-group">
-          <button id="exportCsvBtn" class="btn btn-secondary btn-sm" title="Export budget plan as CSV spreadsheet">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-            <span>CSV</span>
-          </button>
-          <button id="resetDataBtn" class="btn btn-secondary btn-sm" title="Reset all changes back to original Steelcase media plan">
-            <span>Reset</span>
-          </button>
-        </div>
-
-        <!-- Print/PDF Button -->
-        <button id="printBtn" class="btn btn-secondary btn-sm" title="Print or save proposal as PDF">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          <span>Print</span>
-        </button>
 
         <!-- Optional User Account Pill -->
         <div id="authControls" class="auth-controls">
@@ -126,9 +129,9 @@
       <!-- Title & Header Section -->
       <section id="hero" class="hero-section">
         <div class="status-pill-row">
-          <span class="status-badge live-badge">● Active Media Proposal</span>
-          <span class="status-badge date-badge" id="heroBadgeDate">July 2026 Flight</span>
-          <span class="status-badge scope-badge" id="heroBadgeScope">Regional: APAC</span>
+          <span class="status-badge live-badge editable-field" id="heroBadgeStatus" data-meta-field="heroBadgeStatus" title="Click to edit badge text">● Active Media Proposal</span>
+          <span class="status-badge date-badge editable-field" id="heroBadgeDate" data-meta-field="heroBadgeDate" title="Click to edit badge text">July 2026 Flight</span>
+          <span class="status-badge scope-badge editable-field" id="heroBadgeScope" data-meta-field="heroBadgeScope" title="Click to edit badge text">Regional: APAC</span>
         </div>
         <h1 class="document-title editable-field" id="documentTitle" data-meta-field="title">Media Plan (ID,CN,SG) July 2026</h1>
         <p class="document-desc editable-field" id="documentDesc" data-meta-field="description">
@@ -312,24 +315,14 @@
       <!-- Section Divider & Header: Channel Strategies & Audience Targeting -->
       <div class="channel-strategy-main-header" id="channel-strategy-top">
         <div class="channel-strategy-main-title-wrap">
-          <div class="status-pill-row" style="margin-bottom: 6px;">
-            <span class="status-badge scope-badge">Tactical Deep Dives</span>
-            <span class="status-badge live-badge">Audience & CPL Strategy</span>
+          <div class="status-pill-row">
+            <span class="status-badge live-badge editable-field" id="stratBadge1" data-meta-field="stratBadge1" title="Click to edit badge text">● Audience & CPL Strategy</span>
+            <span class="status-badge scope-badge editable-field" id="stratBadge2" data-meta-field="stratBadge2" title="Click to edit badge text">Tactical Deep Dives</span>
           </div>
-          <h2 class="section-main-heading">Channel Strategies & Tactical Audience Plans</h2>
-          <p class="section-subtitle">
+          <h2 class="section-main-heading editable-field" id="stratTitle" data-meta-field="stratTitle">Channel Strategies & Tactical Audience Plans</h2>
+          <p class="section-subtitle editable-field" id="stratDesc" data-meta-field="stratDesc">
             Configure targeting criteria, exclusions, audience priority, and expected CPL for each media platform. Add custom channels and audience line items at any time.
           </p>
-        </div>
-        <div class="channel-strategy-top-actions">
-          <button id="openAddChannelModalBtn" class="btn btn-action-add btn-sm" title="Add a new media channel strategy section">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>+ Add Channel</span>
-          </button>
-          <button id="openAddStrategyLineItemTopBtn" class="btn btn-secondary btn-sm" title="Add an audience line item to any channel strategy">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>+ Add Line Item</span>
-          </button>
         </div>
       </div>
 
@@ -351,6 +344,7 @@
               <tr>
                 <th style="width: 38px;" class="table-action-col text-center"></th>
                 <th style="min-width: 100px;">Market</th>
+                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
@@ -359,7 +353,6 @@
                 <th style="min-width: 160px;">Offer / CTA</th>
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL*</th>
-                <th style="min-width: 120px;" class="text-right">Budget Split</th>
               </tr>
             </thead>
             <tbody id="strategyBodyLinkedIn">
@@ -387,6 +380,7 @@
               <tr>
                 <th style="width: 38px;" class="table-action-col text-center"></th>
                 <th style="min-width: 100px;">Market</th>
+                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
@@ -395,7 +389,6 @@
                 <th style="min-width: 160px;">Offer / CTA</th>
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL*</th>
-                <th style="min-width: 120px;" class="text-right">Budget Split</th>
               </tr>
             </thead>
             <tbody id="strategyBodyMeta">
@@ -433,6 +426,7 @@
               <tr>
                 <th style="width: 38px;" class="table-action-col text-center"></th>
                 <th style="min-width: 100px;">Market</th>
+                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
@@ -441,7 +435,6 @@
                 <th style="min-width: 160px;">Offer / CTA</th>
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL*</th>
-                <th style="min-width: 120px;" class="text-right">Budget Split</th>
               </tr>
             </thead>
             <tbody id="strategyBodyPinterest">
@@ -469,6 +462,7 @@
               <tr>
                 <th style="width: 38px;" class="table-action-col text-center"></th>
                 <th style="min-width: 100px;">Market</th>
+                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
@@ -477,7 +471,6 @@
                 <th style="min-width: 160px;">Offer / CTA</th>
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL</th>
-                <th style="min-width: 120px;" class="text-right">Budget Split</th>
               </tr>
             </thead>
             <tbody id="strategyBodyWeChat">
@@ -928,10 +921,251 @@
     </div>
   </div>
 
-  <!-- Save Toast Notification -->
-  <div id="saveToast" class="save-toast" style="display: none;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-    <span id="saveToastText">Budget recalculation updated</span>
+  <!-- Modal: Theme & Color Appearance Settings -->
+  <div id="themeSettingsModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card modal-lg theme-modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="modal-pill-tag">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a7 7 0 0 0 0 14 3.5 3.5 0 0 0 3.5-3.5 1.5 1.5 0 0 1 1.5-1.5H19a3 3 0 0 0 3-3 10 10 0 0 0-10-6z"></path></svg>
+            <span>Live Color Customizer</span>
+          </div>
+          <h3 class="modal-card-title">Theme & Appearance Settings</h3>
+          <p class="modal-subtitle">Customize header bar, hero card, page canvas, section backgrounds, table headers, and typography colors in real time.</p>
+        </div>
+        <button type="button" id="closeThemeSettingsModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body theme-modal-body">
+        <!-- Quick Theme Presets -->
+        <div class="theme-section-block">
+          <label class="theme-section-title">Designer Color Presets</label>
+          <div class="theme-preset-grid" id="themePresetsContainer">
+            <button type="button" class="theme-preset-card active" data-preset="steelcase">
+              <div class="preset-swatches">
+                <span style="background: #0096a7;"></span>
+                <span style="background: #0f172a;"></span>
+                <span style="background: #ffffff;"></span>
+                <span style="background: #f8fafc;"></span>
+              </div>
+              <span class="preset-name">Steelcase Teal</span>
+            </button>
+            <button type="button" class="theme-preset-card" data-preset="midnight">
+              <div class="preset-swatches">
+                <span style="background: #0f172a;"></span>
+                <span style="background: #38bdf8;"></span>
+                <span style="background: #1e293b;"></span>
+                <span style="background: #090d16;"></span>
+              </div>
+              <span class="preset-name">Midnight Indigo</span>
+            </button>
+            <button type="button" class="theme-preset-card" data-preset="nordic">
+              <div class="preset-swatches">
+                <span style="background: #f1f5f9;"></span>
+                <span style="background: #2563eb;"></span>
+                <span style="background: #ffffff;"></span>
+                <span style="background: #cbd5e1;"></span>
+              </div>
+              <span class="preset-name">Nordic Slate</span>
+            </button>
+            <button type="button" class="theme-preset-card" data-preset="emerald">
+              <div class="preset-swatches">
+                <span style="background: #064e3b;"></span>
+                <span style="background: #059669;"></span>
+                <span style="background: #ffffff;"></span>
+                <span style="background: #f0fdf4;"></span>
+              </div>
+              <span class="preset-name">Emerald Mint</span>
+            </button>
+            <button type="button" class="theme-preset-card" data-preset="royal">
+              <div class="preset-swatches">
+                <span style="background: #1e3a8a;"></span>
+                <span style="background: #2563eb;"></span>
+                <span style="background: #ffffff;"></span>
+                <span style="background: #eff6ff;"></span>
+              </div>
+              <span class="preset-name">Royal Sapphire</span>
+            </button>
+            <button type="button" class="theme-preset-card" data-preset="terracotta">
+              <div class="preset-swatches">
+                <span style="background: #431407;"></span>
+                <span style="background: #ea580c;"></span>
+                <span style="background: #ffffff;"></span>
+                <span style="background: #fafaf9;"></span>
+              </div>
+              <span class="preset-name">Terracotta</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Color Controls Grid -->
+        <div class="theme-custom-controls">
+          <!-- Group 1: Headers & Navigation -->
+          <div class="theme-group-card">
+            <h4 class="theme-group-heading">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line></svg>
+              <span>Headers & Banners</span>
+            </h4>
+            
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Header Bar Background</span>
+                <span class="color-picker-hint">Top sticky navigation bar background</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeHeaderBgPicker" class="color-swatch-input" data-var="--header-bg" value="#ffffff">
+                <input type="text" id="themeHeaderBgText" class="color-hex-text" data-var="--header-bg" value="#ffffff" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Header Bar Text</span>
+                <span class="color-picker-hint">Navigation text and brand labels</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeHeaderTextPicker" class="color-swatch-input" data-var="--header-text" value="#0f172a">
+                <input type="text" id="themeHeaderTextText" class="color-hex-text" data-var="--header-text" value="#0f172a" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Hero Card Background</span>
+                <span class="color-picker-hint">Top proposal title card banner</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeHeroBgPicker" class="color-swatch-input" data-var="--hero-bg" value="#ffffff">
+                <input type="text" id="themeHeroBgText" class="color-hex-text" data-var="--hero-bg" value="#ffffff" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Hero Card Text</span>
+                <span class="color-picker-hint">Document title and proposal description</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeHeroTextPicker" class="color-swatch-input" data-var="--hero-text" value="#0f172a">
+                <input type="text" id="themeHeroTextText" class="color-hex-text" data-var="--hero-text" value="#0f172a" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Strategy Title Bar Bg</span>
+                <span class="color-picker-hint">Channel strategies section header banner</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeStrategyHeaderPicker" class="color-swatch-input" data-var="--bg-strategy-header" value="#f1f5f9">
+                <input type="text" id="themeStrategyHeaderText" class="color-hex-text" data-var="--bg-strategy-header" value="#f1f5f9" maxlength="7">
+              </div>
+            </div>
+          </div>
+
+          <!-- Group 2: Surfaces & Accents -->
+          <div class="theme-group-card">
+            <h4 class="theme-group-heading">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>Canvas & Surfaces</span>
+            </h4>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Primary Brand Accent</span>
+                <span class="color-picker-hint">Main buttons, active pills & key indicators</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themePrimaryPicker" class="color-swatch-input" data-var="--primary" value="#0096a7">
+                <input type="text" id="themePrimaryText" class="color-hex-text" data-var="--primary" value="#0096a7" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Page Canvas Background</span>
+                <span class="color-picker-hint">Overall body and layout background</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeBgBodyPicker" class="color-swatch-input" data-var="--bg-body" value="#f8fafc">
+                <input type="text" id="themeBgBodyText" class="color-hex-text" data-var="--bg-body" value="#f8fafc" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Section Card Background</span>
+                <span class="color-picker-hint">Budget table and strategy cards background</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeBgSurfacePicker" class="color-swatch-input" data-var="--bg-surface" value="#ffffff">
+                <input type="text" id="themeBgSurfaceText" class="color-hex-text" data-var="--bg-surface" value="#ffffff" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Table Header Background</span>
+                <span class="color-picker-hint">Column headings row background</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeTableHeaderPicker" class="color-swatch-input" data-var="--table-header-bg" value="#f8fafc">
+                <input type="text" id="themeTableHeaderText" class="color-hex-text" data-var="--table-header-bg" value="#f8fafc" maxlength="7">
+              </div>
+            </div>
+          </div>
+
+          <!-- Group 3: Text & Borders -->
+          <div class="theme-group-card">
+            <h4 class="theme-group-heading">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+              <span>Text & Borders</span>
+            </h4>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Primary Text Color</span>
+                <span class="color-picker-hint">Main headings and table cell values</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeTextPrimaryPicker" class="color-swatch-input" data-var="--text-primary" value="#0f172a">
+                <input type="text" id="themeTextPrimaryText" class="color-hex-text" data-var="--text-primary" value="#0f172a" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Secondary / Muted Text</span>
+                <span class="color-picker-hint">Subtitles, table headers, and helper hints</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeTextSecondaryPicker" class="color-swatch-input" data-var="--text-secondary" value="#475569">
+                <input type="text" id="themeTextSecondaryText" class="color-hex-text" data-var="--text-secondary" value="#475569" maxlength="7">
+              </div>
+            </div>
+
+            <div class="color-picker-row">
+              <div class="color-picker-info">
+                <span class="color-picker-label">Borders & Dividers</span>
+                <span class="color-picker-hint">Card outlines and table grid dividers</span>
+              </div>
+              <div class="color-picker-inputs">
+                <input type="color" id="themeBorderSubtlePicker" class="color-swatch-input" data-var="--border-subtle" value="#e2e8f0">
+                <input type="text" id="themeBorderSubtleText" class="color-hex-text" data-var="--border-subtle" value="#e2e8f0" maxlength="7">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer theme-modal-footer">
+        <button type="button" id="resetThemeDefaultBtn" class="btn btn-secondary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+          <span>Reset to Default</span>
+        </button>
+        <button type="button" id="closeThemeModalDoneBtn" class="btn btn-primary">Done</button>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

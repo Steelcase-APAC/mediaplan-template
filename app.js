@@ -107,8 +107,15 @@ const DEFAULT_MEDIA_PLAN = {
     navPath: "go.steelcase.com/july2026_mediaplan",
     title: "Media Plan (ID,CN,SG) July 2026",
     description: "Integrated paid media proposal targeting Corporate Real Estate (CRE), Workplace Strategy Leaders, Architects, Designers, and Enterprise Decision-Makers to drive downloads and pipeline for the Work Better Magazine.",
+    heroBadgeStatus: "● Active Media Proposal",
+    heroBadgeDate: "July 2026 Flight",
+    heroBadgeScope: "Regional: APAC",
     dateBadge: "July 2026 Flight",
     scopeBadge: "Regional: APAC",
+    stratTitle: "Channel Strategies & Tactical Audience Plans",
+    stratDesc: "Configure targeting criteria, exclusions, audience priority, and expected CPL for each media platform. Add custom channels and audience line items at any time.",
+    stratBadge1: "● Audience & CPL Strategy",
+    stratBadge2: "Tactical Deep Dives",
     pinCallout: "Recommend reallocating Pinterest budget to LinkedIn until GTM access is granted and the Pinterest pixel is installed and validated, as Pinterest's value in this plan depends primarily on its ability to build measurable retargeting audiences rather than direct lead generation.",
     footerCplNote: "* Note on Expected CPL: Projections are based on benchmark engagement rates, typical B2B conversion metrics, and initial landing page optimization assumptions for Steelcase APAC. Final CPL may vary based on live creative performance, audience saturation, and landing page conversion efficiency."
   },
@@ -1596,6 +1603,7 @@ function renderStrategyTables() {
                 <tr>
                   <th style="width: 38px;" class="table-action-col text-center"></th>
                   <th style="min-width: 100px;">Market</th>
+                  <th style="min-width: 105px;" class="text-right">Budget Split</th>
                   <th style="min-width: 180px;">Audience</th>
                   <th style="min-width: 95px;">Priority</th>
                   <th style="min-width: 210px;">Audience Purpose</th>
@@ -1604,7 +1612,6 @@ function renderStrategyTables() {
                   <th style="min-width: 160px;">Offer / CTA</th>
                   <th style="min-width: 110px;">Expected CPC</th>
                   <th style="min-width: 115px;">Expected CPL*</th>
-                  <th style="min-width: 120px;" class="text-right">Budget Split</th>
                 </tr>
               </thead>
               <tbody id="strategyBody_${key}"></tbody>
@@ -1707,6 +1714,9 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
           ${row.market}
         </span>
       </td>
+      <td class="text-right font-mono font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="split">
+        ${row.split}
+      </td>
       <td class="font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="audience">
         ${row.audience}
       </td>
@@ -1735,9 +1745,6 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
       <td class="font-mono font-bold text-accent editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="cpl">
         ${row.cpl}
       </td>
-      <td class="text-right font-mono font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="split">
-        ${row.split}
-      </td>
     `;
 
     tbody.appendChild(tr);
@@ -1750,12 +1757,30 @@ function renderMetaText() {
 
   const titleEl = document.getElementById('documentTitle');
   const descEl = document.getElementById('documentDesc');
+  const heroBadgeStatusEl = document.getElementById('heroBadgeStatus');
+  const heroBadgeDateEl = document.getElementById('heroBadgeDate');
+  const heroBadgeScopeEl = document.getElementById('heroBadgeScope');
+
+  const stratTitleEl = document.getElementById('stratTitle');
+  const stratDescEl = document.getElementById('stratDesc');
+  const stratBadge1El = document.getElementById('stratBadge1');
+  const stratBadge2El = document.getElementById('stratBadge2');
+
   const pathEl = document.getElementById('navPathDisplay');
   const pinCalloutEl = document.getElementById('pinStrategicCallout');
   const cplNoteEl = document.getElementById('footerCplNote');
 
   if (titleEl && meta.title) titleEl.textContent = meta.title;
   if (descEl && meta.description) descEl.textContent = meta.description;
+  if (heroBadgeStatusEl && meta.heroBadgeStatus) heroBadgeStatusEl.textContent = meta.heroBadgeStatus;
+  if (heroBadgeDateEl && (meta.heroBadgeDate || meta.dateBadge)) heroBadgeDateEl.textContent = meta.heroBadgeDate || meta.dateBadge;
+  if (heroBadgeScopeEl && (meta.heroBadgeScope || meta.scopeBadge)) heroBadgeScopeEl.textContent = meta.heroBadgeScope || meta.scopeBadge;
+
+  if (stratTitleEl && meta.stratTitle) stratTitleEl.textContent = meta.stratTitle;
+  if (stratDescEl && meta.stratDesc) stratDescEl.textContent = meta.stratDesc;
+  if (stratBadge1El && meta.stratBadge1) stratBadge1El.textContent = meta.stratBadge1;
+  if (stratBadge2El && meta.stratBadge2) stratBadge2El.textContent = meta.stratBadge2;
+
   if (pathEl && meta.navPath) pathEl.textContent = meta.navPath;
   if (pinCalloutEl && meta.pinCallout) pinCalloutEl.textContent = meta.pinCallout;
   if (cplNoteEl && meta.footerCplNote) cplNoteEl.textContent = meta.footerCplNote;
@@ -2765,6 +2790,7 @@ function initDeckFilterTabs() {
       presentBtn.classList.remove('active');
       APP_STATE.isEditMode = true;
       document.body.classList.add('edit-mode-active');
+      updateHeaderControlsVisibility();
       renderMainBudgetTable();
       showToast('Planning Mode enabled: Edit cells, add channels & countries');
     });
@@ -2775,9 +2801,31 @@ function initDeckFilterTabs() {
       APP_STATE.isEditMode = false;
       document.body.classList.remove('edit-mode-active');
       closeDropdownMenu();
+      updateHeaderControlsVisibility();
       renderMainBudgetTable();
       showToast('Presentation View enabled (Clean view)');
     });
+  }
+}
+
+function updateHeaderControlsVisibility() {
+  const controlsGroup = document.getElementById('headerControlsGroup');
+  const themeBtn = document.getElementById('openThemeSettingsBtn');
+  const exportGroup = document.querySelector('.export-btn-group');
+  if (!controlsGroup) return;
+
+  if (!APP_STATE.currentUser) {
+    controlsGroup.style.display = 'none';
+    return;
+  }
+  controlsGroup.style.display = 'flex';
+
+  if (APP_STATE.isEditMode) {
+    if (themeBtn) themeBtn.style.display = 'inline-flex';
+    if (exportGroup) exportGroup.style.display = 'inline-flex';
+  } else {
+    if (themeBtn) themeBtn.style.display = 'none';
+    if (exportGroup) exportGroup.style.display = 'none';
   }
 }
 
@@ -2951,6 +2999,7 @@ function initAuthManager() {
       if (openAuthModalBtn) openAuthModalBtn.style.display = 'inline-flex';
       if (authBar) authBar.style.display = 'none';
     }
+    updateHeaderControlsVisibility();
   }
 }
 
@@ -3053,9 +3102,294 @@ function initThemeAndNav() {
   }
 }
 
+/* ==========================================================================
+   Theme & Color Customizer Manager
+   ========================================================================== */
+
+const THEME_PRESETS = {
+  steelcase: {
+    name: 'Steelcase Teal',
+    '--header-bg': '#ffffff',
+    '--header-text': '#0f172a',
+    '--hero-bg': '#ffffff',
+    '--hero-text': '#0f172a',
+    '--bg-strategy-header': '#ffffff',
+    '--primary': '#0096a7',
+    '--bg-body': '#f8fafc',
+    '--bg-surface': '#ffffff',
+    '--table-header-bg': '#f8fafc',
+    '--text-primary': '#0f172a',
+    '--text-secondary': '#475569',
+    '--border-subtle': '#e2e8f0'
+  },
+  midnight: {
+    name: 'Midnight Indigo',
+    '--header-bg': '#0f172a',
+    '--header-text': '#f8fafc',
+    '--hero-bg': '#1e293b',
+    '--hero-text': '#f8fafc',
+    '--bg-strategy-header': '#1e293b',
+    '--primary': '#38bdf8',
+    '--bg-body': '#090d16',
+    '--bg-surface': '#111827',
+    '--table-header-bg': '#1e293b',
+    '--text-primary': '#f8fafc',
+    '--text-secondary': '#94a3b8',
+    '--border-subtle': '#334155'
+  },
+  nordic: {
+    name: 'Nordic Slate',
+    '--header-bg': '#f1f5f9',
+    '--header-text': '#0f172a',
+    '--hero-bg': '#e2e8f0',
+    '--hero-text': '#0f172a',
+    '--bg-strategy-header': '#e2e8f0',
+    '--primary': '#2563eb',
+    '--bg-body': '#f8fafc',
+    '--bg-surface': '#ffffff',
+    '--table-header-bg': '#f1f5f9',
+    '--text-primary': '#0f172a',
+    '--text-secondary': '#475569',
+    '--border-subtle': '#cbd5e1'
+  },
+  emerald: {
+    name: 'Emerald Mint',
+    '--header-bg': '#064e3b',
+    '--header-text': '#ffffff',
+    '--hero-bg': '#065f46',
+    '--hero-text': '#ffffff',
+    '--bg-strategy-header': '#065f46',
+    '--primary': '#059669',
+    '--bg-body': '#f0fdf4',
+    '--bg-surface': '#ffffff',
+    '--table-header-bg': '#e6f4ea',
+    '--text-primary': '#064e3b',
+    '--text-secondary': '#047857',
+    '--border-subtle': '#a7f3d0'
+  },
+  royal: {
+    name: 'Royal Sapphire',
+    '--header-bg': '#1e3a8a',
+    '--header-text': '#ffffff',
+    '--hero-bg': '#172554',
+    '--hero-text': '#ffffff',
+    '--bg-strategy-header': '#172554',
+    '--primary': '#2563eb',
+    '--bg-body': '#f8fafc',
+    '--bg-surface': '#ffffff',
+    '--table-header-bg': '#dbeafe',
+    '--text-primary': '#0f172a',
+    '--text-secondary': '#3b82f6',
+    '--border-subtle': '#bfdbfe'
+  },
+  terracotta: {
+    name: 'Terracotta',
+    '--header-bg': '#431407',
+    '--header-text': '#fef3c7',
+    '--hero-bg': '#7c2d12',
+    '--hero-text': '#ffffff',
+    '--bg-strategy-header': '#7c2d12',
+    '--primary': '#ea580c',
+    '--bg-body': '#fafaf9',
+    '--bg-surface': '#ffffff',
+    '--table-header-bg': '#ffedd5',
+    '--text-primary': '#292524',
+    '--text-secondary': '#78716c',
+    '--border-subtle': '#fed7aa'
+  }
+};
+
+function initThemeCustomizer() {
+  const modal = document.getElementById('themeSettingsModal');
+  const openBtn = document.getElementById('openThemeSettingsBtn');
+  const closeBtn = document.getElementById('closeThemeSettingsModalBtn');
+  const doneBtn = document.getElementById('closeThemeModalDoneBtn');
+  const resetBtn = document.getElementById('resetThemeDefaultBtn');
+  const presetsContainer = document.getElementById('themePresetsContainer');
+
+  function applyColor(cssVar, colorVal) {
+    if (!cssVar || !colorVal) return;
+    document.documentElement.style.setProperty(cssVar, colorVal);
+    if (cssVar === '--hero-bg') {
+      document.documentElement.style.setProperty('--bg-strategy-header', colorVal);
+    }
+    if (cssVar === '--primary') {
+      document.documentElement.style.setProperty('--primary-hover', colorVal);
+      document.documentElement.style.setProperty('--primary-light', `${colorVal}15`);
+      document.documentElement.style.setProperty('--primary-border', `${colorVal}40`);
+    }
+  }
+
+  function getStoredCustomColors() {
+    try {
+      const raw = localStorage.getItem('steelcase_theme_custom_colors');
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveCustomColors(colorsObj) {
+    try {
+      localStorage.setItem('steelcase_theme_custom_colors', JSON.stringify(colorsObj));
+    } catch (e) {}
+  }
+
+  function syncInputs(colorsObj) {
+    document.querySelectorAll('.color-swatch-input').forEach(picker => {
+      const varName = picker.getAttribute('data-var');
+      if (colorsObj && colorsObj[varName]) {
+        picker.value = colorsObj[varName];
+      }
+    });
+
+    document.querySelectorAll('.color-hex-text').forEach(textInput => {
+      const varName = textInput.getAttribute('data-var');
+      if (colorsObj && colorsObj[varName]) {
+        textInput.value = colorsObj[varName];
+      }
+    });
+  }
+
+  function applyPreset(presetKey) {
+    const preset = THEME_PRESETS[presetKey];
+    if (!preset) return;
+
+    const colorsToSave = {};
+    Object.keys(preset).forEach(k => {
+      if (k.startsWith('--')) {
+        applyColor(k, preset[k]);
+        colorsToSave[k] = preset[k];
+      }
+    });
+
+    saveCustomColors(colorsToSave);
+    syncInputs(colorsToSave);
+
+    if (presetsContainer) {
+      presetsContainer.querySelectorAll('.theme-preset-card').forEach(c => {
+        if (c.getAttribute('data-preset') === presetKey) {
+          c.classList.add('active');
+        } else {
+          c.classList.remove('active');
+        }
+      });
+    }
+
+    if (window.showToast) {
+      showToast(`Applied ${preset.name} theme palette`);
+    }
+  }
+
+  // Initial load of custom colors
+  const savedColors = getStoredCustomColors();
+  if (savedColors) {
+    Object.keys(savedColors).forEach(k => {
+      applyColor(k, savedColors[k]);
+    });
+    syncInputs(savedColors);
+  }
+
+  // Connect color swatch inputs
+  document.querySelectorAll('.color-swatch-input').forEach(picker => {
+    picker.addEventListener('input', (e) => {
+      const varName = picker.getAttribute('data-var');
+      const val = e.target.value;
+      applyColor(varName, val);
+
+      const textInput = document.querySelector(`.color-hex-text[data-var="${varName}"]`);
+      if (textInput) textInput.value = val;
+
+      const current = getStoredCustomColors() || { ...THEME_PRESETS.steelcase };
+      current[varName] = val;
+      saveCustomColors(current);
+
+      if (presetsContainer) {
+        presetsContainer.querySelectorAll('.theme-preset-card').forEach(c => c.classList.remove('active'));
+      }
+    });
+  });
+
+  // Connect hex text inputs
+  document.querySelectorAll('.color-hex-text').forEach(textInput => {
+    textInput.addEventListener('input', (e) => {
+      let val = e.target.value.trim();
+      if (!val.startsWith('#')) val = `#${val}`;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        const varName = textInput.getAttribute('data-var');
+        applyColor(varName, val);
+
+        const picker = document.querySelector(`.color-swatch-input[data-var="${varName}"]`);
+        if (picker) picker.value = val;
+
+        const current = getStoredCustomColors() || { ...THEME_PRESETS.steelcase };
+        current[varName] = val;
+        saveCustomColors(current);
+
+        if (presetsContainer) {
+          presetsContainer.querySelectorAll('.theme-preset-card').forEach(c => c.classList.remove('active'));
+        }
+      }
+    });
+  });
+
+  // Connect preset buttons
+  if (presetsContainer) {
+    presetsContainer.querySelectorAll('.theme-preset-card').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const presetKey = btn.getAttribute('data-preset');
+        applyPreset(presetKey);
+      });
+    });
+  }
+
+  // Reset Button
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      localStorage.removeItem('steelcase_theme_custom_colors');
+      const defaultPreset = THEME_PRESETS.steelcase;
+      Object.keys(defaultPreset).forEach(k => {
+        if (k.startsWith('--')) {
+          document.documentElement.style.removeProperty(k);
+        }
+      });
+      syncInputs(defaultPreset);
+      if (presetsContainer) {
+        presetsContainer.querySelectorAll('.theme-preset-card').forEach(c => {
+          if (c.getAttribute('data-preset') === 'steelcase') c.classList.add('active');
+          else c.classList.remove('active');
+        });
+      }
+      if (window.showToast) showToast('Reset theme to default Steelcase palette');
+    });
+  }
+
+  // Open / Close Modal Handlers
+  function openModal() {
+    if (!modal) return;
+    const current = getStoredCustomColors() || THEME_PRESETS.steelcase;
+    syncInputs(current);
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.style.display = 'none';
+  }
+
+  if (openBtn) openBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (doneBtn) doneBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+}
+
 // Global Application Startup
 document.addEventListener('DOMContentLoaded', () => {
   initThemeAndNav();
+  initThemeCustomizer();
   BudgetStore.init();
   renderAll();
   initDropdownManager();
@@ -3066,4 +3400,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initPresetsAndExport();
   initDeckFilterTabs();
   initAuthManager();
+  updateHeaderControlsVisibility();
 });
