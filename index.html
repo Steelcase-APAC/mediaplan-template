@@ -309,6 +309,30 @@
         </div>
       </section>
 
+      <!-- Section Divider & Header: Channel Strategies & Audience Targeting -->
+      <div class="channel-strategy-main-header" id="channel-strategy-top">
+        <div class="channel-strategy-main-title-wrap">
+          <div class="status-pill-row" style="margin-bottom: 6px;">
+            <span class="status-badge scope-badge">Tactical Deep Dives</span>
+            <span class="status-badge live-badge">Audience & CPL Strategy</span>
+          </div>
+          <h2 class="section-main-heading">Channel Strategies & Tactical Audience Plans</h2>
+          <p class="section-subtitle">
+            Configure targeting criteria, exclusions, audience priority, and expected CPL for each media platform. Add custom channels and audience line items at any time.
+          </p>
+        </div>
+        <div class="channel-strategy-top-actions">
+          <button id="openAddChannelModalBtn" class="btn btn-action-add btn-sm" title="Add a new media channel strategy section">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>+ Add Channel</span>
+          </button>
+          <button id="openAddStrategyLineItemTopBtn" class="btn btn-secondary btn-sm" title="Add an audience line item to any channel strategy">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>+ Add Line Item</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Section: Channel: LinkedIn Deep Dive -->
       <section id="channel-linkedin" class="content-section">
         <div class="section-header">
@@ -335,6 +359,7 @@
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL*</th>
                 <th style="min-width: 120px;" class="text-right">Budget Split</th>
+                <th style="width: 38px;" class="table-action-col text-center"></th>
               </tr>
             </thead>
             <tbody id="strategyBodyLinkedIn">
@@ -370,6 +395,7 @@
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL*</th>
                 <th style="min-width: 120px;" class="text-right">Budget Split</th>
+                <th style="width: 38px;" class="table-action-col text-center"></th>
               </tr>
             </thead>
             <tbody id="strategyBodyMeta">
@@ -405,7 +431,8 @@
           <table class="proposal-table" id="strategyTablePinterest">
             <thead>
               <tr>
-                <th style="min-width: 190px;">Audience</th>
+                <th style="min-width: 100px;">Market</th>
+                <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
                 <th style="min-width: 260px;">Targeting</th>
@@ -414,6 +441,7 @@
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL*</th>
                 <th style="min-width: 120px;" class="text-right">Budget Split</th>
+                <th style="width: 38px;" class="table-action-col text-center"></th>
               </tr>
             </thead>
             <tbody id="strategyBodyPinterest">
@@ -439,14 +467,17 @@
           <table class="proposal-table" id="strategyTableWeChat">
             <thead>
               <tr>
-                <th style="min-width: 190px;">Audience Segment</th>
+                <th style="min-width: 100px;">Market</th>
+                <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
-                <th style="min-width: 220px;">Audience Purpose</th>
-                <th style="min-width: 290px;">Recommended Targeting</th>
-                <th style="min-width: 190px;">Offer / CTA</th>
+                <th style="min-width: 210px;">Audience Purpose</th>
+                <th style="min-width: 260px;">Targeting</th>
+                <th style="min-width: 210px;">Exclusions</th>
+                <th style="min-width: 160px;">Offer / CTA</th>
                 <th style="min-width: 110px;">Expected CPC</th>
                 <th style="min-width: 115px;">Expected CPL</th>
                 <th style="min-width: 120px;" class="text-right">Budget Split</th>
+                <th style="width: 38px;" class="table-action-col text-center"></th>
               </tr>
             </thead>
             <tbody id="strategyBodyWeChat">
@@ -689,6 +720,193 @@
         <button type="button" id="btnKeepSectionOnly" class="btn btn-secondary" style="font-size: 12px;">Keep Section (Delete Row Only)</button>
         <button type="button" id="btnConfirmDeleteSection" class="btn btn-danger" style="background: #ef4444; color: #ffffff; border: 1px solid #dc2626; font-weight: 700;">Yes, Delete Section</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Channel Strategy Line Item -->
+  <div id="addStrategyLineItemModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-card-title">Add Strategy Line Item</h3>
+          <p class="modal-subtitle">Add a tactical audience segment, targeting criteria, priority, and CPL benchmark for this channel.</p>
+        </div>
+        <button type="button" id="closeAddStrategyLineItemModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      </div>
+
+      <form id="addStrategyLineItemForm" class="modal-body">
+        <div class="form-grid-2">
+          <!-- Channel / Platform -->
+          <div class="form-group">
+            <label for="stratLineChannelSelect">Channel / Media Platform</label>
+            <select id="stratLineChannelSelect" class="form-input" required>
+              <option value="linkedin">LinkedIn</option>
+              <option value="meta">Meta | Instagram</option>
+              <option value="pinterest">Pinterest</option>
+              <option value="wechat">WeChat</option>
+              <option value="youtube">YouTube</option>
+              <option value="google_ads">Google Ads</option>
+              <option value="tiktok">TikTok</option>
+            </select>
+          </div>
+
+          <!-- Market / Country -->
+          <div class="form-group">
+            <label for="stratLineMarketInput">Target Market / Country</label>
+            <input type="text" id="stratLineMarketInput" class="form-input" placeholder="e.g. India, Singapore, China, USA" list="commonCountriesList" value="India" required autocomplete="off">
+            <!-- Quick country suggestion tags -->
+            <div class="quick-tags-row">
+              <span class="quick-tag-label">Quick select:</span>
+              <button type="button" class="quick-chip strat-market-chip" data-val="India">India</button>
+              <button type="button" class="quick-chip strat-market-chip" data-val="Singapore">Singapore</button>
+              <button type="button" class="quick-chip strat-market-chip" data-val="China">China</button>
+              <button type="button" class="quick-chip strat-market-chip" data-val="United States">USA</button>
+              <button type="button" class="quick-chip strat-market-chip" data-val="United Kingdom">UK</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Audience Segment Name -->
+          <div class="form-group">
+            <label for="stratLineAudienceInput">Audience Segment Name</label>
+            <input type="text" id="stratLineAudienceInput" class="form-input" placeholder="e.g. Workplace Transformation Leaders, CRM Lookalike 1%" required>
+          </div>
+
+          <!-- Priority -->
+          <div class="form-group">
+            <label for="stratLinePrioritySelect">Priority Level</label>
+            <select id="stratLinePrioritySelect" class="form-input">
+              <option value="High" selected>High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low-med">Low-med</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Audience Purpose -->
+        <div class="form-group">
+          <label for="stratLinePurposeInput">Audience Purpose / Strategic Goal</label>
+          <input type="text" id="stratLinePurposeInput" class="form-input" placeholder="e.g. Reach senior decision-makers closest to office fit-out decisions" required>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Recommended Targeting -->
+          <div class="form-group">
+            <label for="stratLineTargetingInput">Recommended Targeting Criteria</label>
+            <textarea id="stratLineTargetingInput" class="form-input form-textarea" rows="2" placeholder="e.g. Job Titles: Workplace Director, Head of CRE, Facilities Director, Architecture & Planning"></textarea>
+          </div>
+
+          <!-- Exclusions -->
+          <div class="form-group">
+            <label for="stratLineExclusionsInput">Negative Exclusions</label>
+            <textarea id="stratLineExclusionsInput" class="form-input form-textarea" rows="2" placeholder="e.g. Residential agents, students, entry-level, non-business consumer queries"></textarea>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Offer / CTA -->
+          <div class="form-group">
+            <label for="stratLineOfferInput">Offer / Content Asset / CTA</label>
+            <input type="text" id="stratLineOfferInput" class="form-input" value="Work Better Magazine download" list="commonOffersList">
+          </div>
+
+          <!-- Budget Split -->
+          <div class="form-group">
+            <label for="stratLineSplitInput">Budget Split / Share</label>
+            <input type="text" id="stratLineSplitInput" class="form-input font-mono" value="25%" placeholder="e.g. 25%, 35–40%">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <!-- Expected CPC -->
+          <div class="form-group">
+            <label for="stratLineCpcInput">Expected CPC Benchmark</label>
+            <input type="text" id="stratLineCpcInput" class="form-input font-mono" value="USD 4–8" placeholder="e.g. USD 4–8, USD 0.80–2.00">
+          </div>
+
+          <!-- Expected CPL -->
+          <div class="form-group">
+            <label for="stratLineCplInput">Expected CPL Benchmark</label>
+            <input type="text" id="stratLineCplInput" class="form-input font-mono font-bold" value="USD 45–85" placeholder="e.g. USD 45–85, USD 12–25">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="cancelAddStrategyLineItemBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">+ Add Strategy Line Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Media Channel Strategy Section -->
+  <div id="addChannelModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-card-title">Add New Channel Strategy</h3>
+          <p class="modal-subtitle">Create a new media channel deep-dive section with custom audience segmentation and CPL benchmarks.</p>
+        </div>
+        <button type="button" id="closeAddChannelModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      </div>
+
+      <form id="addChannelForm" class="modal-body">
+        <div class="form-group">
+          <label for="newChannelNameInput">Channel / Platform Name</label>
+          <input type="text" id="newChannelNameInput" class="form-input" placeholder="e.g. TikTok, Google Ads, YouTube, Spotify, Reddit, Twitter / X" required autocomplete="off">
+          <!-- Quick Platform suggestion chips -->
+          <div class="quick-tags-row">
+            <span class="quick-tag-label">Suggestions:</span>
+            <button type="button" class="quick-chip new-channel-chip" data-val="YouTube">YouTube</button>
+            <button type="button" class="quick-chip new-channel-chip" data-val="TikTok">TikTok</button>
+            <button type="button" class="quick-chip new-channel-chip" data-val="Google Ads">Google Ads</button>
+            <button type="button" class="quick-chip new-channel-chip" data-val="Programmatic Display">Programmatic Display</button>
+            <button type="button" class="quick-chip new-channel-chip" data-val="Reddit Ads">Reddit Ads</button>
+            <button type="button" class="quick-chip new-channel-chip" data-val="Spotify Audio">Spotify Audio</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="newChannelSubtitleInput">Strategic Purpose & Description</label>
+          <input type="text" id="newChannelSubtitleInput" class="form-input" placeholder="e.g. High-impact video storytelling, creator partnerships, and upper-funnel B2B engagement." value="Tactical audience segmentation, targeting criteria, and lead acquisition strategy.">
+        </div>
+
+        <div class="form-group">
+          <label for="newChannelCalloutInput">Strategic Recommendation Callout (Optional)</label>
+          <textarea id="newChannelCalloutInput" class="form-input form-textarea" rows="2" placeholder="e.g. Recommend pilot testing with localized video assets and retargeting pixel integration."></textarea>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 6px;">
+          <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Initial Audience Line Item (Optional)</h4>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="newChannelMarketInput">Market / Country</label>
+              <input type="text" id="newChannelMarketInput" class="form-input" value="India" list="commonCountriesList">
+            </div>
+            <div class="form-group">
+              <label for="newChannelAudienceInput">Audience Segment</label>
+              <input type="text" id="newChannelAudienceInput" class="form-input" value="Workplace Leaders & Decision Makers">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="newChannelTargetingInput">Targeting Criteria</label>
+              <input type="text" id="newChannelTargetingInput" class="form-input" value="Enterprise decision makers, CRE, Facilities Directors">
+            </div>
+            <div class="form-group">
+              <label for="newChannelOfferInput">Offer / CTA</label>
+              <input type="text" id="newChannelOfferInput" class="form-input" value="Work Better Magazine download">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="cancelAddChannelBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">+ Create Channel Section</button>
+        </div>
+      </form>
     </div>
   </div>
 

@@ -64,6 +64,17 @@ function getStratKey(platformName) {
   return p.replace(/[^a-z0-9]/g, '_');
 }
 
+function getPlatformDisplayName(stratKey) {
+  if (stratKey === 'linkedin') return 'LinkedIn';
+  if (stratKey === 'meta') return 'Meta | Instagram';
+  if (stratKey === 'pinterest') return 'Pinterest';
+  if (stratKey === 'wechat') return 'WeChat';
+  if (stratKey === 'youtube') return 'YouTube';
+  if (stratKey === 'google_ads') return 'Google Ads';
+  if (stratKey === 'tiktok') return 'TikTok';
+  return String(stratKey).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 function getCountryCode(val) {
   if (!val) return 'generic';
   const str = String(val).toLowerCase().trim();
@@ -678,6 +689,94 @@ const BudgetStore = {
     showToast(`Removed strategy section for ${platformName || stratKey}`);
   },
 
+  addStrategyLineItem(stratKey, rowData) {
+    if (!this.data.strategyTables) this.data.strategyTables = {};
+    if (!this.data.strategyTables[stratKey]) this.data.strategyTables[stratKey] = [];
+    
+    // Ensure section is not marked as deleted
+    if (this.data.deletedSections) {
+      this.data.deletedSections = this.data.deletedSections.filter(k => k !== stratKey);
+    }
+    
+    this.data.strategyTables[stratKey].push({
+      market: rowData.market || "India",
+      audience: rowData.audience || "New Audience Segment",
+      priority: rowData.priority || "High",
+      purpose: rowData.purpose || "Strategic audience engagement",
+      targeting: rowData.targeting || "Target criteria",
+      exclusions: rowData.exclusions || "Negative exclusions",
+      offer: rowData.offer || "Work Better Magazine download",
+      cpc: rowData.cpc || "USD 4–8",
+      cpl: rowData.cpl || "USD 45–85",
+      split: rowData.split || "25%"
+    });
+
+    if (rowData.market && !this.data.dropdownOptions.markets.includes(rowData.market)) {
+      this.data.dropdownOptions.markets.push(rowData.market);
+    }
+
+    this.save();
+    renderAll();
+    const platName = getPlatformDisplayName(stratKey);
+    showToast(`Added audience line item to ${platName}`);
+  },
+
+  deleteStrategyLineItem(stratKey, rowIdx) {
+    if (!this.data.strategyTables || !this.data.strategyTables[stratKey]) return;
+    const item = this.data.strategyTables[stratKey][rowIdx];
+    const audName = item ? item.audience : 'Line item';
+    this.data.strategyTables[stratKey].splice(rowIdx, 1);
+    this.save();
+    renderAll();
+    showToast(`Removed: "${audName}"`);
+  },
+
+  addNewChannelSection({ name, subtitle, callout, initialRow }) {
+    const cleanName = (name || 'New Channel').trim();
+    const stratKey = getStratKey(cleanName);
+    
+    if (!this.data.strategyTables) this.data.strategyTables = {};
+    if (!this.data.deletedSections) this.data.deletedSections = [];
+    this.data.deletedSections = this.data.deletedSections.filter(k => k !== stratKey);
+    
+    if (!this.data.strategyTables[stratKey]) {
+      this.data.strategyTables[stratKey] = [];
+    }
+    
+    if (initialRow) {
+      this.data.strategyTables[stratKey].push(initialRow);
+    } else {
+      this.data.strategyTables[stratKey].push({
+        market: "India",
+        audience: `${cleanName} Target Audience`,
+        priority: "High",
+        purpose: subtitle || `Drive B2B awareness and lead generation on ${cleanName}`,
+        targeting: "Enterprise Decision Makers, CRE, Facilities",
+        exclusions: "Competitors, junior roles, non-business consumer queries",
+        offer: "Work Better Magazine download",
+        cpc: "USD 2–5",
+        cpl: "USD 35–70",
+        split: "100%"
+      });
+    }
+    
+    // Ensure dropdown options have new platform
+    if (!this.data.dropdownOptions.platforms.includes(cleanName)) {
+      this.data.dropdownOptions.platforms.push(cleanName);
+    }
+    
+    this.save();
+    renderAll();
+    
+    // Scroll to new channel section
+    setTimeout(() => {
+      const el = document.getElementById(`channel-${stratKey}`);
+      if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+    
+    showToast(`Created channel strategy: ${cleanName}`);
+  },
+
   updateChannelField(marketId, channelId, fieldPath, rawValue) {
     const market = this.data.markets.find(m => m.id === marketId);
     if (!market) return;
@@ -1255,7 +1354,7 @@ function renderStrategyTables() {
 
   const standardSections = [
     { key: 'linkedin', id: 'channel-linkedin', name: 'LinkedIn', bodyId: 'strategyBodyLinkedIn' },
-    { key: 'meta', id: 'channel-meta', name: 'Meta / IG', bodyId: 'strategyBodyMeta' },
+    { key: 'meta', id: 'channel-meta', name: 'Meta | Instagram', bodyId: 'strategyBodyMeta' },
     { key: 'pinterest', id: 'channel-pinterest', name: 'Pinterest', bodyId: 'strategyBodyPinterest' },
     { key: 'wechat', id: 'channel-wechat', name: 'WeChat', bodyId: 'strategyBodyWeChat' }
   ];
@@ -1273,20 +1372,33 @@ function renderStrategyTables() {
     } else {
       sec.style.display = 'block';
 
-      // Update KPI Bar and Delete button in section header
+      // Update KPI Bar, + Add Line Item, and Delete button in section header
       const header = sec.querySelector('.section-header');
       if (header) {
         let badgeHeader = header.querySelector('.channel-badge-header');
-        if (badgeHeader && !badgeHeader.querySelector('.btn-delete-section')) {
-          const delBtn = document.createElement('button');
-          delBtn.type = 'button';
-          delBtn.className = 'btn-delete-section edit-mode-only';
-          delBtn.setAttribute('data-action', 'delete-strategy-section');
-          delBtn.setAttribute('data-strat-key', def.key);
-          delBtn.setAttribute('data-platform-name', def.name);
-          delBtn.title = `Delete ${def.name} strategy section`;
-          delBtn.innerHTML = `✕ Delete Section`;
-          badgeHeader.appendChild(delBtn);
+        if (badgeHeader) {
+          if (!badgeHeader.querySelector('.btn-add-strategy-header')) {
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'btn-add-strategy-header edit-mode-only';
+            addBtn.setAttribute('data-action', 'add-strategy-line-item');
+            addBtn.setAttribute('data-strat-key', def.key);
+            addBtn.setAttribute('data-platform-name', def.name);
+            addBtn.title = `Add strategy line item to ${def.name}`;
+            addBtn.innerHTML = `+ Add Line Item`;
+            badgeHeader.appendChild(addBtn);
+          }
+          if (!badgeHeader.querySelector('.btn-delete-section')) {
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn-delete-section edit-mode-only';
+            delBtn.setAttribute('data-action', 'delete-strategy-section');
+            delBtn.setAttribute('data-strat-key', def.key);
+            delBtn.setAttribute('data-platform-name', def.name);
+            delBtn.title = `Delete ${def.name} strategy section`;
+            delBtn.innerHTML = `✕ Delete Section`;
+            badgeHeader.appendChild(delBtn);
+          }
         }
 
         let kpiBar = header.querySelector('.channel-kpi-bar');
@@ -1338,6 +1450,9 @@ function renderStrategyTables() {
           <div class="section-header">
             <div class="channel-badge-header">
               <span class="platform-badge ${platClass} large">${rawName}</span>
+              <button type="button" class="btn-add-strategy-header edit-mode-only" data-action="add-strategy-line-item" data-strat-key="${key}" data-platform-name="${rawName}" title="Add audience line item to ${rawName}">
+                + Add Line Item
+              </button>
               <button type="button" class="btn-delete-section edit-mode-only" data-action="delete-strategy-section" data-strat-key="${key}" data-platform-name="${rawName}" title="Delete ${rawName} strategy section">
                 ✕ Delete Section
               </button>
@@ -1364,6 +1479,7 @@ function renderStrategyTables() {
                   <th style="min-width: 110px;">Expected CPC</th>
                   <th style="min-width: 115px;">Expected CPL*</th>
                   <th style="min-width: 120px;" class="text-right">Budget Split</th>
+                  <th style="width: 38px;" class="table-action-col text-center"></th>
                 </tr>
               </thead>
               <tbody id="strategyBody_${key}"></tbody>
@@ -1493,6 +1609,9 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
       </td>
       <td class="text-right font-mono font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="split">
         ${row.split}
+      </td>
+      <td class="text-center table-action-col">
+        <button type="button" class="btn-minus-strategy-line edit-mode-only" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" title="Delete this line item">-</button>
       </td>
     `;
 
@@ -1685,6 +1804,28 @@ function attachStrategyTableListeners() {
       if (!APP_STATE.isEditMode) return;
       e.stopPropagation();
       openDropdownMenu(trigger);
+    });
+  });
+
+  // Strategy table minus '-' delete line item button (Just the sign)
+  document.querySelectorAll('.btn-minus-strategy-line').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (!APP_STATE.isEditMode) return;
+      e.stopPropagation();
+      const tableKey = btn.getAttribute('data-strategy-table');
+      const idx = parseInt(btn.getAttribute('data-strategy-idx'), 10);
+      BudgetStore.deleteStrategyLineItem(tableKey, idx);
+    });
+  });
+
+  // Strategy table add line item button in channel header
+  document.querySelectorAll('.btn-add-strategy-header').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const stratKey = btn.getAttribute('data-strat-key');
+      if (window.openAddStrategyLineItemModal) {
+        window.openAddStrategyLineItemModal(stratKey);
+      }
     });
   });
 
@@ -2160,6 +2301,225 @@ function initSectionDeleteConfirmModal() {
 }
 
 /* ==========================================================================
+   Add Channel Strategy Line Item Modal Controller
+   ========================================================================== */
+
+function initAddStrategyLineItemModal() {
+  const modal = document.getElementById('addStrategyLineItemModal');
+  const openTopBtn = document.getElementById('openAddStrategyLineItemTopBtn');
+  const closeBtn = document.getElementById('closeAddStrategyLineItemModalBtn');
+  const cancelBtn = document.getElementById('cancelAddStrategyLineItemBtn');
+  const form = document.getElementById('addStrategyLineItemForm');
+
+  const channelSelect = document.getElementById('stratLineChannelSelect');
+  const marketInput = document.getElementById('stratLineMarketInput');
+  const audienceInput = document.getElementById('stratLineAudienceInput');
+  const prioritySelect = document.getElementById('stratLinePrioritySelect');
+  const purposeInput = document.getElementById('stratLinePurposeInput');
+  const targetingInput = document.getElementById('stratLineTargetingInput');
+  const exclusionsInput = document.getElementById('stratLineExclusionsInput');
+  const offerInput = document.getElementById('stratLineOfferInput');
+  const splitInput = document.getElementById('stratLineSplitInput');
+  const cpcInput = document.getElementById('stratLineCpcInput');
+  const cplInput = document.getElementById('stratLineCplInput');
+
+  function populateChannelOptions(selectedStratKey = '') {
+    if (!channelSelect) return;
+    const tables = BudgetStore.data.strategyTables || {};
+    const platforms = BudgetStore.data.dropdownOptions.platforms || [];
+    
+    // Collect all channel keys
+    const availableKeys = new Set(['linkedin', 'meta', 'pinterest', 'wechat', 'youtube']);
+    Object.keys(tables).forEach(k => availableKeys.add(k));
+    platforms.forEach(p => availableKeys.add(getStratKey(p)));
+
+    channelSelect.innerHTML = Array.from(availableKeys).map(k => {
+      const name = getPlatformDisplayName(k);
+      const isSel = (k === selectedStratKey || (!selectedStratKey && k === 'linkedin')) ? 'selected' : '';
+      return `<option value="${k}" ${isSel}>${name}</option>`;
+    }).join('');
+  }
+
+  function openModal(prefillStratKey = '', prefillMarket = '') {
+    if (!modal) return;
+    populateChannelOptions(prefillStratKey);
+
+    if (prefillMarket && marketInput) {
+      marketInput.value = prefillMarket;
+    } else if (marketInput && !marketInput.value) {
+      marketInput.value = 'India';
+    }
+
+    if (audienceInput) audienceInput.value = '';
+    if (purposeInput) purposeInput.value = '';
+    if (targetingInput) targetingInput.value = '';
+    if (exclusionsInput) exclusionsInput.value = '';
+
+    modal.style.display = 'flex';
+    if (audienceInput) audienceInput.focus();
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.style.display = 'none';
+  }
+
+  window.openAddStrategyLineItemModal = openModal;
+
+  if (openTopBtn) openTopBtn.addEventListener('click', () => openModal());
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Quick country suggestion chips inside strategy line item modal
+  document.querySelectorAll('.strat-market-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.getAttribute('data-val');
+      if (val && marketInput) {
+        marketInput.value = val;
+        if (audienceInput) audienceInput.focus();
+      }
+    });
+  });
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const stratKey = channelSelect ? channelSelect.value : 'linkedin';
+      const market = marketInput ? marketInput.value.trim() : 'India';
+      const audience = audienceInput ? audienceInput.value.trim() : 'Target Audience';
+      const priority = prioritySelect ? prioritySelect.value : 'High';
+      const purpose = purposeInput ? purposeInput.value.trim() : 'Strategic lead generation';
+      const targeting = targetingInput ? targetingInput.value.trim() : 'Decision makers';
+      const exclusions = exclusionsInput ? exclusionsInput.value.trim() : 'Negative criteria';
+      const offer = offerInput ? offerInput.value.trim() : 'Work Better Magazine download';
+      const split = splitInput ? splitInput.value.trim() : '25%';
+      const cpc = cpcInput ? cpcInput.value.trim() : 'USD 4–8';
+      const cpl = cplInput ? cplInput.value.trim() : 'USD 45–85';
+
+      BudgetStore.addStrategyLineItem(stratKey, {
+        market,
+        audience,
+        priority,
+        purpose,
+        targeting,
+        exclusions,
+        offer,
+        split,
+        cpc,
+        cpl
+      });
+
+      closeModal();
+
+      // Scroll to channel section
+      setTimeout(() => {
+        const sec = document.getElementById(`channel-${stratKey}`);
+        if (sec && typeof sec.scrollIntoView === 'function') sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    });
+  }
+}
+
+/* ==========================================================================
+   Add New Channel Strategy Modal Controller
+   ========================================================================== */
+
+function initAddChannelModal() {
+  const modal = document.getElementById('addChannelModal');
+  const openTopBtn = document.getElementById('openAddChannelModalBtn');
+  const closeBtn = document.getElementById('closeAddChannelModalBtn');
+  const cancelBtn = document.getElementById('cancelAddChannelBtn');
+  const form = document.getElementById('addChannelForm');
+
+  const nameInput = document.getElementById('newChannelNameInput');
+  const subtitleInput = document.getElementById('newChannelSubtitleInput');
+  const calloutInput = document.getElementById('newChannelCalloutInput');
+  const marketInput = document.getElementById('newChannelMarketInput');
+  const audienceInput = document.getElementById('newChannelAudienceInput');
+  const targetingInput = document.getElementById('newChannelTargetingInput');
+  const offerInput = document.getElementById('newChannelOfferInput');
+
+  function openModal() {
+    if (!modal) return;
+    if (nameInput) nameInput.value = '';
+    modal.style.display = 'flex';
+    if (nameInput) nameInput.focus();
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.style.display = 'none';
+  }
+
+  window.openAddChannelModal = openModal;
+
+  if (openTopBtn) openTopBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Quick suggestion chips
+  document.querySelectorAll('.new-channel-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const val = chip.getAttribute('data-val');
+      if (val && nameInput) {
+        nameInput.value = val;
+        if (subtitleInput) {
+          if (val === 'YouTube') subtitleInput.value = 'High-impact video storytelling, executive awareness, and precision workplace audience engagement.';
+          else if (val === 'TikTok') subtitleInput.value = 'Short-form visual engagement, brand storytelling, and creator-led workplace innovation reach.';
+          else if (val === 'Google Ads') subtitleInput.value = 'High-intent search capture for commercial furniture, workplace fitout, and office design.';
+          else subtitleInput.value = `Tactical segmentation, targeting criteria, and lead acquisition strategy for ${val}.`;
+        }
+      }
+    });
+  });
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!name) return;
+
+      const subtitle = subtitleInput ? subtitleInput.value.trim() : '';
+      const callout = calloutInput ? calloutInput.value.trim() : '';
+      const market = marketInput ? marketInput.value.trim() : 'India';
+      const audience = audienceInput ? audienceInput.value.trim() : `${name} Target Audience`;
+      const targeting = targetingInput ? targetingInput.value.trim() : 'Enterprise decision makers';
+      const offer = offerInput ? offerInput.value.trim() : 'Work Better Magazine download';
+
+      const initialRow = {
+        market,
+        audience,
+        priority: "High",
+        purpose: subtitle || `Drive B2B awareness and pipeline on ${name}`,
+        targeting,
+        exclusions: "Competitors, junior roles, non-business consumer queries",
+        offer,
+        cpc: "USD 2–5",
+        cpl: "USD 35–70",
+        split: "100%"
+      };
+
+      BudgetStore.addNewChannelSection({
+        name,
+        subtitle,
+        callout,
+        initialRow
+      });
+
+      closeModal();
+    });
+  }
+}
+
+/* ==========================================================================
    Preset Selector & Export Functions
    ========================================================================== */
 
@@ -2573,6 +2933,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAll();
   initDropdownManager();
   initAddLineItemModal();
+  initAddStrategyLineItemModal();
+  initAddChannelModal();
   initSectionDeleteConfirmModal();
   initPresetsAndExport();
   initDeckFilterTabs();
