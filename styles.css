@@ -10,12 +10,12 @@
   --primary-border: rgba(0, 150, 167, 0.25);
   --accent: #0284c7;
 
-  /* Theme Customizer Surfaces & Neutrals (Light Theme) */
-  --header-bg: #ffffff;
-  --header-text: #0f172a;
-  --hero-bg: #ffffff;
-  --hero-text: #0f172a;
-  --bg-strategy-header: #f1f5f9;
+  /* Theme Customizer Surfaces & Neutrals (Light Theme with Signature Dark Headers) */
+  --header-bg: #2b2b2b;
+  --header-text: #ffffff;
+  --hero-bg: #2b2b2b;
+  --hero-text: #ffffff;
+  --bg-strategy-header: #2b2b2b;
   --table-header-bg: #f8fafc;
   --bg-body: #f8fafc;
   --bg-surface: #ffffff;
@@ -197,12 +197,13 @@ body.theme-night .top-nav {
 }
 
 .crumb-folder {
-  color: var(--text-secondary);
+  color: var(--header-text, var(--text-secondary));
+  opacity: 0.85;
   font-weight: 500;
 }
 
 .crumb-current {
-  color: var(--text-primary);
+  color: var(--header-text, var(--text-primary));
   font-weight: 600;
   text-overflow: ellipsis;
   overflow: hidden;
