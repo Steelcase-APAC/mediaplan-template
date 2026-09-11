@@ -811,82 +811,96 @@ function renderOverviewWidgets() {
   if (widgetCountryCountEl) widgetCountryCountEl.textContent = `${countryBreakdown.length} Markets`;
   if (widgetPlatformCountEl) widgetPlatformCountEl.textContent = `${platformBreakdown.length} Platforms`;
 
-  // 2. Render Top KPI Cards Deck (Matching Screenshot Layout + Channel Spend)
-  const kpiDeckEl = document.getElementById('overviewKpiDeck');
-  if (kpiDeckEl) {
-    kpiDeckEl.innerHTML = '';
-    const filter = APP_STATE.deckFilter;
+  // 2. Render Top KPI Cards Deck (Grouped into Countries and Channels)
+  const filter = APP_STATE.deckFilter;
+  const sectionCountries = document.getElementById('kpiSectionCountries');
+  const sectionChannels = document.getElementById('kpiSectionChannels');
+  const countriesContainer = document.getElementById('overviewKpiCountries');
+  const channelsContainer = document.getElementById('overviewKpiChannels');
+  const countryBadge = document.getElementById('kpiCountryCountBadge');
+  const channelBadge = document.getElementById('kpiChannelCountBadge');
 
-    // Card 1: Grand Total Budget Card
-    if (filter === 'all' || filter === 'countries') {
-      const totalCard = document.createElement('div');
-      totalCard.className = 'kpi-card kpi-total-card';
-      totalCard.innerHTML = `
-        <div class="kpi-card-header">
-          <span class="kpi-card-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-            TOTAL CAMPAIGN BUDGET
-          </span>
-          <span class="kpi-card-type-badge">GLOBAL</span>
-        </div>
-        <div class="kpi-card-value">$${formatNumber(grandTotal)}</div>
-        <div class="kpi-card-desc">Allocated across ${countryBreakdown.length} regional markets · ${totalChannelsCount} placements</div>
-        <div class="kpi-card-bar-bg">
-          <div class="kpi-card-bar-fill" style="width: 100%;"></div>
-        </div>
-      `;
-      kpiDeckEl.appendChild(totalCard);
-    }
+  if (countryBadge) countryBadge.textContent = `${countryBreakdown.length} Markets`;
+  if (channelBadge) channelBadge.textContent = `${platformBreakdown.length} Platforms`;
+
+  if (sectionCountries) {
+    sectionCountries.style.display = (filter === 'all' || filter === 'countries') ? 'block' : 'none';
+  }
+  if (sectionChannels) {
+    sectionChannels.style.display = (filter === 'all' || filter === 'platforms') ? 'block' : 'none';
+  }
+
+  // Populate Countries Row
+  if (countriesContainer) {
+    countriesContainer.innerHTML = '';
+
+    // Card 1: Total Budget Card
+    const totalCard = document.createElement('div');
+    totalCard.className = 'kpi-card kpi-total-card';
+    totalCard.innerHTML = `
+      <div class="kpi-card-header">
+        <span class="kpi-card-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          TOTAL CAMPAIGN
+        </span>
+        <span class="kpi-card-type-badge">GLOBAL</span>
+      </div>
+      <div class="kpi-card-value">$${formatNumber(grandTotal)}</div>
+      <div class="kpi-card-desc">${countryBreakdown.length} markets · ${totalChannelsCount} placements</div>
+      <div class="kpi-card-bar-bg">
+        <div class="kpi-card-bar-fill" style="width: 100%;"></div>
+      </div>
+    `;
+    countriesContainer.appendChild(totalCard);
 
     // Country Spend Cards
-    if (filter === 'all' || filter === 'countries') {
-      countryBreakdown.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'kpi-card';
-        const code = getCountryCode(item.name || item.code);
+    countryBreakdown.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'kpi-card';
+      const code = getCountryCode(item.name || item.code);
 
-        card.innerHTML = `
-          <div class="kpi-card-header">
-            <span class="kpi-card-title">
-              <span class="market-tag tag-${code}" style="padding: 1px 6px; font-size: 10px;">${code.toUpperCase()}</span>
-              ${item.name.toUpperCase()}
-            </span>
-            <span class="kpi-card-type-badge">${item.percent.toFixed(1)}%</span>
-          </div>
-          <div class="kpi-card-value">$${formatNumber(item.total)}</div>
-          <div class="kpi-card-desc">${item.channelsSummary || `${item.channelCount} channel placement(s)`}</div>
-          <div class="kpi-card-bar-bg">
-            <div class="kpi-card-bar-fill bar-${code}" style="width: ${Math.min(100, Math.max(3, item.percent))}%;"></div>
-          </div>
-        `;
-        kpiDeckEl.appendChild(card);
-      });
-    }
+      card.innerHTML = `
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">
+            <span class="market-tag tag-${code}" style="padding: 1px 5px; font-size: 9.5px;">${code.toUpperCase()}</span>
+            ${item.name.toUpperCase()}
+          </span>
+          <span class="kpi-card-type-badge">${item.percent.toFixed(1)}%</span>
+        </div>
+        <div class="kpi-card-value">$${formatNumber(item.total)}</div>
+        <div class="kpi-card-desc" title="${item.channelsSummary}">${item.channelsSummary || `${item.channelCount} channel placement(s)`}</div>
+        <div class="kpi-card-bar-bg">
+          <div class="kpi-card-bar-fill bar-${code}" style="width: ${Math.min(100, Math.max(3, item.percent))}%;"></div>
+        </div>
+      `;
+      countriesContainer.appendChild(card);
+    });
+  }
 
-    // Platform Spend Cards (LinkedIn, Meta, WeChat, Pinterest, YouTube, Google, etc.)
-    if (filter === 'all' || filter === 'platforms') {
-      platformBreakdown.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'kpi-card';
-        const platClass = getPlatformBadgeClass(item.name);
-        const marketListStr = item.marketNames.slice(0, 3).join(', ');
+  // Populate Channels Row
+  if (channelsContainer) {
+    channelsContainer.innerHTML = '';
+    platformBreakdown.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'kpi-card';
+      const platClass = getPlatformBadgeClass(item.name);
+      const marketListStr = item.marketNames.join(', ');
 
-        card.innerHTML = `
-          <div class="kpi-card-header">
-            <span class="kpi-card-title">
-              <span class="platform-badge ${platClass}" style="padding: 1px 6px; font-size: 10px;">${item.name}</span>
-            </span>
-            <span class="kpi-card-type-badge">${item.percent.toFixed(1)}%</span>
-          </div>
-          <div class="kpi-card-value">$${formatNumber(item.total)}</div>
-          <div class="kpi-card-desc">${item.percent.toFixed(1)}% of total · ${item.count} placement(s) in ${marketListStr}</div>
-          <div class="kpi-card-bar-bg">
-            <div class="kpi-card-bar-fill bar-${platClass}" style="width: ${Math.min(100, Math.max(3, item.percent))}%;"></div>
-          </div>
-        `;
-        kpiDeckEl.appendChild(card);
-      });
-    }
+      card.innerHTML = `
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">
+            <span class="platform-badge ${platClass}" style="padding: 1px 5px; font-size: 9.5px;">${item.name}</span>
+          </span>
+          <span class="kpi-card-type-badge">${item.percent.toFixed(1)}%</span>
+        </div>
+        <div class="kpi-card-value">$${formatNumber(item.total)}</div>
+        <div class="kpi-card-desc" title="${item.percent.toFixed(1)}% in ${marketListStr}">${item.percent.toFixed(1)}% · ${marketListStr}</div>
+        <div class="kpi-card-bar-bg">
+          <div class="kpi-card-bar-fill bar-${platClass}" style="width: ${Math.min(100, Math.max(3, item.percent))}%;"></div>
+        </div>
+      `;
+      channelsContainer.appendChild(card);
+    });
   }
 
   // 3. Multi-Segment Continuous Proportional Bars
@@ -1047,18 +1061,22 @@ function renderMainBudgetTable() {
         html += `
           <td rowspan="${rowCount}" class="cell-market font-bold">
             <div class="market-cell-content">
-              <span class="market-tag tag-${countryCode} dropdown-trigger" data-market-id="${market.id}" data-dropdown-group="markets" title="Click to rename or change market">
-                ${market.name}
-              </span>
-              <span class="market-subtotal-badge">
-                Subtotal: $${formatNumber(market.totalBudget)}
-              </span>
-              <div class="market-actions-wrap" style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
-                <button type="button" class="btn-add-channel" data-action="add-line-item-market" data-market-name="${market.name}" title="Add a line item to ${market.name}">
-                  + Line Item
-                </button>
-                <button type="button" class="btn-delete-market" data-action="delete-market" data-market-id="${market.id}" title="Delete entire ${market.name} market section">
-                  Delete Country
+              <div class="market-cell-top">
+                <div class="market-title-row">
+                  <span class="market-tag tag-${countryCode} dropdown-trigger" data-market-id="${market.id}" data-dropdown-group="markets" title="Click to rename or change market">
+                    ${market.name}
+                  </span>
+                  <button type="button" class="btn-delete-market" data-action="delete-market" data-market-id="${market.id}" title="Delete entire ${market.name} country section">
+                    Delete Country
+                  </button>
+                </div>
+                <span class="market-subtotal-badge">
+                  Subtotal: $${formatNumber(market.totalBudget)}
+                </span>
+              </div>
+              <div class="market-cell-bottom">
+                <button type="button" class="btn-add-line-square" data-action="add-line-item-market" data-market-name="${market.name}" title="Add a line item to ${market.name}">
+                  +
                 </button>
               </div>
             </div>

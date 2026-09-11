@@ -163,9 +163,32 @@
           </div>
         </div>
 
-        <!-- Top KPI Cards Deck: Matching the user's screenshot layout + Platform Spend -->
-        <div class="overview-kpi-deck" id="overviewKpiDeck">
-          <!-- Dynamically populated by renderOverviewWidgets() in app.js -->
+        <!-- Group 1: Countries & Total Campaign Budget -->
+        <div class="kpi-section-container" id="kpiSectionCountries">
+          <div class="kpi-section-header">
+            <span class="kpi-section-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              COUNTRIES & TOTAL BUDGET
+            </span>
+            <span class="kpi-section-count" id="kpiCountryCountBadge">3 Markets</span>
+          </div>
+          <div class="kpi-cards-row kpi-row-countries" id="overviewKpiCountries">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </div>
+
+        <!-- Group 2: Media Channels / Platforms -->
+        <div class="kpi-section-container" id="kpiSectionChannels">
+          <div class="kpi-section-header">
+            <span class="kpi-section-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              CHANNELS (MEDIA PLATFORMS)
+            </span>
+            <span class="kpi-section-count" id="kpiChannelCountBadge">5 Platforms</span>
+          </div>
+          <div class="kpi-cards-row kpi-row-channels" id="overviewKpiChannels">
+            <!-- Dynamically populated by app.js -->
+          </div>
         </div>
 
         <!-- Proportional Allocation Visualizer Grid -->
@@ -514,7 +537,7 @@
             <label for="lineItemBudgetInput">Total Allocated Budget (USD)</label>
             <div class="input-prefix-wrap">
               <span class="input-prefix">$</span>
-              <input type="number" id="lineItemBudgetInput" class="form-input font-mono with-prefix" placeholder="5000" min="100" step="500" value="5000" required>
+              <input type="number" id="lineItemBudgetInput" class="form-input font-mono with-prefix" placeholder="5000" min="0" step="any" value="5000" required>
             </div>
           </div>
 
