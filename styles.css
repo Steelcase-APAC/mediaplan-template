@@ -333,10 +333,6 @@ body.theme-night .moon-icon { display: block; }
   white-space: nowrap;
 }
 
-/* Edit Mode Toggle Switch */
-.edit-toggle {
-  display: inline-flex;
-  align-items: center;
 /* Planning vs Present Mode Toggle Switch */
 .mode-switch-group {
   display: inline-flex;
