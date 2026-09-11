@@ -1354,7 +1354,7 @@ function renderMainBudgetTable() {
                   <span class="market-tag tag-${countryCode} dropdown-trigger" data-market-id="${market.id}" data-dropdown-group="markets" title="Click to rename or change market">
                     ${market.name}
                   </span>
-                  <button type="button" class="btn-delete-market" data-action="delete-market" data-market-id="${market.id}" title="Delete entire ${market.name} country section">
+                  <button type="button" class="btn-delete-market edit-mode-only" data-action="delete-market" data-market-id="${market.id}" title="Delete entire ${market.name} country section">
                     Delete Country
                   </button>
                 </div>
@@ -1363,7 +1363,7 @@ function renderMainBudgetTable() {
                 </span>
               </div>
               <div class="market-cell-bottom">
-                <button type="button" class="btn-add-line-square" data-action="add-line-item-market" data-market-name="${market.name}" title="Add a line item to ${market.name}">
+                <button type="button" class="btn-add-line-square edit-mode-only" data-action="add-line-item-market" data-market-name="${market.name}" title="Add a line item to ${market.name}">
                   +
                 </button>
               </div>
@@ -1381,7 +1381,7 @@ function renderMainBudgetTable() {
             <span class="platform-badge ${platClass} dropdown-trigger" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="platform" data-dropdown-group="platforms" title="Click to change platform">
               ${channel.platform}
             </span>
-            <button type="button" class="btn-delete-row-inline" data-action="delete-channel" data-market-id="${market.id}" data-channel-id="${channel.id}" title="Delete this line item">
+            <button type="button" class="btn-delete-row-inline edit-mode-only" data-action="delete-channel" data-market-id="${market.id}" data-channel-id="${channel.id}" title="Delete this line item">
               ✕
             </button>
           </div>
@@ -1418,8 +1418,8 @@ function renderMainBudgetTable() {
 
       // Rightmost Action Column
       html += `
-        <td class="table-action-col text-center">
-          <button type="button" class="btn-delete-row" data-action="delete-channel" data-market-id="${market.id}" data-channel-id="${channel.id}" title="Remove this placement row">
+        <td class="table-action-col edit-mode-only text-center">
+          <button type="button" class="btn-delete-row edit-mode-only" data-action="delete-channel" data-market-id="${market.id}" data-channel-id="${channel.id}" title="Remove this placement row">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
         </td>

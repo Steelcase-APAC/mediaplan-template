@@ -1523,6 +1523,21 @@ body.edit-mode-active .dropdown-trigger::after {
   display: none !important;
 }
 
+body:not(.edit-mode-active) .edit-mode-only,
+body:not(.edit-mode-active) .btn-add-line-square,
+body:not(.edit-mode-active) .btn-delete-market,
+body:not(.edit-mode-active) .btn-delete-row-inline,
+body:not(.edit-mode-active) .btn-delete-row,
+body:not(.edit-mode-active) .btn-add-strategy-header,
+body:not(.edit-mode-active) .btn-add-strategy-line,
+body:not(.edit-mode-active) .btn-minus-strategy-line,
+body:not(.edit-mode-active) .btn-delete-section,
+body:not(.edit-mode-active) .btn-add-line-item,
+body:not(.edit-mode-active) .table-action-col,
+body:not(.edit-mode-active) th.table-action-col {
+  display: none !important;
+}
+
 body.edit-mode-active .edit-mode-only {
   display: inline-flex !important;
 }
