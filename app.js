@@ -3076,7 +3076,46 @@ function initThemeAndNav() {
 
   const printBtn = document.getElementById('printBtn');
   if (printBtn) {
-    printBtn.addEventListener('click', () => window.print());
+    printBtn.addEventListener('click', async () => {
+      const originalHtml = printBtn.innerHTML;
+      printBtn.disabled = true;
+      printBtn.innerHTML = `
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg>
+        <span>Downloading...</span>
+      `;
+
+      showToast('Preparing clean executive PDF proposal...', 'info');
+
+      try {
+        if (typeof html2pdf !== 'undefined') {
+          const element = document.querySelector('.main-content');
+          const opt = {
+            margin: [6, 8, 6, 8],
+            filename: 'Steelcase_Media_Proposal_July_2026.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+              scale: 2, 
+              useCORS: true, 
+              logging: false,
+              scrollY: 0
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+            pagebreak: { mode: ['css', 'legacy'] }
+          };
+
+          await html2pdf().set(opt).from(element).save();
+          showToast('PDF proposal downloaded successfully!', 'success');
+        } else {
+          window.print();
+        }
+      } catch (err) {
+        console.warn('Direct PDF download fallback to print engine:', err);
+        window.print();
+      } finally {
+        printBtn.disabled = false;
+        printBtn.innerHTML = originalHtml;
+      }
+    });
   }
 
   // Outline scroll spy

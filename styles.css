@@ -652,8 +652,10 @@ body.theme-night .moon-icon { display: block; }
 .kpi-cards-row .kpi-card {
   flex: 1 1 0;
   min-width: 140px;
+  background: #4a4a4a;
   background: color-mix(in srgb, var(--hero-bg, #2b2b2b) 80%, white 20%);
   color: #ffffff;
+  border: 1.5px solid #666666;
   border: 1.5px solid color-mix(in srgb, var(--hero-bg, #2b2b2b) 65%, white 35%);
   border-radius: 10px;
   padding: 10px 13px;
@@ -2675,7 +2677,7 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
   }
   100% {
     transform: scale(0.95);
@@ -2683,14 +2685,19 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   }
 }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* ==========================================================================
-   Print & Save as PDF Styles
+   Print & Download PDF Styles (Publication-Grade 3-Page Executive Proposal)
    ========================================================================== */
 
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm 12mm;
+    margin: 0;
   }
 
   /* Force exact background colors & eliminate shadows */
@@ -2705,10 +2712,11 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   html, body {
     background: #ffffff !important;
     color: #0f172a !important;
-    font-size: 12px !important;
+    font-size: 10px !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 6mm 8mm !important;
+    zoom: 0.92;
   }
 
   /* Hide interactive, editing, and navigation elements */
@@ -2729,13 +2737,20 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   .modal-backdrop,
   .modal,
   #themeSettingsModal,
+  #adminPortalModal,
+  #authModal,
   #customDropdownPopup,
   #saveToast,
   .edit-mode-only,
   iframe,
   [class*="feedback"],
   [class*="widget-fixed"],
-  [id*="chat"] {
+  [id*="chat"],
+  div[style*="fixed"],
+  div[id*="extension"],
+  div[class*="extension"],
+  [aria-label*="chat" i],
+  [aria-label*="feedback" i] {
     display: none !important;
   }
 
@@ -2756,47 +2771,188 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
     margin: 0 !important;
     display: block !important;
     max-width: 100% !important;
+    width: 100% !important;
   }
 
   .main-content {
-    gap: 20px !important;
+    gap: 10px !important;
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* Preserve signature dark headers (#2b2b2b) and crisp white text */
-  .hero-section,
-  .channel-strategy-main-header {
+  /* Page 1: Hero Section + Executive Overview Deck */
+  .hero-section {
     background: #2b2b2b !important;
     color: #ffffff !important;
     border: 1px solid #2b2b2b !important;
-    border-radius: 12px !important;
-    padding: 24px 28px !important;
+    border-radius: 8px !important;
+    padding: 12px 18px !important;
+    margin-bottom: 8px !important;
     page-break-inside: avoid;
     break-inside: avoid;
   }
 
-  .hero-section h1,
-  .hero-section p,
-  .channel-strategy-main-header .section-main-heading,
-  .channel-strategy-main-header .section-subtitle {
+  .hero-section h1 {
+    font-size: 19px !important;
     color: #ffffff !important;
+    margin-bottom: 4px !important;
   }
 
-  /* Content sections page break handling */
-  .content-section,
-  .overview-section,
-  .footer-card,
-  .country-strategy-block {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    margin-bottom: 20px !important;
+  .hero-section p {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    color: rgba(255, 255, 255, 0.88) !important;
+    margin: 0 !important;
+  }
+
+  .hero-meta-badges {
+    margin-bottom: 6px !important;
+    gap: 6px !important;
+  }
+
+  .hero-pill {
+    padding: 2px 7px !important;
+    font-size: 10px !important;
+  }
+
+  /* Executive Overview fits cleanly on Page 1 */
+  .overview-section {
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: auto;
+    break-inside: auto;
+    margin-bottom: 0 !important;
+    padding: 12px 16px !important;
     border: 1px solid #e2e8f0 !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     background: #ffffff !important;
   }
 
-  /* Table formatting for landscape PDF */
+  .overview-header {
+    margin-bottom: 8px !important;
+    gap: 8px !important;
+  }
+
+  .overview-title {
+    font-size: 16px !important;
+  }
+
+  .overview-subtitle {
+    font-size: 11px !important;
+    margin-top: 2px !important;
+  }
+
+  .kpi-section-container {
+    margin-bottom: 8px !important;
+  }
+
+  .kpi-section-header {
+    margin-bottom: 5px !important;
+  }
+
+  .kpi-section-title {
+    font-size: 10.5px !important;
+  }
+
+  .kpi-cards-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 7px !important;
+  }
+
+  .kpi-card {
+    padding: 8px 10px !important;
+    border-radius: 6px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .kpi-card.kpi-total-card {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+    border-color: #2b2b2b !important;
+  }
+
+  .kpi-cards-row .kpi-card:not(.kpi-total-card) {
+    background: #444444 !important;
+    background: color-mix(in srgb, #2b2b2b 80%, white 20%) !important;
+    color: #ffffff !important;
+  }
+
+  .kpi-title {
+    font-size: 9.5px !important;
+  }
+
+  .kpi-num {
+    font-size: 16px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .kpi-desc {
+    font-size: 9.5px !important;
+  }
+
+  .kpi-progress-bg {
+    height: 3px !important;
+    margin-top: 4px !important;
+  }
+
+  .overview-widgets-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  .widget-card {
+    padding: 9px 11px !important;
+    border-radius: 6px !important;
+    border: 1px solid #e2e8f0 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .widget-card-title {
+    font-size: 11px !important;
+  }
+
+  .bar-row {
+    margin-bottom: 3px !important;
+  }
+
+  .bar-row-label {
+    font-size: 10px !important;
+  }
+
+  .bar-row-val {
+    font-size: 10px !important;
+  }
+
+  /* Page 2: Master Spend Breakdown Table */
+  #table-section {
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: auto;
+    break-inside: auto;
+    margin-bottom: 0 !important;
+    padding: 12px 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+  }
+
+  .section-header {
+    margin-bottom: 8px !important;
+  }
+
+  .section-title {
+    font-size: 15px !important;
+  }
+
+  .section-subtitle {
+    font-size: 10.5px !important;
+  }
+
   .proposal-table-wrapper,
   .strategy-table-wrapper {
     overflow: visible !important;
@@ -2805,7 +2961,7 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   .proposal-table,
   .strategy-table {
     width: 100% !important;
-    font-size: 11px !important;
+    font-size: 9.5px !important;
     border-collapse: collapse !important;
   }
 
@@ -2813,7 +2969,71 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   .proposal-table td,
   .strategy-table th,
   .strategy-table td {
-    padding: 8px 10px !important;
+    padding: 5px 7px !important;
+  }
+
+  .proposal-table tr,
+  .strategy-table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Page 3: Strategic Execution Deck & Approvals */
+  #strategy-section {
+    page-break-inside: auto;
+    break-inside: auto;
+    margin-bottom: 0 !important;
+    padding: 12px 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+  }
+
+  .channel-strategy-main-header {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+    border: 1px solid #2b2b2b !important;
+    border-radius: 6px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 10px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .channel-strategy-main-header .section-main-heading {
+    font-size: 15px !important;
+    color: #ffffff !important;
+  }
+
+  .channel-strategy-main-header .section-subtitle {
+    font-size: 10.5px !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  .country-strategy-block {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    background: #ffffff !important;
+  }
+
+  .country-strategy-header {
+    padding: 7px 10px !important;
+  }
+
+  .country-strategy-title {
+    font-size: 11.5px !important;
+  }
+
+  .footer-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-top: 10px !important;
+    padding: 10px 14px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
   }
 
   /* Preserve badge backgrounds & pill formatting */

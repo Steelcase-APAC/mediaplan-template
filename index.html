@@ -64,10 +64,10 @@
             </button>
           </div>
 
-          <!-- Save as PDF Action -->
-          <button id="printBtn" class="btn btn-secondary btn-sm" title="Save proposal as PDF document">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M12 18v-6"></path><path d="m9 15 3 3 3-3"></path></svg>
-            <span>Save as PDF</span>
+          <!-- Download PDF Action -->
+          <button id="printBtn" class="btn btn-secondary btn-sm" title="Download proposal as PDF document">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Download PDF</span>
           </button>
         </div>
 
@@ -151,19 +151,6 @@
             <p class="overview-subtitle">Real-time spend breakdown across regional markets and media channels. Auto-updates with every budget edit.</p>
           </div>
 
-          <div class="overview-header-right">
-            <!-- Deck Filter Tabs -->
-            <div class="deck-filter-tabs">
-              <button class="deck-tab active" data-deck-filter="all">All Summary Cards</button>
-              <button class="deck-tab" data-deck-filter="countries">By Country</button>
-              <button class="deck-tab" data-deck-filter="platforms">By Platform</button>
-            </div>
-
-            <div class="overview-total-badge">
-              <span class="overview-total-label">TOTAL CAMPAIGN BUDGET</span>
-              <span class="overview-total-num" id="overviewGrandTotal">$118,500</span>
-            </div>
-          </div>
         </div>
 
         <!-- Group 1: Countries & Total Campaign Budget -->
@@ -1300,6 +1287,7 @@
     };
     window.dispatchEvent(new CustomEvent('firebase-sdk-ready'));
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
