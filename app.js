@@ -2979,7 +2979,7 @@ function initAuthManager() {
     } else {
       const user = users[email];
       if (!user || user.passwordHash !== hash) {
-        showAuthError('Invalid email or password. (Admin: ardentcentury@gmail.com / 332323)');
+        showAuthError('Invalid email or password. Please try again.');
         return;
       }
 

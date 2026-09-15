@@ -3,7 +3,7 @@
 
 A modern, client-side, reactive marketing budget planning application designed for marketing leaders, media strategists, and demand generation teams.
 
-Live local preview: **`http://localhost:3000/`**
+Live local preview: **`http://localhost:8080/`** (or any chosen local port, e.g. `npx serve -l 8080`)
 
 ---
 

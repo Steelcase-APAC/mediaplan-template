@@ -918,7 +918,7 @@
             <span>Admin Portal</span>
           </div>
           <h3 class="modal-card-title">Admin Management & Settings</h3>
-          <p class="modal-subtitle">Restricted console for ardentcentury@gmail.com. Manage live colors, view all user accounts, and monitor real-time Firestore sync.</p>
+          <p class="modal-subtitle">Restricted console for administrators. Manage live colors, view user accounts, and monitor real-time Firestore sync.</p>
         </div>
         <button type="button" id="closeAdminPortalModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
       </div>
@@ -930,11 +930,11 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           </div>
           <h4 style="font-size: 17px; font-weight: 700; margin-bottom: 6px;">Admin Authentication Required</h4>
-          <p class="text-muted" style="font-size: 13px; margin-bottom: 16px;">This area is restricted to <strong>ardentcentury@gmail.com</strong>. Please enter the admin password to continue.</p>
+          <p class="text-muted" style="font-size: 13px; margin-bottom: 16px;">This area is restricted to authorized administrators. Please enter the admin password to continue.</p>
           <form id="adminLockForm" class="admin-lock-form">
             <div class="input-field" style="margin-bottom: 12px; text-align: left;">
               <label class="input-label" for="adminLockPassword">Admin Password</label>
-              <input type="password" id="adminLockPassword" class="input-text" placeholder="Enter password (332323)" required autocomplete="current-password">
+              <input type="password" id="adminLockPassword" class="input-text" placeholder="Enter admin password" required autocomplete="current-password">
             </div>
             <div id="adminLockError" class="auth-error-msg" style="display: none; margin-bottom: 12px;">Incorrect admin password. Access denied.</div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Unlock Admin Portal</button>
