@@ -3268,12 +3268,12 @@ const FirestoreSyncManager = {
       try { return JSON.parse(custom); } catch (e) {}
     }
     return {
-      apiKey: "AIzaSyDemoPlaceholderKey1234567890",
-      authDomain: "steelcase-media-plan.firebaseapp.com",
-      projectId: "steelcase-media-plan",
-      storageBucket: "steelcase-media-plan.appspot.com",
-      messagingSenderId: "123456789012",
-      appId: "1:123456789012:web:abcdef1234567890"
+      apiKey: "AIzaSyBD7duXUQ0w9v3-eqw938wNMAbhHhih2rM",
+      authDomain: "mediaplan-template.firebaseapp.com",
+      projectId: "mediaplan-template",
+      storageBucket: "mediaplan-template.firebasestorage.app",
+      messagingSenderId: "422084728154",
+      appId: "1:422084728154:web:c279a25ba774bc48d68f63"
     };
   },
 
@@ -3286,12 +3286,19 @@ const FirestoreSyncManager = {
     }
   },
 
-  setupConnection() {
+  async setupConnection() {
     if (!window.FirebaseSDK) return;
     try {
       const config = this.getDefaultConfig();
       this.status = 'connecting';
       this.updateStatusUI();
+
+      if (window.FirebaseSDK.getApps && window.FirebaseSDK.getApps().length > 0) {
+        const apps = window.FirebaseSDK.getApps();
+        for (const a of apps) {
+          if (window.FirebaseSDK.deleteApp) await window.FirebaseSDK.deleteApp(a);
+        }
+      }
 
       const app = window.FirebaseSDK.initializeApp(config);
       this.db = window.FirebaseSDK.getFirestore(app);
@@ -3555,18 +3562,40 @@ function initFirebaseConfigHandlers() {
     saveBtn.addEventListener('click', () => {
       const textarea = document.getElementById('firebaseConfigInput');
       if (!textarea) return;
+      let raw = textarea.value.trim();
       try {
-        const parsed = JSON.parse(textarea.value.trim());
+        let parsed = null;
+        if (raw.startsWith('{') && raw.endsWith('}')) {
+          try {
+            parsed = JSON.parse(raw);
+          } catch (e) {
+            parsed = new Function(`return (${raw})`)();
+          }
+        } else {
+          // Extract object {...} if pasted with 'const firebaseConfig = ...'
+          const match = raw.match(/\{[\s\S]*\}/);
+          if (match) {
+            parsed = new Function(`return (${match[0]})`)();
+          } else {
+            throw new Error('No valid config object found');
+          }
+        }
+
+        if (!parsed || !parsed.apiKey || !parsed.projectId) {
+          throw new Error('Config missing apiKey or projectId');
+        }
+
         localStorage.setItem('steelcase_firebase_config', JSON.stringify(parsed));
+        textarea.value = JSON.stringify(parsed, null, 2);
         FirestoreSyncManager.setupConnection();
         if (statusEl) {
-          statusEl.textContent = '✓ Config saved! Connecting...';
+          statusEl.textContent = '✓ Config saved! Connected to Firestore.';
           statusEl.style.color = '#10b981';
           setTimeout(() => { statusEl.textContent = ''; }, 3000);
         }
-        showToast('Firebase credentials saved & connecting');
+        showToast('Firebase credentials saved & connected');
       } catch (err) {
-        alert('Invalid JSON format for Firebase configuration. Please verify.');
+        alert('Could not parse Firebase configuration. Please paste the config object and try again.');
       }
     });
   }
