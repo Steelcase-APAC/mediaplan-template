@@ -3504,21 +3504,22 @@ function initDeckFilterTabs() {
 function updateHeaderControlsVisibility() {
   const controlsGroup = document.getElementById('headerControlsGroup');
   const adminBtn = document.getElementById('openAdminSettingsBtn');
-  const exportGroup = document.querySelector('.export-btn-group');
+  const exportWrap = document.getElementById('exportDropdownWrap');
   if (!controlsGroup) return;
 
   if (!APP_STATE.currentUser) {
     controlsGroup.style.display = 'none';
+    if (adminBtn) adminBtn.style.display = 'none';
     return;
   }
   controlsGroup.style.display = 'flex';
 
   if (APP_STATE.isEditMode) {
     if (adminBtn) adminBtn.style.display = 'inline-flex';
-    if (exportGroup) exportGroup.style.display = 'inline-flex';
+    if (exportWrap) exportWrap.style.display = 'inline-flex';
   } else {
     if (adminBtn) adminBtn.style.display = 'none';
-    if (exportGroup) exportGroup.style.display = 'none';
+    if (exportWrap) exportWrap.style.display = 'none';
   }
 }
 
