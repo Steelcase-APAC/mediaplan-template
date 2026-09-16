@@ -53,22 +53,48 @@
             <span>Settings</span>
           </button>
 
-          <!-- Export & Reset Menu (CSV & Reset only) -->
-          <div class="export-btn-group">
-            <button id="exportCsvBtn" class="btn btn-secondary btn-sm" title="Export budget plan as CSV spreadsheet">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              <span>CSV</span>
+          <!-- File Operations Menu Dropdown (Open, Save) -->
+          <div class="nav-dropdown-wrapper" id="fileDropdownWrap">
+            <button id="fileDropdownBtn" class="btn btn-secondary btn-sm nav-dropdown-btn" type="button" title="File operations: Open or Save proposal">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+              <span>File</span>
+              <svg class="dropdown-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
+            <div id="fileDropdownMenu" class="nav-dropdown-menu" style="display: none;">
+              <button type="button" id="fileOpenBtn" class="nav-dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                <span>Open...</span>
+              </button>
+              <button type="button" id="fileSaveBtn" class="nav-dropdown-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <span>Save...</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Combined Export Dropdown (PDF, CSV) & Reset -->
+          <div class="export-btn-group">
+            <div class="nav-dropdown-wrapper" id="exportDropdownWrap">
+              <button id="exportDropdownBtn" class="btn btn-secondary btn-sm nav-dropdown-btn" type="button" title="Export proposal as PDF or CSV">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Export</span>
+                <svg class="dropdown-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+              <div id="exportDropdownMenu" class="nav-dropdown-menu" style="display: none;">
+                <button type="button" id="exportPdfOptionBtn" class="nav-dropdown-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  <span>Download PDF</span>
+                </button>
+                <button type="button" id="exportCsvOptionBtn" class="nav-dropdown-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  <span>Export CSV</span>
+                </button>
+              </div>
+            </div>
             <button id="resetDataBtn" class="btn btn-secondary btn-sm" title="Reset all changes back to original Steelcase media plan">
               <span>Reset</span>
             </button>
           </div>
-
-          <!-- Download PDF Action -->
-          <button id="printBtn" class="btn btn-secondary btn-sm" title="Download proposal as PDF document">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            <span>Download PDF</span>
-          </button>
         </div>
 
         <!-- Optional User Account Pill -->
@@ -1260,6 +1286,85 @@
     </div>
   </div>
 
+  <!-- Modal: Save File -->
+  <div id="saveFileModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(0, 150, 167, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          </div>
+          <div>
+            <h3 class="modal-card-title" style="margin: 0; padding: 0; font-size: 16px;">Save</h3>
+            <p class="modal-subtitle" style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Save current proposal</p>
+          </div>
+        </div>
+        <button type="button" id="closeSaveFileModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      </div>
+      <form id="saveFileForm" class="modal-body" style="padding: 18px 20px;">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" for="saveFileNameInput" style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">File Name</label>
+          <input type="text" id="saveFileNameInput" class="input-text" placeholder="Proposal Name" required style="width: 100%; padding: 9px 12px; font-size: 13.5px; border: 1px solid var(--border-medium); border-radius: var(--radius-sm);" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin: 0;">Saved files:</label>
+            <span id="saveOverwriteHint" style="font-size: 11px; color: var(--text-muted);"></span>
+          </div>
+          <div id="saveOverwriteListContainer" class="save-overwrite-list">
+            <!-- Previously saved files listed here -->
+          </div>
+        </div>
+
+        <div id="saveFileSummaryBadge" style="padding: 10px 14px; background: var(--bg-body); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 18px;">
+          <span style="color: var(--text-secondary);">Total Budget:</span>
+          <span id="saveFileGrandTotal" style="font-weight: 700; color: var(--primary); font-family: monospace; font-size: 13px;">$0</span>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 0;">
+          <button type="button" id="cancelSaveFileBtn" class="btn btn-secondary btn-sm">Cancel</button>
+          <button type="submit" id="confirmSaveFileBtn" class="btn btn-primary btn-sm" style="display: flex; align-items: center; gap: 6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path></svg>
+            <span id="saveSubmitBtnText">Save</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Open Saved File -->
+  <div id="openFileModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(0, 150, 167, 0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <div>
+            <h3 class="modal-card-title" style="margin: 0; padding: 0; font-size: 16px;">Open</h3>
+            <p class="modal-subtitle" style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Select a saved proposal</p>
+          </div>
+        </div>
+        <button type="button" id="closeOpenFileModalBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 20px;">
+        <div style="margin-bottom: 12px;">
+          <input type="text" id="searchSavedFilesInput" class="input-text" placeholder="Search files..." style="width: 100%; padding: 7px 12px; font-size: 12.5px; border-radius: var(--radius-sm); border: 1px solid var(--border-medium);" />
+        </div>
+
+        <div id="savedFilesListContainer" class="saved-files-list" style="max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px;">
+          <div class="loading-state" style="padding: 30px; text-align: center; color: var(--text-muted); font-size: 13px;">
+            Loading files...
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-top: 1px solid var(--border-subtle); background: var(--bg-body);">
+        <span id="savedFilesCountLabel" style="font-size: 11.5px; color: var(--text-muted);">0 files</span>
+        <button type="button" id="cancelOpenFileBtn" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase App & Firestore Modular SDK (Official v10 Modular via CDN) -->
   <script type="module">
     import { initializeApp, getApps, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1269,6 +1374,7 @@
       getDoc, 
       setDoc, 
       updateDoc, 
+      deleteDoc,
       onSnapshot, 
       collection, 
       getDocs 
@@ -1283,6 +1389,7 @@
       getDoc,
       setDoc,
       updateDoc,
+      deleteDoc,
       onSnapshot,
       collection,
       getDocs

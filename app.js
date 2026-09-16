@@ -2727,44 +2727,482 @@ function initPresetsAndExport() {
     });
   }
 
-  // CSV Export with all 12 calendar months
-  const exportCsvBtn = document.getElementById('exportCsvBtn');
+  // Combined Export Dropdown: PDF and CSV
+  const exportDropdownBtn = document.getElementById('exportDropdownBtn');
+  const exportDropdownMenu = document.getElementById('exportDropdownMenu');
+  const exportDropdownWrap = document.getElementById('exportDropdownWrap');
+  const exportPdfBtn = document.getElementById('exportPdfOptionBtn');
+  const exportCsvBtn = document.getElementById('exportCsvOptionBtn');
+
+  if (exportDropdownBtn && exportDropdownMenu) {
+    exportDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const fileWrap = document.getElementById('fileDropdownWrap');
+      const fileMenu = document.getElementById('fileDropdownMenu');
+      if (fileWrap && fileMenu) {
+        fileWrap.classList.remove('open');
+        fileMenu.style.display = 'none';
+      }
+
+      const isOpen = exportDropdownMenu.style.display === 'flex';
+      exportDropdownMenu.style.display = isOpen ? 'none' : 'flex';
+      exportDropdownWrap.classList.toggle('open', !isOpen);
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      if (exportDropdownMenu) exportDropdownMenu.style.display = 'none';
+      if (exportDropdownWrap) exportDropdownWrap.classList.remove('open');
+      downloadProposalAsPdf();
+    });
+  }
+
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
-      const monthHeaders = ALL_MONTHS.map(m => MONTH_SHORT_LABELS[m]).join(',');
-      let csv = `Market,Platform,Objective,Audience Type,Idea / Offer,Budget %,Budget (USD),${monthHeaders}\n`;
+      if (exportDropdownMenu) exportDropdownMenu.style.display = 'none';
+      if (exportDropdownWrap) exportDropdownWrap.classList.remove('open');
+      exportProposalAsCsv();
+    });
+  }
 
-      BudgetStore.data.markets.forEach(m => {
-        m.channels.forEach(ch => {
-          const monthVals = ALL_MONTHS.map(m => (ch.months && ch.months[m]) || 0);
-          const row = [
-            `"${m.name}"`,
-            `"${ch.platform}"`,
-            `"${(ch.objective || '').replace(/"/g, '""')}"`,
-            `"${(ch.audienceType || '').replace(/"/g, '""')}"`,
-            `"${(ch.offer || '').replace(/"/g, '""')}"`,
-            `"${ch.budgetPercent.toFixed(1)}%"`,
-            ch.budgetUSD,
-            ...monthVals
-          ];
-          csv += row.join(',') + '\n';
-        });
+  // File Dropdown & Modals (Open, Save to Firestore)
+  initFileMenuAndModals();
+}
+
+async function downloadProposalAsPdf() {
+  showToast('Preparing clean executive PDF proposal...', 'info');
+
+  try {
+    if (typeof html2pdf !== 'undefined') {
+      const element = document.querySelector('.main-content');
+      const opt = {
+        margin: [6, 8, 6, 8],
+        filename: `Steelcase_Media_Proposal_${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, 
+          logging: false,
+          scrollY: 0
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      showToast('PDF proposal downloaded successfully!', 'success');
+    } else {
+      window.print();
+    }
+  } catch (err) {
+    console.warn('Direct PDF download fallback to print engine:', err);
+    window.print();
+  }
+}
+
+function exportProposalAsCsv() {
+  const monthHeaders = ALL_MONTHS.map(m => MONTH_SHORT_LABELS[m]).join(',');
+  let csv = `Market,Platform,Objective,Audience Type,Idea / Offer,Budget %,Budget (USD),${monthHeaders}\n`;
+
+  (BudgetStore.data?.markets || []).forEach(m => {
+    (m.channels || []).forEach(ch => {
+      const monthVals = ALL_MONTHS.map(m => (ch.months && ch.months[m]) || 0);
+      const row = [
+        `"${m.name}"`,
+        `"${ch.platform}"`,
+        `"${(ch.objective || '').replace(/"/g, '""')}"`,
+        `"${(ch.audienceType || '').replace(/"/g, '""')}"`,
+        `"${(ch.offer || '').replace(/"/g, '""')}"`,
+        `"${ch.budgetPercent ? ch.budgetPercent.toFixed(1) : '0'}%"`,
+        ch.budgetUSD || 0,
+        ...monthVals
+      ];
+      csv += row.join(',') + '\n';
+    });
+  });
+
+  const { grandTotal, monthTotals } = BudgetStore.summary;
+  const totalMonthVals = ALL_MONTHS.map(m => (monthTotals && monthTotals[m]) || 0).join(',');
+  csv += `\n"Total Program Spend","","","","",100%,${grandTotal || 0},${totalMonthVals}\n`;
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `steelcase_budget_spreadsheet_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Spreadsheet exported as CSV');
+}
+
+function initFileMenuAndModals() {
+  const fileDropdownBtn = document.getElementById('fileDropdownBtn');
+  const fileDropdownMenu = document.getElementById('fileDropdownMenu');
+  const fileDropdownWrap = document.getElementById('fileDropdownWrap');
+  const fileOpenBtn = document.getElementById('fileOpenBtn');
+  const fileSaveBtn = document.getElementById('fileSaveBtn');
+
+  const saveModal = document.getElementById('saveFileModal');
+  const saveFileNameInput = document.getElementById('saveFileNameInput');
+  const saveFileGrandTotal = document.getElementById('saveFileGrandTotal');
+  const saveFileForm = document.getElementById('saveFileForm');
+  const saveOverwriteListContainer = document.getElementById('saveOverwriteListContainer');
+  const saveOverwriteHint = document.getElementById('saveOverwriteHint');
+  const saveSubmitBtnText = document.getElementById('saveSubmitBtnText');
+  const closeSaveModalBtn = document.getElementById('closeSaveFileModalBtn');
+  const cancelSaveFileBtn = document.getElementById('cancelSaveFileBtn');
+
+  const openModal = document.getElementById('openFileModal');
+  const searchInput = document.getElementById('searchSavedFilesInput');
+  const fileListContainer = document.getElementById('savedFilesListContainer');
+  const filesCountLabel = document.getElementById('savedFilesCountLabel');
+  const closeOpenModalBtn = document.getElementById('closeOpenFileModalBtn');
+  const cancelOpenFileBtn = document.getElementById('cancelOpenFileBtn');
+
+  let selectedOverwriteDocId = null;
+  let saveModalProposalsList = [];
+
+  // File Dropdown Toggle
+  if (fileDropdownBtn && fileDropdownMenu) {
+    fileDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const exportWrap = document.getElementById('exportDropdownWrap');
+      const exportMenu = document.getElementById('exportDropdownMenu');
+      if (exportWrap && exportMenu) {
+        exportWrap.classList.remove('open');
+        exportMenu.style.display = 'none';
+      }
+
+      const isOpen = fileDropdownMenu.style.display === 'flex';
+      fileDropdownMenu.style.display = isOpen ? 'none' : 'flex';
+      fileDropdownWrap.classList.toggle('open', !isOpen);
+    });
+  }
+
+  // Global Outside Click to Close Dropdowns
+  document.addEventListener('click', (e) => {
+    if (fileDropdownWrap && !fileDropdownWrap.contains(e.target)) {
+      fileDropdownWrap.classList.remove('open');
+      if (fileDropdownMenu) fileDropdownMenu.style.display = 'none';
+    }
+    const exportWrap = document.getElementById('exportDropdownWrap');
+    const exportMenu = document.getElementById('exportDropdownMenu');
+    if (exportWrap && !exportWrap.contains(e.target)) {
+      exportWrap.classList.remove('open');
+      if (exportMenu) exportMenu.style.display = 'none';
+    }
+  });
+
+  // Render previously saved files in Save Modal
+  const renderSaveOverwriteList = () => {
+    if (!saveOverwriteListContainer) return;
+
+    if (saveModalProposalsList.length === 0) {
+      saveOverwriteListContainer.innerHTML = `
+        <div class="save-overwrite-empty">
+          No previously saved files found. Type a name above to save a new file.
+        </div>
+      `;
+      return;
+    }
+
+    saveOverwriteListContainer.innerHTML = saveModalProposalsList.map(item => {
+      const isSelected = selectedOverwriteDocId === item.id;
+      const isCurrentActive = FirestoreSyncManager.activeProposalId === item.id;
+      const budgetFormatted = `$${formatNumber(item.grandTotal || 0)}`;
+      const updatedStr = item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+      }) : 'Saved';
+
+      return `
+        <div class="save-overwrite-item ${isSelected ? 'selected' : ''}" data-overwrite-id="${escapeHtml(item.id)}">
+          <div class="save-overwrite-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>${escapeHtml(item.title || 'Untitled Proposal')}</span>
+            ${isCurrentActive ? '<span class="save-overwrite-badge">Active</span>' : ''}
+          </div>
+          <div class="save-overwrite-meta">
+            <span style="font-weight: 700; color: var(--primary); font-family: monospace;">${budgetFormatted}</span>
+            <span>•</span>
+            <span>${updatedStr}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click listener to each saved file item in overwrite list
+    saveOverwriteListContainer.querySelectorAll('.save-overwrite-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.getAttribute('data-overwrite-id');
+        const matched = saveModalProposalsList.find(p => p.id === id);
+        if (!matched) return;
+
+        selectedOverwriteDocId = id;
+        if (saveFileNameInput) {
+          saveFileNameInput.value = matched.title || '';
+        }
+
+        // Highlight selected
+        saveOverwriteListContainer.querySelectorAll('.save-overwrite-item').forEach(i => i.classList.remove('selected'));
+        el.classList.add('selected');
+
+        if (saveSubmitBtnText) {
+          saveSubmitBtnText.textContent = 'Save';
+        }
+        if (saveOverwriteHint) {
+          saveOverwriteHint.textContent = '';
+        }
       });
+    });
+  };
 
-      const { grandTotal, monthTotals } = BudgetStore.summary;
-      const totalMonthVals = ALL_MONTHS.map(m => monthTotals[m] || 0).join(',');
-      csv += `\n"Total Program Spend","","","","",100%,${grandTotal},${totalMonthVals}\n`;
+  // --- SAVE FILE MODAL LOGIC ---
+  if (fileSaveBtn) {
+    fileSaveBtn.addEventListener('click', async () => {
+      if (fileDropdownMenu) fileDropdownMenu.style.display = 'none';
+      if (fileDropdownWrap) fileDropdownWrap.classList.remove('open');
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `steelcase_budget_spreadsheet_${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast('Spreadsheet exported as CSV');
+      if (saveModal) {
+        saveModal.style.display = 'flex';
+        selectedOverwriteDocId = null;
+
+        const currentHeroTitle = document.getElementById('heroTitle')?.textContent?.trim();
+        const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        if (saveFileNameInput) {
+          saveFileNameInput.value = currentHeroTitle || `Steelcase Media Plan (${dateStr})`;
+        }
+        if (saveFileGrandTotal) {
+          saveFileGrandTotal.textContent = `$${formatNumber(BudgetStore.summary?.grandTotal || 0)}`;
+        }
+        if (saveSubmitBtnText) {
+          saveSubmitBtnText.textContent = 'Save';
+        }
+        if (saveOverwriteHint) {
+          saveOverwriteHint.textContent = '';
+        }
+
+        if (saveOverwriteListContainer) {
+          saveOverwriteListContainer.innerHTML = `
+            <div class="save-overwrite-empty">
+              Loading files...
+            </div>
+          `;
+        }
+
+        try {
+          saveModalProposalsList = await FirestoreSyncManager.fetchSavedProposals();
+          if (FirestoreSyncManager.activeProposalId) {
+            const activeMatch = saveModalProposalsList.find(p => p.id === FirestoreSyncManager.activeProposalId);
+            if (activeMatch) {
+              selectedOverwriteDocId = activeMatch.id;
+              if (saveFileNameInput) saveFileNameInput.value = activeMatch.title;
+            }
+          }
+          renderSaveOverwriteList();
+        } catch (err) {
+          if (saveOverwriteListContainer) {
+            saveOverwriteListContainer.innerHTML = `<div class="save-overwrite-empty">No files available.</div>`;
+          }
+        }
+
+        setTimeout(() => saveFileNameInput && saveFileNameInput.select(), 60);
+      }
+    });
+  }
+
+  // Input listener on filename to auto-match or reset overwrite selection
+  if (saveFileNameInput) {
+    saveFileNameInput.addEventListener('input', () => {
+      const val = saveFileNameInput.value.trim().toLowerCase();
+      const match = saveModalProposalsList.find(p => (p.title || '').trim().toLowerCase() === val);
+      if (match) {
+        selectedOverwriteDocId = match.id;
+      } else {
+        selectedOverwriteDocId = null;
+      }
+
+      if (saveOverwriteListContainer) {
+        saveOverwriteListContainer.querySelectorAll('.save-overwrite-item').forEach(el => {
+          const id = el.getAttribute('data-overwrite-id');
+          el.classList.toggle('selected', id === selectedOverwriteDocId);
+        });
+      }
+    });
+  }
+
+  const closeSaveModal = () => {
+    if (saveModal) saveModal.style.display = 'none';
+  };
+  if (closeSaveModalBtn) closeSaveModalBtn.addEventListener('click', closeSaveModal);
+  if (cancelSaveFileBtn) cancelSaveFileBtn.addEventListener('click', closeSaveModal);
+
+  if (saveFileForm) {
+    saveFileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileName = saveFileNameInput.value.trim();
+      if (!fileName) return;
+
+      const submitBtn = document.getElementById('confirmSaveFileBtn');
+      const origHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span>Saving...</span>`;
+      }
+
+      try {
+        await FirestoreSyncManager.saveProposalAsFile(fileName, selectedOverwriteDocId);
+        closeSaveModal();
+        showToast(`Saved "${fileName}"`, 'success');
+      } catch (err) {
+        showToast(err.message || 'Error saving file', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = origHtml;
+        }
+      }
+    });
+  }
+
+  // --- OPEN FILE MODAL LOGIC ---
+  let cachedProposalsList = [];
+
+  const renderFilesList = (filterText = '') => {
+    if (!fileListContainer) return;
+    const q = filterText.toLowerCase().trim();
+    const filtered = cachedProposalsList.filter(p => {
+      if (!q) return true;
+      return (p.title && p.title.toLowerCase().includes(q)) ||
+             (p.savedBy && p.savedBy.toLowerCase().includes(q)) ||
+             (p.id && p.id.toLowerCase().includes(q));
+    });
+
+    if (filesCountLabel) {
+      filesCountLabel.textContent = `${filtered.length} file${filtered.length === 1 ? '' : 's'}`;
+    }
+
+    if (filtered.length === 0) {
+      fileListContainer.innerHTML = `
+        <div style="padding: 36px 20px; text-align: center; color: var(--text-muted); font-size: 13px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.5;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <p style="margin: 0; font-weight: 500;">No files found.</p>
+        </div>
+      `;
+      return;
+    }
+
+    fileListContainer.innerHTML = filtered.map(item => {
+      const isCurrent = FirestoreSyncManager.activeProposalId === item.id;
+      const formattedDate = item.updatedAt ? new Date(item.updatedAt).toLocaleString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+      }) : 'Saved';
+
+      const budgetFormatted = `$${formatNumber(item.grandTotal || 0)}`;
+
+      return `
+        <div class="saved-file-card ${isCurrent ? 'active-plan-card' : ''}" data-id="${escapeHtml(item.id)}">
+          <div class="saved-file-info">
+            <div class="saved-file-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <span>${escapeHtml(item.title || 'Untitled Proposal')}</span>
+              ${isCurrent ? '<span style="font-size: 10.5px; padding: 2px 7px; border-radius: 12px; background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700;">Active</span>' : ''}
+            </div>
+            <div class="saved-file-meta">
+              <span style="font-weight: 700; color: var(--primary); font-family: monospace;">${budgetFormatted}</span>
+              <span>•</span>
+              <span>${item.marketsCount || 0} Markets</span>
+              <span>•</span>
+              <span>${formattedDate}</span>
+            </div>
+          </div>
+          <div class="saved-file-actions">
+            <button type="button" class="btn-file-open" data-load-id="${escapeHtml(item.id)}">Open</button>
+            ${!isCurrent && item.id !== 'steelcase_july_2026' ? `
+              <button type="button" class="btn-file-delete" data-del-id="${escapeHtml(item.id)}" title="Delete file">✕</button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click listeners on cards
+    fileListContainer.querySelectorAll('.btn-file-open').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-load-id');
+        const proposal = cachedProposalsList.find(p => p.id === id);
+        if (proposal) {
+          btn.disabled = true;
+          btn.textContent = 'Loading...';
+          try {
+            await FirestoreSyncManager.loadProposal(id, proposal);
+            closeOpenModal();
+            showToast(`Opened "${proposal.title}"`, 'success');
+          } catch (err) {
+            showToast(err.message || 'Error opening file', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Open';
+          }
+        }
+      });
+    });
+
+    fileListContainer.querySelectorAll('.btn-file-delete').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-del-id');
+        const proposal = cachedProposalsList.find(p => p.id === id);
+        const name = proposal ? proposal.title : 'file';
+        if (confirm(`Delete "${name}"?`)) {
+          await FirestoreSyncManager.deleteSavedProposal(id);
+          cachedProposalsList = cachedProposalsList.filter(p => p.id !== id);
+          renderFilesList(searchInput ? searchInput.value : '');
+          showToast(`Deleted "${name}"`, 'info');
+        }
+      });
+    });
+  };
+
+  if (fileOpenBtn) {
+    fileOpenBtn.addEventListener('click', async () => {
+      if (fileDropdownMenu) fileDropdownMenu.style.display = 'none';
+      if (fileDropdownWrap) fileDropdownWrap.classList.remove('open');
+
+      if (openModal) {
+        openModal.style.display = 'flex';
+        if (fileListContainer) {
+          fileListContainer.innerHTML = `
+            <div style="padding: 36px 20px; text-align: center; color: var(--text-muted); font-size: 13px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; margin-bottom: 8px; color: var(--primary);"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg>
+              <div>Loading files...</div>
+            </div>
+          `;
+        }
+
+        try {
+          cachedProposalsList = await FirestoreSyncManager.fetchSavedProposals();
+          renderFilesList(searchInput ? searchInput.value : '');
+        } catch (err) {
+          if (fileListContainer) {
+            fileListContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: #dc2626;">Error: ${escapeHtml(err.message)}</div>`;
+          }
+        }
+      }
+    });
+  }
+
+  const closeOpenModal = () => {
+    if (openModal) openModal.style.display = 'none';
+  };
+  if (closeOpenModalBtn) closeOpenModalBtn.addEventListener('click', closeOpenModal);
+  if (cancelOpenFileBtn) cancelOpenFileBtn.addEventListener('click', closeOpenModal);
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      renderFilesList(e.target.value);
     });
   }
 }
@@ -3076,46 +3514,7 @@ function initThemeAndNav() {
 
   const printBtn = document.getElementById('printBtn');
   if (printBtn) {
-    printBtn.addEventListener('click', async () => {
-      const originalHtml = printBtn.innerHTML;
-      printBtn.disabled = true;
-      printBtn.innerHTML = `
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg>
-        <span>Downloading...</span>
-      `;
-
-      showToast('Preparing clean executive PDF proposal...', 'info');
-
-      try {
-        if (typeof html2pdf !== 'undefined') {
-          const element = document.querySelector('.main-content');
-          const opt = {
-            margin: [6, 8, 6, 8],
-            filename: 'Steelcase_Media_Proposal_July_2026.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-              scale: 2, 
-              useCORS: true, 
-              logging: false,
-              scrollY: 0
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            pagebreak: { mode: ['css', 'legacy'] }
-          };
-
-          await html2pdf().set(opt).from(element).save();
-          showToast('PDF proposal downloaded successfully!', 'success');
-        } else {
-          window.print();
-        }
-      } catch (err) {
-        console.warn('Direct PDF download fallback to print engine:', err);
-        window.print();
-      } finally {
-        printBtn.disabled = false;
-        printBtn.innerHTML = originalHtml;
-      }
-    });
+    printBtn.addEventListener('click', downloadProposalAsPdf);
   }
 
   // Outline scroll spy
@@ -3452,11 +3851,156 @@ const FirestoreSyncManager = {
       dot.style.backgroundColor = '#f59e0b';
       title.textContent = 'Connecting to Cloud Firestore...';
       if (desc) desc.textContent = 'Establishing live sync connection to your Firestore database.';
-    } else {
-      dot.className = 'live-dot-pulse offline';
-      title.textContent = 'Offline / Local Storage Active';
-      if (desc) desc.textContent = 'Changes are saved locally. Connect your Firebase credentials in the tab below to enable live multiplayer sync.';
     }
+  },
+
+  async saveProposalAsFile(fileName, overwriteDocId = null) {
+    if (!fileName || !fileName.trim()) throw new Error("Please enter a valid file name.");
+    const trimmed = fileName.trim();
+    const slug = trimmed.toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 32);
+    const docId = overwriteDocId || `plan_${slug}_${Date.now().toString(36)}`;
+    const now = Date.now();
+
+    // Preserve original creation time if overwriting
+    let createdAt = now;
+    try {
+      const cacheRaw = localStorage.getItem('steelcase_saved_proposals_cache');
+      if (cacheRaw) {
+        const cache = JSON.parse(cacheRaw);
+        if (cache[docId] && cache[docId].createdAt) createdAt = cache[docId].createdAt;
+      }
+    } catch (e) {}
+
+    const payload = {
+      id: docId,
+      title: trimmed,
+      planData: JSON.parse(JSON.stringify(BudgetStore.data)),
+      customColors: getStoredCustomColors(),
+      grandTotal: BudgetStore.summary?.grandTotal || 0,
+      marketsCount: (BudgetStore.data?.markets || []).length,
+      updatedAt: now,
+      createdAt,
+      savedBy: APP_STATE.currentUser?.email || 'Admin User'
+    };
+
+    // Immediate local cache write for instant offline listing
+    try {
+      const cacheRaw = localStorage.getItem('steelcase_saved_proposals_cache');
+      const cache = cacheRaw ? JSON.parse(cacheRaw) : {};
+      cache[docId] = payload;
+      localStorage.setItem('steelcase_saved_proposals_cache', JSON.stringify(cache));
+    } catch (e) {
+      console.warn('Local proposal cache write failed:', e);
+    }
+
+    // Persist to Cloud Firestore
+    if (this.db && window.FirebaseSDK) {
+      try {
+        const docRef = window.FirebaseSDK.doc(this.db, "proposals", docId);
+        await window.FirebaseSDK.setDoc(docRef, payload, { merge: true });
+
+        // Switch active listener to the newly saved file
+        this.activeProposalId = docId;
+        this.activeDocRef = docRef;
+        this.startListening();
+      } catch (err) {
+        console.warn("Firestore save proposal notice:", err.message);
+      }
+    }
+
+    return payload;
+  },
+
+  async fetchSavedProposals() {
+    const proposalsMap = {};
+
+    // 1. Load local cache
+    try {
+      const cacheRaw = localStorage.getItem('steelcase_saved_proposals_cache');
+      if (cacheRaw) {
+        Object.assign(proposalsMap, JSON.parse(cacheRaw));
+      }
+    } catch (e) {}
+
+    // 2. Fetch all proposals from Firestore
+    if (this.db && window.FirebaseSDK) {
+      try {
+        const proposalsCol = window.FirebaseSDK.collection(this.db, "proposals");
+        const querySnapshot = await window.FirebaseSDK.getDocs(proposalsCol);
+        querySnapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data && (data.planData || data.title)) {
+            proposalsMap[docSnap.id] = {
+              id: docSnap.id,
+              title: data.title || (docSnap.id === 'steelcase_july_2026' ? 'Steelcase July 2026 Flight (Default)' : docSnap.id),
+              planData: data.planData,
+              customColors: data.customColors,
+              grandTotal: data.grandTotal || (data.planData ? (data.planData.markets || []).reduce((s, m) => s + (m.channels || []).reduce((cs, c) => cs + (Number(c.budgetUSD) || 0), 0), 0) : 0),
+              marketsCount: data.marketsCount || (data.planData?.markets?.length || 0),
+              updatedAt: data.updatedAt || data.createdAt || 0,
+              savedBy: data.savedBy || 'Cloud Planner'
+            };
+          }
+        });
+        localStorage.setItem('steelcase_saved_proposals_cache', JSON.stringify(proposalsMap));
+      } catch (err) {
+        console.warn("Firestore fetch proposals notice:", err.message);
+      }
+    }
+
+    const list = Object.values(proposalsMap);
+    list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    return list;
+  },
+
+  async loadProposal(docId, proposalData) {
+    if (!proposalData) {
+      if (this.db && window.FirebaseSDK) {
+        const docRef = window.FirebaseSDK.doc(this.db, "proposals", docId);
+        const snap = await window.FirebaseSDK.getDoc(docRef);
+        if (snap.exists()) proposalData = snap.data();
+      }
+    }
+    if (!proposalData || !proposalData.planData) {
+      throw new Error("Unable to load proposal data.");
+    }
+
+    BudgetStore.data = JSON.parse(JSON.stringify(proposalData.planData));
+    BudgetStore.data._lastUpdated = Date.now();
+    BudgetStore.recalculate();
+    BudgetStore.save();
+
+    if (proposalData.customColors) {
+      applyRemoteColors(proposalData.customColors);
+    }
+
+    this.activeProposalId = docId;
+    if (this.db && window.FirebaseSDK) {
+      this.activeDocRef = window.FirebaseSDK.doc(this.db, "proposals", docId);
+      this.startListening();
+    }
+
+    renderAll();
+    return proposalData;
+  },
+
+  async deleteSavedProposal(docId) {
+    if (this.db && window.FirebaseSDK && window.FirebaseSDK.deleteDoc) {
+      try {
+        const docRef = window.FirebaseSDK.doc(this.db, "proposals", docId);
+        await window.FirebaseSDK.deleteDoc(docRef);
+      } catch (e) {
+        console.warn("Firestore delete proposal notice:", e.message);
+      }
+    }
+    try {
+      const cacheRaw = localStorage.getItem('steelcase_saved_proposals_cache');
+      if (cacheRaw) {
+        const cache = JSON.parse(cacheRaw);
+        delete cache[docId];
+        localStorage.setItem('steelcase_saved_proposals_cache', JSON.stringify(cache));
+      }
+    } catch (e) {}
   }
 };
 
