@@ -37,15 +37,6 @@
             </button>
           </div>
 
-          <!-- Presets Selector for Ultimate Reusability -->
-          <div class="preset-selector-wrap">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-            <select id="presetPlanSelect" class="nav-select" title="Switch budget plan scenario / preset">
-              <option value="steelcase">Preset: Steelcase July 2026 Flight</option>
-              <option value="global">Preset: Global Multi-Region Plan (US, UK, APAC)</option>
-              <option value="blank">Preset: Start Blank Plan</option>
-            </select>
-          </div>
 
           <!-- Admin Portal & System Settings Action -->
           <button id="openAdminSettingsBtn" class="btn btn-secondary btn-sm" title="Open Admin Portal & Settings">
@@ -658,7 +649,7 @@
         <!-- Audience Type -->
         <div class="form-group">
           <label for="lineItemAudienceInput">Audience Type / Targeting Criteria</label>
-          <input type="text" id="lineItemAudienceInput" class="form-input" value="CRE, Workplace Leaders, Architects, Designers" placeholder="e.g. Enterprise Decision Makers, CRE, Architects & Designers">
+          <textarea id="lineItemAudienceInput" class="form-input form-textarea" rows="3" placeholder="e.g.&#10;- Enterprise Decision Makers&#10;- CRE & Workplace Leaders&#10;- Architects & Designers">CRE, Workplace Leaders, Architects, Designers</textarea>
         </div>
 
         <div class="modal-footer">

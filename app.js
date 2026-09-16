@@ -999,13 +999,315 @@ const BudgetStore = {
       }
       this.syncStrategyTableRow(market, channel);
     } else {
-      channel[fieldPath] = rawValue;
+      channel[fieldPath] = (fieldPath === 'audienceType') ? normalizeBulletText(rawValue) : rawValue;
+      if (fieldPath === 'audienceType' || fieldPath === 'objective' || fieldPath === 'offer') {
+        this.syncStrategyTableRow(market, channel);
+      }
     }
 
     this.save();
     renderAll();
+  },
+
+  syncStrategyTableRow(market, channel) {
+    if (!market || !channel) return;
+    const stratKey = getStratKey(channel.platform);
+    if (!this.data.strategyTables) this.data.strategyTables = {};
+    if (!this.data.strategyTables[stratKey]) this.data.strategyTables[stratKey] = [];
+
+    const row = this.data.strategyTables[stratKey].find(
+      r => r.channelId === channel.id || (r.market && r.market.toLowerCase() === market.name.toLowerCase())
+    );
+    if (row) {
+      if (channel.audienceType) row.audience = channel.audienceType;
+      if (channel.objective) row.purpose = `Drive ${channel.objective} for ${channel.offer || 'Work Better Magazine'}`;
+      if (channel.offer) row.offer = channel.offer;
+      row.channelId = channel.id;
+    }
   }
 };
+
+function normalizeBulletText(raw) {
+  if (raw === null || raw === undefined) return '';
+  let text = String(raw).trim();
+  if (!text) return '';
+
+  // 1. Split inline bullets stuck together (e.g. "• Lookalikes• Interest Audiences" or "• Item 1 • Item 2")
+  text = text.replace(/([^\n])\s*[•]\s*/g, '$1\n• ');
+
+  // 2. If single line with dashed bullets e.g. "- Workplace Leaders - CRE - Architects"
+  if (!text.includes('\n') && /^[-•*·]\s*/.test(text)) {
+    text = text.replace(/\s+[-•*·]\s+/g, '\n• ');
+  }
+
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const hasBullets = lines.some(l => /^[-•*·]\s*/.test(l));
+
+  if (hasBullets) {
+    return lines
+      .map(line => {
+        if (/^[-•*·]\s*/.test(line)) {
+          const content = line.replace(/^[-•*·]\s*/, '').trim();
+          return content ? `• ${content}` : '';
+        }
+        return line;
+      })
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  return lines.join('\n');
+}
+
+function formatCellTextHtml(text) {
+  if (text === null || text === undefined || text === '') return '';
+  const normalized = normalizeBulletText(String(text));
+  if (!normalized) return '';
+
+  const lines = normalized.split('\n');
+  if (lines.length === 1 && !lines[0].startsWith('• ')) {
+    return escapeHtml(lines[0]);
+  }
+
+  return lines.map(line => {
+    if (line.startsWith('• ')) {
+      const content = line.slice(2);
+      return `<div class="bullet-line">• ${escapeHtml(content)}</div>`;
+    }
+    return `<div class="text-line">${escapeHtml(line)}</div>`;
+  }).join('');
+}
+
+function extractCellText(cell) {
+  if (!cell) return '';
+  const clone = cell.cloneNode(true);
+  clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  clone.querySelectorAll('div, p').forEach(div => {
+    div.prepend(document.createTextNode('\n'));
+  });
+  const raw = clone.textContent || clone.innerText || '';
+  return normalizeBulletText(raw);
+}
+
+function getCaretLineInfo(cell) {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return null;
+  const range = sel.getRangeAt(0);
+
+  // Text before caret in this cell
+  const preRange = range.cloneRange();
+  preRange.selectNodeContents(cell);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  const textBefore = preRange.toString();
+
+  const lastNl = Math.max(textBefore.lastIndexOf('\n'), textBefore.lastIndexOf('\r'));
+  const beforeCaret = lastNl === -1 ? textBefore : textBefore.slice(lastNl + 1);
+
+  // Text after caret in this cell
+  const postRange = range.cloneRange();
+  postRange.selectNodeContents(cell);
+  postRange.setStart(range.endContainer, range.endOffset);
+  const textAfter = postRange.toString();
+  const nextNl = textAfter.indexOf('\n');
+  const afterCaret = nextNl === -1 ? textAfter : textAfter.slice(0, nextNl);
+
+  const fullLine = (beforeCaret + afterCaret).trim();
+  const isBullet = /^[•\-*·]\s*/.test(fullLine);
+  const isEmptyBullet = /^[•\-*·]\s*$/.test(fullLine);
+
+  return {
+    beforeCaret,
+    afterCaret,
+    fullLine,
+    isBullet,
+    isEmptyBullet
+  };
+}
+
+function insertTextAtCaret(text) {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+
+  let inserted = false;
+  try {
+    inserted = document.execCommand('insertText', false, text);
+  } catch (e) {
+    inserted = false;
+  }
+
+  if (!inserted) {
+    const textNode = document.createTextNode(text);
+    range.insertNode(textNode);
+    range.setStartAfter(textNode);
+    range.setEndAfter(textNode);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
+
+function deleteBulletAtCaret(cell) {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+
+  const preRange = range.cloneRange();
+  preRange.selectNodeContents(cell);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  const textBefore = preRange.toString();
+  const lastNl = textBefore.lastIndexOf('\n');
+  const charsToDelete = lastNl === -1 ? textBefore.length : textBefore.length - (lastNl + 1);
+
+  for (let i = 0; i < charsToDelete; i++) {
+    try {
+      document.execCommand('delete', false, null);
+    } catch (e) {}
+  }
+}
+
+function setupInlineEditor(cell, { onCommit, onCancel, isMultiline = false }) {
+  cell.contentEditable = 'true';
+  cell.focus();
+
+  let isCommitted = false;
+
+  function commit() {
+    if (isCommitted) return;
+    isCommitted = true;
+    cell.contentEditable = 'false';
+    cell.removeEventListener('blur', commit);
+    cell.removeEventListener('keydown', onKeyDown);
+    cell.removeEventListener('input', onInput);
+    const cleanText = extractCellText(cell);
+    onCommit(cleanText);
+  }
+
+  function cancel() {
+    if (isCommitted) return;
+    isCommitted = true;
+    cell.contentEditable = 'false';
+    cell.removeEventListener('blur', commit);
+    cell.removeEventListener('keydown', onKeyDown);
+    cell.removeEventListener('input', onInput);
+    onCancel();
+  }
+
+  function onKeyDown(e) {
+    if (e.key === 'Enter') {
+      if (e.ctrlKey || e.metaKey || !isMultiline) {
+        e.preventDefault();
+        commit();
+        return;
+      }
+
+      // Smart Enter for bullet points
+      const info = getCaretLineInfo(cell);
+      if (info) {
+        if (info.isEmptyBullet) {
+          e.preventDefault();
+          deleteBulletAtCaret(cell);
+          return;
+        }
+        if (info.isBullet) {
+          e.preventDefault();
+          insertTextAtCaret('\n• ');
+          return;
+        }
+      }
+      e.preventDefault();
+      insertTextAtCaret('\n');
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      cancel();
+      return;
+    }
+
+    if (isMultiline && e.key === ' ') {
+      const info = getCaretLineInfo(cell);
+      if (info && (info.beforeCaret === '-' || info.beforeCaret === '*')) {
+        e.preventDefault();
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount) {
+          const range = sel.getRangeAt(0);
+          try {
+            range.setStart(range.startContainer, Math.max(0, range.startOffset - 1));
+            range.deleteContents();
+            insertTextAtCaret('• ');
+          } catch (err) {
+            insertTextAtCaret(' ');
+          }
+        }
+      }
+    }
+  }
+
+  function onInput() {
+    if (!isMultiline) return;
+    const info = getCaretLineInfo(cell);
+    if (info && (info.beforeCaret === '- ' || info.beforeCaret === '* ')) {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount) {
+        const range = sel.getRangeAt(0);
+        try {
+          range.setStart(range.startContainer, Math.max(0, range.startOffset - 2));
+          range.deleteContents();
+          insertTextAtCaret('• ');
+        } catch (err) {}
+      }
+    }
+  }
+
+  cell.addEventListener('blur', commit);
+  cell.addEventListener('keydown', onKeyDown);
+  if (isMultiline) {
+    cell.addEventListener('input', onInput);
+  }
+}
+
+function attachTextareaBulletSupport(textarea) {
+  if (!textarea) return;
+
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const start = textarea.selectionStart;
+      const val = textarea.value;
+      const lastNl = val.lastIndexOf('\n', start - 1);
+      const lineStart = lastNl === -1 ? 0 : lastNl + 1;
+      const line = val.slice(lineStart, start);
+
+      if (/^[•\-*·]\s*$/.test(line.trim())) {
+        e.preventDefault();
+        textarea.value = val.slice(0, lineStart) + val.slice(start);
+        textarea.selectionStart = textarea.selectionEnd = lineStart;
+        return;
+      }
+
+      if (/^[•\-*·]\s*/.test(line)) {
+        e.preventDefault();
+        const bulletPrefix = '\n• ';
+        textarea.value = val.slice(0, start) + bulletPrefix + val.slice(start);
+        textarea.selectionStart = textarea.selectionEnd = start + bulletPrefix.length;
+        return;
+      }
+    } else if (e.key === ' ') {
+      const start = textarea.selectionStart;
+      const val = textarea.value;
+      const lastNl = val.lastIndexOf('\n', start - 1);
+      const lineStart = lastNl === -1 ? 0 : lastNl + 1;
+      const lineBefore = val.slice(lineStart, start);
+
+      if (lineBefore === '-' || lineBefore === '*') {
+        e.preventDefault();
+        textarea.value = val.slice(0, lineStart) + '• ' + val.slice(start);
+        textarea.selectionStart = textarea.selectionEnd = lineStart + 2;
+      }
+    }
+  });
+}
 
 /* ==========================================================================
    Rendering Engines
@@ -1386,12 +1688,8 @@ function renderMainBudgetTable() {
             </button>
           </div>
         </td>
-        <td class="editable-field" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="objective" title="Click to edit campaign objective">
-          ${channel.objective || 'Lead Generation'}
-        </td>
-        <td class="audience-desc editable-field" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="audienceType" title="Click to edit target audience criteria">
-          ${channel.audienceType || 'Target Audience Segment'}
-        </td>
+        <td class="editable-field" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="objective" title="Click to edit campaign objective">${channel.objective || 'Lead Generation'}</td>
+        <td class="audience-desc editable-field" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="audienceType" title="Click to edit target audience criteria">${formatCellTextHtml(channel.audienceType || 'Target Audience Segment')}</td>
         <td>
           <span class="offer-tag dropdown-trigger" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="offer" data-dropdown-group="offers" title="Click to change offer / CTA">
             ${channel.offer || 'Work Better Magazine'}
@@ -1717,37 +2015,23 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
           ${row.market}
         </span>
       </td>
-      <td class="text-right font-mono font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="split">
-        ${row.split}
-      </td>
-      <td class="font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="audience">
-        ${row.audience}
-      </td>
+      <td class="text-right font-mono font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="split">${row.split}</td>
+      <td class="font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="audience">${formatCellTextHtml(row.audience)}</td>
       <td>
         <span class="priority-badge ${prioClass} dropdown-trigger" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="priority" data-dropdown-group="priorities">
           ${row.priority}
         </span>
       </td>
-      <td class="editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="purpose">
-        ${row.purpose}
-      </td>
-      <td class="detail-cell editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="targeting">
-        ${row.targeting}
-      </td>
-      <td class="detail-cell text-muted editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="exclusions">
-        ${row.exclusions}
-      </td>
+      <td class="editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="purpose">${formatCellTextHtml(row.purpose)}</td>
+      <td class="detail-cell editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="targeting">${formatCellTextHtml(row.targeting)}</td>
+      <td class="detail-cell text-muted editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="exclusions">${formatCellTextHtml(row.exclusions)}</td>
       <td>
         <span class="offer-tag dropdown-trigger" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="offer" data-dropdown-group="offers">
           ${row.offer}
         </span>
       </td>
-      <td class="font-mono editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="cpc">
-        ${row.cpc}
-      </td>
-      <td class="font-mono font-bold text-accent editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="cpl">
-        ${row.cpl}
-      </td>
+      <td class="font-mono editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="cpc">${row.cpc}</td>
+      <td class="font-mono font-bold text-accent editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="cpl">${row.cpl}</td>
     `;
 
     tbody.appendChild(tr);
@@ -1774,19 +2058,19 @@ function renderMetaText() {
   const cplNoteEl = document.getElementById('footerCplNote');
 
   if (titleEl && meta.title) titleEl.textContent = meta.title;
-  if (descEl && meta.description) descEl.textContent = meta.description;
+  if (descEl && meta.description) descEl.innerHTML = formatCellTextHtml(meta.description);
   if (heroBadgeStatusEl && meta.heroBadgeStatus) heroBadgeStatusEl.textContent = meta.heroBadgeStatus;
   if (heroBadgeDateEl && (meta.heroBadgeDate || meta.dateBadge)) heroBadgeDateEl.textContent = meta.heroBadgeDate || meta.dateBadge;
   if (heroBadgeScopeEl && (meta.heroBadgeScope || meta.scopeBadge)) heroBadgeScopeEl.textContent = meta.heroBadgeScope || meta.scopeBadge;
 
   if (stratTitleEl && meta.stratTitle) stratTitleEl.textContent = meta.stratTitle;
-  if (stratDescEl && meta.stratDesc) stratDescEl.textContent = meta.stratDesc;
+  if (stratDescEl && meta.stratDesc) stratDescEl.innerHTML = formatCellTextHtml(meta.stratDesc);
   if (stratBadge1El && meta.stratBadge1) stratBadge1El.textContent = meta.stratBadge1;
   if (stratBadge2El && meta.stratBadge2) stratBadge2El.textContent = meta.stratBadge2;
 
   if (pathEl && meta.navPath) pathEl.textContent = meta.navPath;
-  if (pinCalloutEl && meta.pinCallout) pinCalloutEl.textContent = meta.pinCallout;
-  if (cplNoteEl && meta.footerCplNote) cplNoteEl.textContent = meta.footerCplNote;
+  if (pinCalloutEl && meta.pinCallout) pinCalloutEl.innerHTML = formatCellTextHtml(meta.pinCallout);
+  if (cplNoteEl && meta.footerCplNote) cplNoteEl.innerHTML = formatCellTextHtml(meta.footerCplNote);
 }
 
 /* ==========================================================================
@@ -1879,30 +2163,17 @@ function attachBudgetTableListeners() {
       const marketId = cell.getAttribute('data-market-id');
       const channelId = cell.getAttribute('data-channel-id');
       const field = cell.getAttribute('data-field');
+      const isMultiline = (field === 'audienceType');
 
-      cell.contentEditable = 'true';
-      cell.focus();
-
-      function commit() {
-        cell.contentEditable = 'false';
-        const newVal = cell.textContent.trim();
-        BudgetStore.updateChannelField(marketId, channelId, field, newVal);
-        cell.removeEventListener('blur', commit);
-        cell.removeEventListener('keydown', onKey);
-      }
-
-      function onKey(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          commit();
-        } else if (e.key === 'Escape') {
-          cell.contentEditable = 'false';
+      setupInlineEditor(cell, {
+        isMultiline,
+        onCommit: (cleanText) => {
+          BudgetStore.updateChannelField(marketId, channelId, field, cleanText);
+        },
+        onCancel: () => {
           renderMainBudgetTable();
         }
-      }
-
-      cell.addEventListener('blur', commit);
-      cell.addEventListener('keydown', onKey);
+      });
     });
   });
 
@@ -1926,26 +2197,19 @@ function attachStrategyTableListeners() {
       const tableKey = cell.getAttribute('data-strategy-table');
       const idx = parseInt(cell.getAttribute('data-strategy-idx'), 10);
       const field = cell.getAttribute('data-field');
+      const isMultiline = (field === 'targeting' || field === 'exclusions' || field === 'purpose' || field === 'audience');
 
-      cell.contentEditable = 'true';
-      cell.focus();
-
-      function commit() {
-        cell.contentEditable = 'false';
-        const newVal = cell.textContent.trim();
-        if (BudgetStore.data.strategyTables[tableKey] && BudgetStore.data.strategyTables[tableKey][idx]) {
-          BudgetStore.data.strategyTables[tableKey][idx][field] = newVal;
-          BudgetStore.save();
+      setupInlineEditor(cell, {
+        isMultiline,
+        onCommit: (cleanText) => {
+          if (BudgetStore.data.strategyTables[tableKey] && BudgetStore.data.strategyTables[tableKey][idx]) {
+            BudgetStore.data.strategyTables[tableKey][idx][field] = cleanText;
+            BudgetStore.save();
+            renderStrategyTables();
+          }
+        },
+        onCancel: () => {
           renderStrategyTables();
-        }
-        cell.removeEventListener('blur', commit);
-      }
-
-      cell.addEventListener('blur', commit);
-      cell.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          commit();
         }
       });
     });
@@ -1997,28 +2261,24 @@ function attachStrategyTableListeners() {
   });
 }
 
-// Meta text fields (document title, description)
+// Meta text fields (document title, description, headers)
 document.querySelectorAll('.editable-field[data-meta-field]').forEach(el => {
   el.addEventListener('click', () => {
     if (!APP_STATE.isEditMode) return;
     if (el.isContentEditable) return;
 
     const field = el.getAttribute('data-meta-field');
-    el.contentEditable = 'true';
-    el.focus();
+    const isMultiline = (field === 'description' || field === 'stratDesc' || field === 'pinCallout' || field === 'footerCplNote');
 
-    function commit() {
-      el.contentEditable = 'false';
-      BudgetStore.data.meta[field] = el.textContent.trim();
-      BudgetStore.save();
-      el.removeEventListener('blur', commit);
-    }
-
-    el.addEventListener('blur', commit);
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && field !== 'description') {
-        e.preventDefault();
-        commit();
+    setupInlineEditor(el, {
+      isMultiline,
+      onCommit: (cleanText) => {
+        BudgetStore.data.meta[field] = cleanText;
+        BudgetStore.save();
+        renderMetaText();
+      },
+      onCancel: () => {
+        renderMetaText();
       }
     });
   });
@@ -2212,6 +2472,10 @@ function initAddLineItemModal() {
   const audienceInput = document.getElementById('lineItemAudienceInput');
   const presetSelect = document.getElementById('monthFlightPresetSelect');
 
+  if (audienceInput) {
+    attachTextareaBulletSupport(audienceInput);
+  }
+
   // Default flight: Q3 (Jul, Aug, Sep)
   let activeMonths = ['july', 'august', 'september'];
 
@@ -2349,7 +2613,7 @@ function initAddLineItemModal() {
       const channel = channelSelect ? channelSelect.value : 'LinkedIn LeadGen';
       const totalBudget = budgetInput ? (Number(budgetInput.value) || 5000) : 5000;
       const objective = objectiveInput ? objectiveInput.value.trim() : 'Lead Generation';
-      const audienceType = audienceInput ? audienceInput.value.trim() : 'Enterprise Decision Makers';
+      const audienceType = audienceInput ? normalizeBulletText(audienceInput.value) : 'Enterprise Decision Makers';
       const offer = offerInput ? offerInput.value.trim() : 'Work Better Magazine';
 
       if (!country) return;
@@ -2679,17 +2943,6 @@ function initAddChannelModal() {
    ========================================================================== */
 
 function initPresetsAndExport() {
-  // Preset selector
-  const presetSelect = document.getElementById('presetPlanSelect');
-  if (presetSelect) {
-    presetSelect.addEventListener('change', (e) => {
-      const val = e.target.value;
-      if (confirm(`Switch to preset: "${val.toUpperCase()}"? This will load a new plan configuration.`)) {
-        BudgetStore.loadPreset(val);
-      }
-    });
-  }
-
   // Reset button
   const resetBtn = document.getElementById('resetDataBtn');
   if (resetBtn) {
@@ -2697,7 +2950,6 @@ function initPresetsAndExport() {
       if (confirm('Reset entire media plan back to original Steelcase proposal numbers?')) {
         BudgetStore.reset();
         renderAll();
-        if (presetSelect) presetSelect.value = 'steelcase';
         showToast('Restored default Steelcase media plan');
       }
     });
