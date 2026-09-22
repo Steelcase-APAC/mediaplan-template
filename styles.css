@@ -1728,6 +1728,13 @@ body.edit-mode-active .budget-input-cell {
   transition: all 0.15s ease;
 }
 
+.budget-sum-cell {
+  background-color: rgba(2, 132, 199, 0.04);
+  color: var(--text-primary);
+  font-weight: 700;
+  user-select: none;
+}
+
 body.edit-mode-active .budget-input-cell:hover {
   background-color: rgba(2, 132, 199, 0.08);
   outline-color: var(--accent);

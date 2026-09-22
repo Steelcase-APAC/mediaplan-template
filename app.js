@@ -404,15 +404,19 @@ const BudgetStore = {
       let marketTotal = 0;
 
       market.channels.forEach(ch => {
-        const b = Number(ch.budgetUSD) || 0;
-        marketTotal += b;
-        grandTotal += b;
-
-        // Monthly totals across all 12 calendar months
         if (!ch.months) ch.months = {};
+
+        // Calculate channel budget from the sum of all individual monthly entries
+        let chBudget = 0;
         ALL_MONTHS.forEach(m => {
-          monthTotals[m] += Number(ch.months[m]) || 0;
+          const val = Number(ch.months[m]) || 0;
+          chBudget += val;
+          monthTotals[m] += val;
         });
+
+        ch.budgetUSD = chBudget;
+        marketTotal += chBudget;
+        grandTotal += chBudget;
 
         // Platform aggregation across all markets
         const plat = ch.platform || 'Unspecified';
@@ -423,7 +427,7 @@ const BudgetStore = {
             marketNames: new Set()
           };
         }
-        platformMap[plat].total += b;
+        platformMap[plat].total += chBudget;
         platformMap[plat].count += 1;
         platformMap[plat].marketNames.add(market.name);
       });
@@ -587,14 +591,14 @@ const BudgetStore = {
     });
   },
 
-  addChannel(marketId, platform = "Meta / IG", budgetUSD = 5000) {
+  addChannel(marketId, platform = "Meta / IG", budgetUSD = 0) {
     const market = this.data.markets.find(m => m.id === marketId);
     if (!market) return;
     this.addLineItem({
       country: market.name,
       channel: platform,
       totalBudget: budgetUSD,
-      activeMonths: ['july', 'august', 'september']
+      activeMonths: []
     });
   },
 
@@ -924,25 +928,8 @@ const BudgetStore = {
       if (channel.activeMonths.length === 0) channel.activeMonths = ['july', 'august', 'september'];
     }
 
-    if (fieldPath === 'budgetUSD') {
-      // Direct total budget edit: re-divide evenly across active months
-      const newTotal = parseNumericInput(rawValue);
-      channel.budgetUSD = newTotal;
-      const activeCount = channel.activeMonths.length;
-      const split = Math.floor(newTotal / activeCount);
-      const remainder = newTotal - (split * activeCount);
-
-      if (!channel.months) channel.months = {};
-      ALL_MONTHS.forEach(m => {
-        if (channel.activeMonths.includes(m)) {
-          const idx = channel.activeMonths.indexOf(m);
-          channel.months[m] = split + (idx === 0 ? remainder : 0);
-        } else {
-          channel.months[m] = 0;
-        }
-      });
-    } else if (fieldPath.startsWith('months.')) {
-      // Fixed total budget: zero-sum auto-balancing across remaining active months
+    if (fieldPath.startsWith('months.')) {
+      // Independent monthly flight budget edit: update specific month and recalculate total sum
       const monthKey = fieldPath.split('.')[1];
       const newVal = Math.max(0, parseNumericInput(rawValue));
 
@@ -951,41 +938,22 @@ const BudgetStore = {
         ALL_MONTHS.forEach(m => { channel.months[m] = 0; });
       }
 
-      if (!channel.activeMonths.includes(monthKey)) {
-        channel.activeMonths.push(monthKey);
-      }
+      // Update only this specific month directly without modifying any other month
+      channel.months[monthKey] = newVal;
 
-      const otherActiveMonths = channel.activeMonths.filter(m => m !== monthKey);
-      const total = Number(channel.budgetUSD) || 0;
+      // Update active flight months list (months where spend > 0)
+      channel.activeMonths = ALL_MONTHS.filter(m => (Number(channel.months[m]) || 0) > 0);
 
-      if (otherActiveMonths.length === 0) {
-        channel.budgetUSD = newVal;
-        channel.months[monthKey] = newVal;
-      } else if (newVal >= total) {
-        channel.months[monthKey] = newVal;
-        otherActiveMonths.forEach(m => {
-          channel.months[m] = 0;
-        });
-        if (newVal > total) {
-          channel.budgetUSD = newVal;
-        }
-      } else {
-        channel.months[monthKey] = newVal;
-        const remaining = total - newVal;
-        const split = Math.floor(remaining / otherActiveMonths.length);
-        const remainder = remaining - (split * otherActiveMonths.length);
-
-        otherActiveMonths.forEach((m, idx) => {
-          channel.months[m] = split + (idx === 0 ? remainder : 0);
-        });
-      }
-
-      // Inactive months remain 0
+      // Recalculate channel total budget as sum of all 12 calendar months
+      let channelSum = 0;
       ALL_MONTHS.forEach(m => {
-        if (!channel.activeMonths.includes(m)) {
-          channel.months[m] = 0;
-        }
+        channelSum += (Number(channel.months[m]) || 0);
       });
+      channel.budgetUSD = channelSum;
+
+    } else if (fieldPath === 'budgetUSD') {
+      const newTotal = Math.max(0, parseNumericInput(rawValue));
+      channel.budgetUSD = newTotal;
     } else if (fieldPath === 'platform') {
       const oldStratKey = getStratKey(channel.platform);
       channel.platform = rawValue;
@@ -1698,7 +1666,7 @@ function renderMainBudgetTable() {
         <td class="text-right font-mono font-semibold" style="color: var(--primary);">
           ${channel.budgetPercent.toFixed(0)}%
         </td>
-        <td class="text-right font-mono font-bold budget-input-cell" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="budgetUSD" title="Click to edit total channel budget">
+        <td class="text-right font-mono font-bold budget-sum-cell" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="budgetUSD" title="Total channel budget (Auto-calculated sum of monthly flight budgets)">
           $${formatNumber(channel.budgetUSD)}
         </td>
       `;
@@ -3221,7 +3189,7 @@ function initFileMenuAndModals() {
         saveModal.style.display = 'flex';
         selectedOverwriteDocId = null;
 
-        const currentHeroTitle = document.getElementById('heroTitle')?.textContent?.trim();
+        const currentHeroTitle = (document.getElementById('documentTitle') || document.getElementById('heroTitle'))?.textContent?.trim();
         const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         if (saveFileNameInput) {
           saveFileNameInput.value = currentHeroTitle || `Steelcase Media Plan (${dateStr})`;
@@ -3744,9 +3712,17 @@ function getPlatformBadgeClass(name) {
 }
 
 function showToast(message) {
-  const toast = document.getElementById('saveToast');
-  const textEl = document.getElementById('saveToastText');
-  if (!toast || !textEl) return;
+  let toast = document.getElementById('saveToast');
+  let textEl = document.getElementById('saveToastText');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'saveToast';
+    toast.className = 'save-toast';
+    toast.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><span id="saveToastText"></span>`;
+    document.body.appendChild(toast);
+    textEl = document.getElementById('saveToastText');
+  }
+  if (!textEl) return;
 
   textEl.textContent = message;
   toast.style.display = 'flex';
