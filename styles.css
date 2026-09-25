@@ -133,7 +133,8 @@ body {
 .top-nav {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  pointer-events: auto !important;
   background-color: var(--header-bg, rgba(255, 255, 255, 0.95));
   color: var(--header-text, var(--text-primary));
   backdrop-filter: blur(12px);
@@ -143,6 +144,12 @@ body {
   display: flex;
   align-items: center;
   transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+/* Guard against any stray html2pdf overlays blocking user clicks */
+.html2pdf__overlay,
+.html2pdf__container {
+  pointer-events: none !important;
 }
 
 body.theme-night .top-nav {
@@ -189,6 +196,27 @@ body.theme-night .top-nav {
   background-color: var(--primary);
   border-radius: 50%;
   box-shadow: 0 0 8px rgba(0, 150, 167, 0.5);
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--bg-surface-2, rgba(0, 0, 0, 0.05));
+  color: var(--text-secondary, #64748b);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.12));
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+body.theme-night .version-badge {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .crumb-separator {
@@ -1057,6 +1085,11 @@ body.theme-night .moon-icon { display: block; }
 }
 
 /* Proportional Visualizer Grid */
+.overview-widgets-wrapper {
+  width: 100%;
+  display: block;
+}
+
 .overview-widgets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -3034,7 +3067,95 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
 }
 
 /* ==========================================================================
-   Print & Download PDF Styles (Publication-Grade 3-Page Executive Proposal)
+   PDF-Only Section (Hidden on Dashboard UI)
+   ========================================================================== */
+.pdf-only-section {
+  display: none !important;
+}
+
+/* ==========================================================================
+   PDF Download Export Mode Styles (Mirrors Print Rules for html2pdf / html2canvas)
+   ========================================================================== */
+body.pdf-export-mode {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body.pdf-export-mode .top-nav,
+body.pdf-export-mode .outline-sidebar,
+body.pdf-export-mode .btn,
+body.pdf-export-mode .table-top-controls,
+body.pdf-export-mode .table-bottom-actions,
+body.pdf-export-mode .edit-mode-only {
+  display: none !important;
+}
+
+body.pdf-export-mode .layout-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+body.pdf-export-mode .table-container {
+  overflow: visible !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+body.pdf-export-mode #mainBudgetTable .col-month {
+  display: none !important;
+}
+
+body.pdf-export-mode .pdf-only-section {
+  display: block !important;
+  page-break-before: always;
+  break-before: page;
+  margin-top: 14px !important;
+  margin-bottom: 0 !important;
+  padding: 12px 16px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+}
+
+body.pdf-export-mode #budget-breakdown {
+  margin-bottom: 14px !important;
+  padding: 12px 16px !important;
+}
+
+body.pdf-export-mode .overview-widgets-wrapper {
+  page-break-before: always !important;
+  break-before: page !important;
+  page-break-after: always !important;
+  break-after: page !important;
+  box-sizing: border-box !important;
+  padding-top: 155px !important;
+  padding-bottom: 155px !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+body.pdf-export-mode .overview-widgets-wrapper .overview-widgets-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 12px !important;
+  margin: 0 auto !important;
+}
+
+body.pdf-export-mode .proposal-table {
+  width: 100% !important;
+  font-size: 10px !important;
+}
+
+body.pdf-export-mode .proposal-table th,
+body.pdf-export-mode .proposal-table td {
+  padding: 6px 8px !important;
+}
+
+/* ==========================================================================
+   Print & Download PDF Styles (Publication-Grade Executive Proposal)
    ========================================================================== */
 
 @media print {
@@ -3240,11 +3361,24 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
     margin-top: 4px !important;
   }
 
-  .overview-widgets-grid {
+  .overview-widgets-wrapper {
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    box-sizing: border-box !important;
+    padding-top: 155px !important;
+    padding-bottom: 155px !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .overview-widgets-wrapper .overview-widgets-grid {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
-    margin-top: 8px !important;
+    gap: 10px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
   }
 
   .widget-card {
@@ -3271,8 +3405,31 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
     font-size: 10px !important;
   }
 
-  /* Page 2: Master Spend Breakdown Table */
-  #table-section {
+  /* Page 2: Master Spend Breakdown Table (Core Allocation) */
+  #table-section,
+  #budget-breakdown {
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: auto;
+    break-inside: auto;
+    margin-bottom: 0 !important;
+    padding: 12px 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background: #ffffff !important;
+  }
+
+  /* Hide 12 monthly columns on the main table during print */
+  #mainBudgetTable .col-month {
+    display: none !important;
+  }
+
+  /* Page 3: Monthly Flight Breakdown Table (12-Month Distribution) */
+  .pdf-only-section,
+  #monthly-flight-breakdown {
+    display: block !important;
+    page-break-before: always;
+    break-before: page;
     page-break-after: always;
     break-after: page;
     page-break-inside: auto;
@@ -3297,7 +3454,8 @@ body.theme-night .market-tag.generic, body.theme-night .market-tag.tag-generic {
   }
 
   .proposal-table-wrapper,
-  .strategy-table-wrapper {
+  .strategy-table-wrapper,
+  .table-container {
     overflow: visible !important;
   }
 

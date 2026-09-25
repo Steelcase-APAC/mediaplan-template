@@ -1710,7 +1710,7 @@ function renderMainBudgetTable() {
         const val = (channel.months && channel.months[m]) || 0;
         const isMuted = val === 0 ? 'text-muted' : '';
         html += `
-          <td class="text-right font-mono budget-input-cell ${isMuted}" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="months.${m}" title="Click to edit ${MONTH_SHORT_LABELS[m]} flight budget">
+          <td class="text-right font-mono budget-input-cell col-month ${isMuted}" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="months.${m}" title="Click to edit ${MONTH_SHORT_LABELS[m]} flight budget">
             $${formatNumber(val)}
           </td>
         `;
@@ -1734,7 +1734,7 @@ function renderMainBudgetTable() {
   const { grandTotal, monthTotals } = BudgetStore.summary;
   let monthFootCells = '';
   ALL_MONTHS.forEach(m => {
-    monthFootCells += `<td class="text-right font-mono font-bold">$${formatNumber(monthTotals[m] || 0)}</td>`;
+    monthFootCells += `<td class="text-right font-mono font-bold col-month">$${formatNumber(monthTotals[m] || 0)}</td>`;
   });
 
   tfoot.innerHTML = `
@@ -1750,6 +1750,95 @@ function renderMainBudgetTable() {
   `;
 
   attachBudgetTableListeners();
+  renderPdfMonthlyFlightTable();
+}
+
+/**
+ * Render Separate Monthly Flight Distribution Table (for Clean PDF Export & Print)
+ * - Renders all 12 calendar flight months in an independent, publication-grade table
+ * - Automatically synced with BudgetStore data whenever the budget table updates
+ */
+function renderPdfMonthlyFlightTable() {
+  const tbody = document.getElementById('pdfMonthlyFlightTableBody');
+  const tfoot = document.getElementById('pdfMonthlyFlightTableFoot');
+  if (!tbody || !tfoot) return;
+
+  tbody.innerHTML = '';
+
+  const filter = APP_STATE.activeMarketFilter;
+  const filteredMarkets = (BudgetStore.data?.markets || []).filter(m => {
+    if (filter === 'all') return true;
+    return m.name.toLowerCase() === filter.toLowerCase();
+  });
+
+  filteredMarkets.forEach(market => {
+    const rowCount = market.channels.length;
+    const countryCode = getCountryCode(market.name || market.code);
+
+    market.channels.forEach((channel, idx) => {
+      const tr = document.createElement('tr');
+      const isFirstRow = idx === 0;
+      const isLastRow = idx === rowCount - 1;
+      if (isLastRow) tr.classList.add('border-group-end');
+
+      let html = '';
+
+      if (isFirstRow) {
+        html += `
+          <td rowspan="${rowCount}" class="cell-market font-bold">
+            <div class="market-cell-content">
+              <span class="market-tag tag-${countryCode}">
+                ${market.name}
+              </span>
+              <span class="market-subtotal-badge" style="margin-top: 4px;">
+                Subtotal: $${formatNumber(market.totalBudget)}
+              </span>
+            </div>
+          </td>
+        `;
+      }
+
+      const platClass = getPlatformBadgeClass(channel.platform);
+      html += `
+        <td>
+          <span class="platform-badge ${platClass}">
+            ${channel.platform}
+          </span>
+        </td>
+        <td class="text-right font-mono font-bold">
+          $${formatNumber(channel.budgetUSD)}
+        </td>
+      `;
+
+      ALL_MONTHS.forEach(m => {
+        const val = (channel.months && channel.months[m]) || 0;
+        const isMuted = val === 0 ? 'text-muted' : '';
+        html += `
+          <td class="text-right font-mono ${isMuted}">
+            $${formatNumber(val)}
+          </td>
+        `;
+      });
+
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+    });
+  });
+
+  // Table Footer
+  const { grandTotal, monthTotals } = BudgetStore.summary;
+  let monthFootCells = '';
+  ALL_MONTHS.forEach(m => {
+    monthFootCells += `<td class="text-right font-mono font-bold">$${formatNumber((monthTotals && monthTotals[m]) || 0)}</td>`;
+  });
+
+  tfoot.innerHTML = `
+    <tr class="total-row">
+      <td colspan="2" class="font-bold">Total Monthly Flight Spend</td>
+      <td class="text-right font-mono font-bold text-accent">$${formatNumber(grandTotal)}</td>
+      ${monthFootCells}
+    </tr>
+  `;
 }
 
 function renderMarketFilterPills() {
@@ -3106,7 +3195,8 @@ function initPresetsAndExport() {
   }
 
   if (exportPdfBtn) {
-    exportPdfBtn.addEventListener('click', () => {
+    exportPdfBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (exportDropdownMenu) exportDropdownMenu.style.display = 'none';
       if (exportDropdownWrap) exportDropdownWrap.classList.remove('open');
       downloadProposalAsPdf();
@@ -3114,7 +3204,8 @@ function initPresetsAndExport() {
   }
 
   if (exportCsvBtn) {
-    exportCsvBtn.addEventListener('click', () => {
+    exportCsvBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (exportDropdownMenu) exportDropdownMenu.style.display = 'none';
       if (exportDropdownWrap) exportDropdownWrap.classList.remove('open');
       exportProposalAsCsv();
@@ -3128,9 +3219,83 @@ function initPresetsAndExport() {
 async function downloadProposalAsPdf() {
   showToast('Preparing clean executive PDF proposal...', 'info');
 
+  let offscreenWrapper = null;
   try {
+    // 1. Ensure the PDF monthly flight table is rendered with fresh calculations
+    renderPdfMonthlyFlightTable();
+
+    // 2. Clone .main-content into an isolated offscreen container so the live page is NEVER stretched or mutated
+    const originalContent = document.querySelector('.main-content');
+    if (!originalContent) {
+      window.print();
+      return;
+    }
+
+    const pdfClone = originalContent.cloneNode(true);
+
+    // Hide monthly columns in Table 1 inside the clone
+    pdfClone.querySelectorAll('#mainBudgetTable .col-month').forEach(el => {
+      el.remove();
+    });
+
+    // Make Table 2 visible inside the clone
+    const flightSec = pdfClone.querySelector('#monthly-flight-breakdown');
+    if (flightSec) {
+      flightSec.classList.remove('pdf-only-section');
+      flightSec.style.display = 'block';
+      flightSec.style.pageBreakBefore = 'always';
+      flightSec.style.breakBefore = 'page';
+      flightSec.style.marginTop = '14px';
+      flightSec.style.padding = '12px 16px';
+      flightSec.style.border = '1px solid #e2e8f0';
+      flightSec.style.borderRadius = '8px';
+      flightSec.style.background = '#ffffff';
+    }
+
+    // Center the 3 visualizer cards in the middle of Page 2 inside the clone
+    const widgetsWrapper = pdfClone.querySelector('.overview-widgets-wrapper');
+    if (widgetsWrapper) {
+      widgetsWrapper.style.pageBreakBefore = 'always';
+      widgetsWrapper.style.breakBefore = 'page';
+      widgetsWrapper.style.pageBreakAfter = 'always';
+      widgetsWrapper.style.breakAfter = 'page';
+      widgetsWrapper.style.boxSizing = 'border-box';
+      widgetsWrapper.style.paddingTop = '155px';
+      widgetsWrapper.style.paddingBottom = '155px';
+      widgetsWrapper.style.width = '100%';
+      widgetsWrapper.style.display = 'block';
+    }
+
+    // Strip interactive / editing controls from the clone
+    pdfClone.querySelectorAll('.edit-mode-only, .btn-action-add, .btn-delete-row, .btn-delete-market, .btn-delete-row-inline, .table-action-col, .dropdown-chevron').forEach(el => {
+      el.remove();
+    });
+
+    // Clean up editable fields outline inside clone
+    pdfClone.querySelectorAll('.editable-field').forEach(el => {
+      el.style.border = 'none';
+      el.style.outline = 'none';
+      el.style.background = 'transparent';
+    });
+
+    // Place the clone into an invisible offscreen wrapper
+    offscreenWrapper = document.createElement('div');
+    offscreenWrapper.id = 'pdfRenderOffscreen';
+    offscreenWrapper.style.position = 'fixed';
+    offscreenWrapper.style.left = '-12000px';
+    offscreenWrapper.style.top = '0';
+    offscreenWrapper.style.width = '1120px'; // Standard A4 landscape printable width
+    offscreenWrapper.style.background = '#ffffff';
+    offscreenWrapper.style.color = '#0f172a';
+    offscreenWrapper.style.pointerEvents = 'none';
+    offscreenWrapper.style.zIndex = '-9999';
+    offscreenWrapper.appendChild(pdfClone);
+    document.body.appendChild(offscreenWrapper);
+
+    // Wait a brief tick for offscreen clone layout to compute
+    await new Promise(resolve => setTimeout(resolve, 150));
+
     if (typeof html2pdf !== 'undefined') {
-      const element = document.querySelector('.main-content');
       const opt = {
         margin: [6, 8, 6, 8],
         filename: `Steelcase_Media_Proposal_${new Date().toISOString().slice(0, 10)}.pdf`,
@@ -3139,13 +3304,14 @@ async function downloadProposalAsPdf() {
           scale: 2, 
           useCORS: true, 
           logging: false,
-          scrollY: 0
+          scrollY: 0,
+          windowWidth: 1120
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
         pagebreak: { mode: ['css', 'legacy'] }
       };
 
-      await html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(pdfClone).save();
       showToast('PDF proposal downloaded successfully!', 'success');
     } else {
       window.print();
@@ -3153,8 +3319,19 @@ async function downloadProposalAsPdf() {
   } catch (err) {
     console.warn('Direct PDF download fallback to print engine:', err);
     window.print();
+  } finally {
+    // 1. Remove offscreen clone
+    if (offscreenWrapper && offscreenWrapper.parentNode) {
+      offscreenWrapper.parentNode.removeChild(offscreenWrapper);
+    }
+    // 2. Remove any stray containers or overlays left behind by html2pdf
+    document.querySelectorAll('.html2pdf__container, .html2pdf__overlay').forEach(el => el.remove());
+    document.body.classList.remove('pdf-export-mode');
   }
 }
+
+// Ensure the PDF monthly flight table is synced before browser window.print()
+window.addEventListener('beforeprint', renderPdfMonthlyFlightTable);
 
 function exportProposalAsCsv() {
   const monthHeaders = ALL_MONTHS.map(m => MONTH_SHORT_LABELS[m]).join(',');

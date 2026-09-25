@@ -20,6 +20,7 @@
           <span class="brand-name">Steelcase</span>
         </div>
         <span class="brand-subtitle font-semibold">Media Proposals</span>
+        <span class="version-badge" id="appVersionBadge">v1.02</span>
       </div>
 
       <div class="nav-actions">
@@ -207,49 +208,51 @@
         </div>
 
         <!-- Proportional Allocation Visualizer Grid -->
-        <div class="overview-widgets-grid">
-          <!-- Widget 1: Spend by Country / Market -->
-          <div class="widget-card">
-            <div class="widget-card-header">
-              <div class="widget-title-wrap">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                <span class="widget-card-title editable-field" id="widgetCountryTitle" data-meta-field="widgetCountryTitle" title="Click to edit title">Spend by Country</span>
+        <div class="overview-widgets-wrapper" id="overviewWidgetsWrapper">
+          <div class="overview-widgets-grid">
+            <!-- Widget 1: Spend by Country / Market -->
+            <div class="widget-card">
+              <div class="widget-card-header">
+                <div class="widget-title-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                  <span class="widget-card-title editable-field" id="widgetCountryTitle" data-meta-field="widgetCountryTitle" title="Click to edit title">Spend by Country</span>
+                </div>
+                <span class="widget-badge" id="widgetCountryCount">3 Markets</span>
               </div>
-              <span class="widget-badge" id="widgetCountryCount">3 Markets</span>
+              <div class="multi-segment-bar" id="countryMultiBar"></div>
+              <div class="widget-breakdown-list" id="countryBreakdownList">
+                <!-- Dynamically populated by app.js -->
+              </div>
             </div>
-            <div class="multi-segment-bar" id="countryMultiBar"></div>
-            <div class="widget-breakdown-list" id="countryBreakdownList">
-              <!-- Dynamically populated by app.js -->
-            </div>
-          </div>
 
-          <!-- Widget 2: Spend by Platform / Channel -->
-          <div class="widget-card">
-            <div class="widget-card-header">
-              <div class="widget-title-wrap">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                <span class="widget-card-title editable-field" id="widgetPlatformTitle" data-meta-field="widgetPlatformTitle" title="Click to edit title">Spend by Platform</span>
+            <!-- Widget 2: Spend by Platform / Channel -->
+            <div class="widget-card">
+              <div class="widget-card-header">
+                <div class="widget-title-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                  <span class="widget-card-title editable-field" id="widgetPlatformTitle" data-meta-field="widgetPlatformTitle" title="Click to edit title">Spend by Platform</span>
+                </div>
+                <span class="widget-badge" id="widgetPlatformCount">4 Platforms</span>
               </div>
-              <span class="widget-badge" id="widgetPlatformCount">4 Platforms</span>
+              <div class="multi-segment-bar" id="platformMultiBar"></div>
+              <div class="widget-breakdown-list" id="platformBreakdownList">
+                <!-- Dynamically populated by app.js -->
+              </div>
             </div>
-            <div class="multi-segment-bar" id="platformMultiBar"></div>
-            <div class="widget-breakdown-list" id="platformBreakdownList">
-              <!-- Dynamically populated by app.js -->
-            </div>
-          </div>
 
-          <!-- Widget 3: Flight Distribution (Monthly Timeline) -->
-          <div class="widget-card">
-            <div class="widget-card-header">
-              <div class="widget-title-wrap">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <span class="widget-card-title editable-field" id="widgetMonthlyTitle" data-meta-field="widgetMonthlyTitle" title="Click to edit title">Monthly Run-Rate</span>
+            <!-- Widget 3: Flight Distribution (Monthly Timeline) -->
+            <div class="widget-card">
+              <div class="widget-card-header">
+                <div class="widget-title-wrap">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  <span class="widget-card-title editable-field" id="widgetMonthlyTitle" data-meta-field="widgetMonthlyTitle" title="Click to edit title">Monthly Run-Rate</span>
+                </div>
+                <span class="widget-badge">5 Months</span>
               </div>
-              <span class="widget-badge">5 Months</span>
-            </div>
-            <div class="multi-segment-bar" id="monthlyMultiBar"></div>
-            <div class="widget-breakdown-list" id="monthlyBreakdownList">
-              <!-- Dynamically populated by app.js -->
+              <div class="multi-segment-bar" id="monthlyMultiBar"></div>
+              <div class="widget-breakdown-list" id="monthlyBreakdownList">
+                <!-- Dynamically populated by app.js -->
+              </div>
             </div>
           </div>
         </div>
@@ -293,18 +296,18 @@
                 <th style="min-width: 120px;" class="text-right">Budget (USD)</th>
                 <th style="min-width: 100px;" class="text-right">Expected CPC</th>
                 <th style="min-width: 105px;" class="text-right">Expected CPL*</th>
-                <th style="min-width: 85px;" class="text-right">Jan</th>
-                <th style="min-width: 85px;" class="text-right">Feb</th>
-                <th style="min-width: 85px;" class="text-right">Mar</th>
-                <th style="min-width: 85px;" class="text-right">Apr</th>
-                <th style="min-width: 85px;" class="text-right">May</th>
-                <th style="min-width: 85px;" class="text-right">Jun</th>
-                <th style="min-width: 85px;" class="text-right">Jul</th>
-                <th style="min-width: 85px;" class="text-right">Aug</th>
-                <th style="min-width: 85px;" class="text-right">Sep</th>
-                <th style="min-width: 85px;" class="text-right">Oct</th>
-                <th style="min-width: 85px;" class="text-right">Nov</th>
-                <th style="min-width: 85px;" class="text-right">Dec</th>
+                <th style="min-width: 85px;" class="text-right col-month">Jan</th>
+                <th style="min-width: 85px;" class="text-right col-month">Feb</th>
+                <th style="min-width: 85px;" class="text-right col-month">Mar</th>
+                <th style="min-width: 85px;" class="text-right col-month">Apr</th>
+                <th style="min-width: 85px;" class="text-right col-month">May</th>
+                <th style="min-width: 85px;" class="text-right col-month">Jun</th>
+                <th style="min-width: 85px;" class="text-right col-month">Jul</th>
+                <th style="min-width: 85px;" class="text-right col-month">Aug</th>
+                <th style="min-width: 85px;" class="text-right col-month">Sep</th>
+                <th style="min-width: 85px;" class="text-right col-month">Oct</th>
+                <th style="min-width: 85px;" class="text-right col-month">Nov</th>
+                <th style="min-width: 85px;" class="text-right col-month">Dec</th>
                 <th style="width: 44px;" class="table-action-col text-center edit-mode-only"></th>
               </tr>
             </thead>
@@ -323,6 +326,50 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>Add Line Item</span>
           </button>
+        </div>
+      </section>
+
+      <!-- Section: Monthly Flight Distribution (PDF Export & Print Only) -->
+      <section id="monthly-flight-breakdown" class="content-section pdf-only-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2 class="section-title" id="flightTitle">Monthly Flight Distribution</h2>
+          </div>
+          <div class="table-actions-header">
+            <p class="section-subtitle" id="flightSubtitle">
+              Phased 12-month media flight pacing and budget distributions across all active markets and channels (USD).
+            </p>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="proposal-table" id="pdfMonthlyFlightTable">
+            <thead>
+              <tr>
+                <th style="min-width: 140px;">Market / Country</th>
+                <th style="min-width: 160px;">Platforms</th>
+                <th style="min-width: 110px;" class="text-right">Budget (USD)</th>
+                <th style="min-width: 65px;" class="text-right">Jan</th>
+                <th style="min-width: 65px;" class="text-right">Feb</th>
+                <th style="min-width: 65px;" class="text-right">Mar</th>
+                <th style="min-width: 65px;" class="text-right">Apr</th>
+                <th style="min-width: 65px;" class="text-right">May</th>
+                <th style="min-width: 65px;" class="text-right">Jun</th>
+                <th style="min-width: 65px;" class="text-right">Jul</th>
+                <th style="min-width: 65px;" class="text-right">Aug</th>
+                <th style="min-width: 65px;" class="text-right">Sep</th>
+                <th style="min-width: 65px;" class="text-right">Oct</th>
+                <th style="min-width: 65px;" class="text-right">Nov</th>
+                <th style="min-width: 65px;" class="text-right">Dec</th>
+              </tr>
+            </thead>
+            <tbody id="pdfMonthlyFlightTableBody">
+              <!-- Dynamically populated from BudgetStore -->
+            </tbody>
+            <tfoot id="pdfMonthlyFlightTableFoot">
+              <!-- Dynamically summed from BudgetStore -->
+            </tfoot>
+          </table>
         </div>
       </section>
 
