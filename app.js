@@ -2156,6 +2156,10 @@ function renderMetaText() {
   if (footerRefEl && (meta.footerRef || DEFAULT_MEDIA_PLAN.meta.footerRef)) {
     footerRefEl.textContent = meta.footerRef || DEFAULT_MEDIA_PLAN.meta.footerRef;
   }
+  const proposalSelectLabelEl = document.getElementById('proposalSelectLabel');
+  if (proposalSelectLabelEl && meta.title) {
+    proposalSelectLabelEl.textContent = meta.title;
+  }
 }
 
 /* ==========================================================================
@@ -3088,6 +3092,12 @@ function initPresetsAndExport() {
         fileWrap.classList.remove('open');
         fileMenu.style.display = 'none';
       }
+      const propWrap = document.getElementById('proposalSelectWrap');
+      const propMenu = document.getElementById('proposalSelectMenu');
+      if (propWrap && propMenu) {
+        propWrap.classList.remove('open');
+        propMenu.style.display = 'none';
+      }
 
       const isOpen = exportDropdownMenu.style.display === 'flex';
       exportDropdownMenu.style.display = isOpen ? 'none' : 'flex';
@@ -3219,6 +3229,12 @@ function initFileMenuAndModals() {
       if (exportWrap && exportMenu) {
         exportWrap.classList.remove('open');
         exportMenu.style.display = 'none';
+      }
+      const propWrap = document.getElementById('proposalSelectWrap');
+      const propMenu = document.getElementById('proposalSelectMenu');
+      if (propWrap && propMenu) {
+        propWrap.classList.remove('open');
+        propMenu.style.display = 'none';
       }
 
       const isOpen = fileDropdownMenu.style.display === 'flex';
@@ -4068,6 +4084,9 @@ const FirestoreSyncManager = {
 
       this.status = 'connected';
       this.updateStatusUI();
+      if (window.refreshProposalSelector) {
+        window.refreshProposalSelector(false);
+      }
     } catch (err) {
       console.warn('Firestore fallback mode:', err.message);
       this.status = 'offline';
@@ -4782,13 +4801,24 @@ async function initProposalSelector() {
   const wrap = document.getElementById('proposalSelectWrap');
   const btn = document.getElementById('proposalSelectBtn');
   const menu = document.getElementById('proposalSelectMenu');
-  const listEl = document.getElementById('proposalSelectList');
-  const activeLabel = document.getElementById('activeProposalName');
-  if (!wrap || !btn || !menu || !listEl) return;
+  if (!wrap || !btn || !menu) return;
+
+  const getListEl = () => document.getElementById('proposalSelectList') || menu;
+  const getActiveLabel = () => document.getElementById('proposalSelectLabel') || document.getElementById('activeProposalName');
 
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
-    const isOpen = menu.style.display === 'flex';
+    // Close other nav dropdowns
+    ['exportDropdownWrap', 'fileDropdownWrap'].forEach(id => {
+      const otherWrap = document.getElementById(id);
+      if (otherWrap) {
+        otherWrap.classList.remove('open');
+        const m = otherWrap.querySelector('.nav-dropdown-menu');
+        if (m) m.style.display = 'none';
+      }
+    });
+
+    const isOpen = menu.style.display === 'flex' || menu.style.display === 'block';
     menu.style.display = isOpen ? 'none' : 'flex';
     wrap.classList.toggle('open', !isOpen);
   });
@@ -4801,47 +4831,73 @@ async function initProposalSelector() {
   });
 
   async function populateProposals(autoLoadLatest = false) {
+    const listEl = getListEl();
+    const activeLabel = getActiveLabel();
     try {
       const proposals = await FirestoreSyncManager.fetchSavedProposals();
+      const currentPlanTitle = BudgetStore.data?.meta?.title || 'Default Media Plan';
+
       if (!proposals || proposals.length === 0) {
-        listEl.innerHTML = `<div class="nav-dropdown-item text-muted" style="padding: 10px;">Default Media Plan</div>`;
-        if (activeLabel) activeLabel.textContent = BudgetStore.data?.meta?.title || 'Default Plan';
+        if (listEl) {
+          listEl.innerHTML = `
+            <div class="proposal-select-item active" style="padding: 10px;">
+              <div class="proposal-select-item-title">${escapeHtml(currentPlanTitle)}</div>
+              <div class="proposal-select-item-meta">Active Proposal</div>
+            </div>`;
+        }
+        if (activeLabel) activeLabel.textContent = currentPlanTitle;
         return;
       }
 
-      const activeId = FirestoreSyncManager.activeProposalId || (autoLoadLatest ? proposals[0].id : null);
+      // Determine currently active proposal
+      let activeProp = null;
+      if (FirestoreSyncManager.activeProposalId) {
+        activeProp = proposals.find(p => p.id === FirestoreSyncManager.activeProposalId);
+      }
+      if (!activeProp) {
+        activeProp = proposals.find(p => p.title === currentPlanTitle);
+      }
+      if (!activeProp && proposals.length > 0) {
+        activeProp = proposals[0];
+      }
 
-      listEl.innerHTML = proposals.map(p => {
-        const isActive = p.id === activeId;
-        const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '';
-        const budgetStr = p.grandTotal ? `$${formatNumber(p.grandTotal)}` : '';
-        return `
-          <button type="button" class="proposal-select-item ${isActive ? 'active' : ''}" data-prop-id="${p.id}">
-            <div class="proposal-select-item-title">${escapeHtml(p.title || p.id)}</div>
-            <div class="proposal-select-item-meta">${budgetStr} ${dateStr ? '· ' + dateStr : ''}</div>
-          </button>
-        `;
-      }).join('');
+      if (activeLabel) {
+        activeLabel.textContent = activeProp?.title || currentPlanTitle;
+      }
 
-      listEl.querySelectorAll('.proposal-select-item').forEach(itemBtn => {
-        itemBtn.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          const propId = itemBtn.getAttribute('data-prop-id');
-          const found = proposals.find(p => p.id === propId);
-          if (found) {
-            try {
-              await FirestoreSyncManager.loadProposal(propId, found);
-              if (activeLabel) activeLabel.textContent = found.title || propId;
-              populateProposals(false);
-              showToast(`Loaded: ${found.title || propId}`);
-            } catch (err) {
-              showToast('Error loading proposal: ' + err.message, 'error');
+      if (listEl) {
+        listEl.innerHTML = proposals.map(p => {
+          const isActive = (activeProp && p.id === activeProp.id) || (p.title === currentPlanTitle);
+          const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '';
+          const budgetStr = p.grandTotal ? `$${formatNumber(p.grandTotal)}` : '';
+          return `
+            <button type="button" class="proposal-select-item ${isActive ? 'active' : ''}" data-prop-id="${p.id}">
+              <div class="proposal-select-item-title">${escapeHtml(p.title || p.id)}</div>
+              <div class="proposal-select-item-meta">${budgetStr} ${dateStr ? '· ' + dateStr : ''}</div>
+            </button>
+          `;
+        }).join('');
+
+        listEl.querySelectorAll('.proposal-select-item').forEach(itemBtn => {
+          itemBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const propId = itemBtn.getAttribute('data-prop-id');
+            const found = proposals.find(p => p.id === propId);
+            if (found) {
+              try {
+                await FirestoreSyncManager.loadProposal(propId, found);
+                if (activeLabel) activeLabel.textContent = found.title || propId;
+                populateProposals(false);
+                showToast(`Loaded: ${found.title || propId}`);
+              } catch (err) {
+                showToast('Error loading proposal: ' + err.message, 'error');
+              }
             }
-          }
-          menu.style.display = 'none';
-          wrap.classList.remove('open');
+            menu.style.display = 'none';
+            wrap.classList.remove('open');
+          });
         });
-      });
+      }
 
       // Handle auto-load on initial launch
       if (autoLoadLatest && proposals.length > 0) {
@@ -4849,7 +4905,7 @@ async function initProposalSelector() {
         const urlPropId = urlParams.get('proposal');
         const target = (urlPropId && proposals.find(p => p.id === urlPropId)) || proposals[0];
 
-        if (target) {
+        if (target && target.id !== FirestoreSyncManager.activeProposalId) {
           try {
             await FirestoreSyncManager.loadProposal(target.id, target);
             if (activeLabel) activeLabel.textContent = target.title || target.id;
@@ -4857,9 +4913,6 @@ async function initProposalSelector() {
             console.warn('Auto-load latest proposal notice:', e);
           }
         }
-      } else if (FirestoreSyncManager.activeProposalId) {
-        const current = proposals.find(p => p.id === FirestoreSyncManager.activeProposalId);
-        if (current && activeLabel) activeLabel.textContent = current.title || current.id;
       }
     } catch (e) {
       console.warn('populateProposals error:', e);

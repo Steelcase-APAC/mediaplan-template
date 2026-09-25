@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.02">
+  <link rel="stylesheet" href="styles.css?v=1.03">
 </head>
 <body class="theme-light">
   <!-- Top Global Navigation Bar -->
@@ -24,14 +24,16 @@
 
       <div class="nav-actions">
         <!-- Proposal Selector Dropdown (Accessible to ALL users, logged-in or non-logged-in) -->
-        <div class="nav-dropdown-wrapper" id="proposalSelectWrap">
+        <div class="nav-dropdown-wrapper proposal-select-wrapper" id="proposalSelectWrap">
           <button id="proposalSelectBtn" class="btn btn-secondary btn-sm nav-dropdown-btn proposal-select-btn" type="button" title="Select proposal to view">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <span id="proposalSelectLabel" class="proposal-label-text">Select Proposal</span>
             <svg class="dropdown-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </button>
           <div id="proposalSelectMenu" class="nav-dropdown-menu proposal-select-menu" style="display: none;">
-            <!-- Populated dynamically with saved proposals from Firestore -->
+            <div id="proposalSelectList" class="proposal-select-list">
+              <!-- Populated dynamically with saved proposals from Firestore -->
+            </div>
           </div>
         </div>
 
@@ -1376,6 +1378,6 @@
     window.dispatchEvent(new CustomEvent('firebase-sdk-ready'));
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="app.js?v=1.02"></script>
+  <script src="app.js?v=1.03"></script>
 </body>
 </html>
