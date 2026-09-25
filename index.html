@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.01">
+  <link rel="stylesheet" href="styles.css?v=1.02">
 </head>
 <body class="theme-light">
   <!-- Top Global Navigation Bar -->
@@ -142,7 +142,7 @@
         </div>
         <div class="meta-item">
           <span class="meta-label">Core Asset</span>
-          <span class="meta-val">Work Better Mag</span>
+          <span class="meta-val editable-field" id="sidebarCoreAsset" data-meta-field="sidebarCoreAsset" title="Click to edit core asset">Work Better Mag</span>
         </div>
       </div>
     </aside>
@@ -168,10 +168,10 @@
           <div>
             <div class="overview-badge-row">
               <span class="overview-live-dot"></span>
-              <span class="overview-live-label">LIVE REACTIVE BUDGET ENGINE</span>
+              <span class="overview-live-label editable-field" id="overviewLiveLabel" data-meta-field="overviewLiveLabel" title="Click to edit label">LIVE REACTIVE BUDGET ENGINE</span>
             </div>
-            <h2 class="overview-title">Marketing Budget Executive Overview</h2>
-            <p class="overview-subtitle">Real-time spend breakdown across regional markets and media channels. Auto-updates with every budget edit.</p>
+            <h2 class="overview-title editable-field" id="overviewTitle" data-meta-field="overviewTitle" title="Click to edit title">Marketing Budget Executive Overview</h2>
+            <p class="overview-subtitle editable-field" id="overviewSubtitle" data-meta-field="overviewSubtitle" title="Click to edit subtitle">Real-time spend breakdown across regional markets and media channels. Auto-updates with every budget edit.</p>
           </div>
 
         </div>
@@ -181,7 +181,7 @@
           <div class="kpi-section-header">
             <span class="kpi-section-title">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-              COUNTRIES & TOTAL BUDGET
+              <span class="kpi-section-title-text editable-field" id="kpiCountriesTitle" data-meta-field="kpiCountriesTitle" title="Click to edit section label">COUNTRIES & TOTAL BUDGET</span>
             </span>
             <span class="kpi-section-count" id="kpiCountryCountBadge">3 Markets</span>
           </div>
@@ -195,7 +195,7 @@
           <div class="kpi-section-header">
             <span class="kpi-section-title">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-              CHANNELS (MEDIA PLATFORMS)
+              <span class="kpi-section-title-text editable-field" id="kpiChannelsTitle" data-meta-field="kpiChannelsTitle" title="Click to edit section label">CHANNELS (MEDIA PLATFORMS)</span>
             </span>
             <span class="kpi-section-count" id="kpiChannelCountBadge">5 Platforms</span>
           </div>
@@ -211,7 +211,7 @@
             <div class="widget-card-header">
               <div class="widget-title-wrap">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                <span class="widget-card-title">Spend by Country</span>
+                <span class="widget-card-title editable-field" id="widgetCountryTitle" data-meta-field="widgetCountryTitle" title="Click to edit title">Spend by Country</span>
               </div>
               <span class="widget-badge" id="widgetCountryCount">3 Markets</span>
             </div>
@@ -226,7 +226,7 @@
             <div class="widget-card-header">
               <div class="widget-title-wrap">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                <span class="widget-card-title">Spend by Platform</span>
+                <span class="widget-card-title editable-field" id="widgetPlatformTitle" data-meta-field="widgetPlatformTitle" title="Click to edit title">Spend by Platform</span>
               </div>
               <span class="widget-badge" id="widgetPlatformCount">4 Platforms</span>
             </div>
@@ -241,7 +241,7 @@
             <div class="widget-card-header">
               <div class="widget-title-wrap">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <span class="widget-card-title">Monthly Run-Rate</span>
+                <span class="widget-card-title editable-field" id="widgetMonthlyTitle" data-meta-field="widgetMonthlyTitle" title="Click to edit title">Monthly Run-Rate</span>
               </div>
               <span class="widget-badge">5 Months</span>
             </div>
@@ -257,10 +257,10 @@
       <section id="budget-breakdown" class="content-section">
         <div class="section-header">
           <div class="section-title-wrap">
-            <h2 class="section-title">Budget Breakdown</h2>
+            <h2 class="section-title editable-field" id="budgetTitle" data-meta-field="budgetTitle" title="Click to edit title">Budget Breakdown</h2>
           </div>
           <div class="table-actions-header">
-            <p class="section-subtitle">
+            <p class="section-subtitle editable-field" id="budgetSubtitle" data-meta-field="budgetSubtitle" title="Click to edit subtitle">
               Consolidated market and channel allocations with full 12-month flight distribution. Click any budget cell to edit; auto-sums and percentages update live.
             </p>
             <div class="table-top-controls">
@@ -344,8 +344,8 @@
           <div class="channel-badge-header">
             <span class="platform-badge linkedin large">LinkedIn</span>
           </div>
-          <h2 class="section-title">Channel Strategy: LinkedIn</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-field" id="linkedinTitle" data-meta-field="linkedinTitle" title="Click to edit title">Channel Strategy: LinkedIn</h2>
+          <p class="section-subtitle editable-field" id="linkedinSubtitle" data-meta-field="linkedinSubtitle" title="Click to edit subtitle">
             Precision targeting across job functions, seniority, company size, and warm retargeting audiences.
           </p>
         </div>
@@ -377,8 +377,8 @@
           <div class="channel-badge-header">
             <span class="platform-badge meta large">Meta | Instagram</span>
           </div>
-          <h2 class="section-title">Channel Strategy: Meta | Instagram</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-field" id="metaTitle" data-meta-field="metaTitle" title="Click to edit title">Channel Strategy: Meta | Instagram</h2>
+          <p class="section-subtitle editable-field" id="metaSubtitle" data-meta-field="metaSubtitle" title="Click to edit subtitle">
             Cost-efficient lower-funnel retargeting, custom CRM lookalikes, and targeted interest testing.
           </p>
         </div>
@@ -410,8 +410,8 @@
           <div class="channel-badge-header">
             <span class="platform-badge pinterest large">Pinterest</span>
           </div>
-          <h2 class="section-title">Channel Strategy: Pinterest</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-field" id="pinterestTitle" data-meta-field="pinterestTitle" title="Click to edit title">Channel Strategy: Pinterest</h2>
+          <p class="section-subtitle editable-field" id="pinterestSubtitle" data-meta-field="pinterestSubtitle" title="Click to edit subtitle">
             Visual inspiration, commercial interiors, and upper-funnel audience building.
           </p>
         </div>
@@ -453,8 +453,8 @@
           <div class="channel-badge-header">
             <span class="platform-badge wechat large">WeChat</span>
           </div>
-          <h2 class="section-title">Channel Strategy: WeChat</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title editable-field" id="wechatTitle" data-meta-field="wechatTitle" title="Click to edit title">Channel Strategy: WeChat</h2>
+          <p class="section-subtitle editable-field" id="wechatSubtitle" data-meta-field="wechatSubtitle" title="Click to edit subtitle">
             Building-level geo-fencing, CBD radius targeting, and Official Account follower conversion in China.
           </p>
         </div>
@@ -490,8 +490,8 @@
             * <strong>Note on Expected CPL:</strong> Projections are based on benchmark engagement rates, typical B2B conversion metrics, and initial landing page optimization assumptions for Steelcase APAC. Final CPL may vary based on live creative performance, audience saturation, and landing page conversion efficiency.
           </p>
           <div class="footer-meta">
-            <span>Confidential · Prepared for Steelcase APAC</span>
-            <span>Ref: go.steelcase.com/july2026_mediaplan</span>
+            <span class="editable-field" id="footerConfidential" data-meta-field="footerConfidential" title="Click to edit confidentiality notice">Confidential · Prepared for Steelcase APAC</span>
+            <span class="editable-field" id="footerRef" data-meta-field="footerRef" title="Click to edit reference link">Ref: go.steelcase.com/july2026_mediaplan</span>
           </div>
         </div>
       </footer>
@@ -1376,6 +1376,6 @@
     window.dispatchEvent(new CustomEvent('firebase-sdk-ready'));
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="app.js?v=1.01"></script>
+  <script src="app.js?v=1.02"></script>
 </body>
 </html>

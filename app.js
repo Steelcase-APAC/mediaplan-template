@@ -112,12 +112,33 @@ const DEFAULT_MEDIA_PLAN = {
     heroBadgeScope: "Regional: APAC",
     dateBadge: "July 2026 Flight",
     scopeBadge: "Regional: APAC",
+    sidebarCoreAsset: "Work Better Mag",
+    overviewLiveLabel: "LIVE REACTIVE BUDGET ENGINE",
+    overviewTitle: "Marketing Budget Executive Overview",
+    overviewSubtitle: "Real-time spend breakdown across regional markets and media channels. Auto-updates with every budget edit.",
+    kpiCountriesTitle: "COUNTRIES & TOTAL BUDGET",
+    kpiChannelsTitle: "CHANNELS (MEDIA PLATFORMS)",
+    widgetCountryTitle: "Spend by Country",
+    widgetPlatformTitle: "Spend by Platform",
+    widgetMonthlyTitle: "Monthly Run-Rate",
+    budgetTitle: "Budget Breakdown",
+    budgetSubtitle: "Consolidated market and channel allocations with full 12-month flight distribution. Click any budget cell to edit; auto-sums and percentages update live.",
     stratTitle: "Channel Strategies & Tactical Audience Plans",
     stratDesc: "Configure targeting criteria, exclusions, audience priority, and tactical approaches for each media platform. Add custom channels and audience line items at any time.",
-    stratBadge1: "● Audience Strategy",
+    stratBadge1: "● Audience & CPL Strategy",
     stratBadge2: "Tactical Deep Dives",
+    linkedinTitle: "Channel Strategy: LinkedIn",
+    linkedinSubtitle: "Precision targeting across job functions, seniority, company size, and warm retargeting audiences.",
+    metaTitle: "Channel Strategy: Meta | Instagram",
+    metaSubtitle: "Cost-efficient lower-funnel retargeting, custom CRM lookalikes, and targeted interest testing.",
+    pinterestTitle: "Channel Strategy: Pinterest",
+    pinterestSubtitle: "Visual inspiration, commercial interiors, and upper-funnel audience building.",
+    wechatTitle: "Channel Strategy: WeChat",
+    wechatSubtitle: "Building-level geo-fencing, CBD radius targeting, and Official Account follower conversion in China.",
     pinCallout: "Recommend reallocating Pinterest budget to LinkedIn until GTM access is granted and the Pinterest pixel is installed and validated, as Pinterest's value in this plan depends primarily on its ability to build measurable retargeting audiences rather than direct lead generation.",
-    footerCplNote: "* Note on Expected CPL: Projections are based on benchmark engagement rates, typical B2B conversion metrics, and initial landing page optimization assumptions for Steelcase APAC. Final CPL may vary based on live creative performance, audience saturation, and landing page conversion efficiency."
+    footerCplNote: "* Note on Expected CPL: Projections are based on benchmark engagement rates, typical B2B conversion metrics, and initial landing page optimization assumptions for Steelcase APAC. Final CPL may vary based on live creative performance, audience saturation, and landing page conversion efficiency.",
+    footerConfidential: "Confidential · Prepared for Steelcase APAC",
+    footerRef: "Ref: go.steelcase.com/july2026_mediaplan"
   },
   markets: [
     {
@@ -374,6 +395,8 @@ const BudgetStore = {
     if (!this.data.strategyTables) this.data.strategyTables = {};
     if (!this.data.markets) this.data.markets = [];
     if (!this.data.dropdownOptions) this.data.dropdownOptions = { markets: [], platforms: [], offers: [] };
+    if (!this.data.meta) this.data.meta = {};
+    this.data.meta = Object.assign({}, DEFAULT_MEDIA_PLAN.meta, this.data.meta);
 
     this.recalculate();
   },
@@ -2014,7 +2037,7 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
 }
 
 function renderMetaText() {
-  const meta = BudgetStore.data.meta;
+  const meta = BudgetStore.data ? BudgetStore.data.meta : null;
   if (!meta) return;
 
   const titleEl = document.getElementById('documentTitle');
@@ -2032,6 +2055,29 @@ function renderMetaText() {
   const pinCalloutEl = document.getElementById('pinStrategicCallout');
   const cplNoteEl = document.getElementById('footerCplNote');
 
+  // Executive Overview & Sidebar & Budget & Channels & Footer
+  const sidebarCoreAssetEl = document.getElementById('sidebarCoreAsset');
+  const overviewLiveLabelEl = document.getElementById('overviewLiveLabel');
+  const overviewTitleEl = document.getElementById('overviewTitle');
+  const overviewSubtitleEl = document.getElementById('overviewSubtitle');
+  const kpiCountriesTitleEl = document.getElementById('kpiCountriesTitle');
+  const kpiChannelsTitleEl = document.getElementById('kpiChannelsTitle');
+  const widgetCountryTitleEl = document.getElementById('widgetCountryTitle');
+  const widgetPlatformTitleEl = document.getElementById('widgetPlatformTitle');
+  const widgetMonthlyTitleEl = document.getElementById('widgetMonthlyTitle');
+  const budgetTitleEl = document.getElementById('budgetTitle');
+  const budgetSubtitleEl = document.getElementById('budgetSubtitle');
+  const linkedinTitleEl = document.getElementById('linkedinTitle');
+  const linkedinSubtitleEl = document.getElementById('linkedinSubtitle');
+  const metaTitleEl = document.getElementById('metaTitle');
+  const metaSubtitleEl = document.getElementById('metaSubtitle');
+  const pinterestTitleEl = document.getElementById('pinterestTitle');
+  const pinterestSubtitleEl = document.getElementById('pinterestSubtitle');
+  const wechatTitleEl = document.getElementById('wechatTitle');
+  const wechatSubtitleEl = document.getElementById('wechatSubtitle');
+  const footerConfidentialEl = document.getElementById('footerConfidential');
+  const footerRefEl = document.getElementById('footerRef');
+
   if (titleEl && meta.title) titleEl.textContent = meta.title;
   if (descEl && meta.description) descEl.innerHTML = formatCellTextHtml(meta.description);
   if (heroBadgeStatusEl && meta.heroBadgeStatus) heroBadgeStatusEl.textContent = meta.heroBadgeStatus;
@@ -2046,6 +2092,70 @@ function renderMetaText() {
   if (pathEl && meta.navPath) pathEl.textContent = meta.navPath;
   if (pinCalloutEl && meta.pinCallout) pinCalloutEl.innerHTML = formatCellTextHtml(meta.pinCallout);
   if (cplNoteEl && meta.footerCplNote) cplNoteEl.innerHTML = formatCellTextHtml(meta.footerCplNote);
+
+  if (sidebarCoreAssetEl && (meta.sidebarCoreAsset || DEFAULT_MEDIA_PLAN.meta.sidebarCoreAsset)) {
+    sidebarCoreAssetEl.textContent = meta.sidebarCoreAsset || DEFAULT_MEDIA_PLAN.meta.sidebarCoreAsset;
+  }
+  if (overviewLiveLabelEl && (meta.overviewLiveLabel || DEFAULT_MEDIA_PLAN.meta.overviewLiveLabel)) {
+    overviewLiveLabelEl.textContent = meta.overviewLiveLabel || DEFAULT_MEDIA_PLAN.meta.overviewLiveLabel;
+  }
+  if (overviewTitleEl && (meta.overviewTitle || DEFAULT_MEDIA_PLAN.meta.overviewTitle)) {
+    overviewTitleEl.textContent = meta.overviewTitle || DEFAULT_MEDIA_PLAN.meta.overviewTitle;
+  }
+  if (overviewSubtitleEl && (meta.overviewSubtitle || DEFAULT_MEDIA_PLAN.meta.overviewSubtitle)) {
+    overviewSubtitleEl.innerHTML = formatCellTextHtml(meta.overviewSubtitle || DEFAULT_MEDIA_PLAN.meta.overviewSubtitle);
+  }
+  if (kpiCountriesTitleEl && (meta.kpiCountriesTitle || DEFAULT_MEDIA_PLAN.meta.kpiCountriesTitle)) {
+    kpiCountriesTitleEl.textContent = meta.kpiCountriesTitle || DEFAULT_MEDIA_PLAN.meta.kpiCountriesTitle;
+  }
+  if (kpiChannelsTitleEl && (meta.kpiChannelsTitle || DEFAULT_MEDIA_PLAN.meta.kpiChannelsTitle)) {
+    kpiChannelsTitleEl.textContent = meta.kpiChannelsTitle || DEFAULT_MEDIA_PLAN.meta.kpiChannelsTitle;
+  }
+  if (widgetCountryTitleEl && (meta.widgetCountryTitle || DEFAULT_MEDIA_PLAN.meta.widgetCountryTitle)) {
+    widgetCountryTitleEl.textContent = meta.widgetCountryTitle || DEFAULT_MEDIA_PLAN.meta.widgetCountryTitle;
+  }
+  if (widgetPlatformTitleEl && (meta.widgetPlatformTitle || DEFAULT_MEDIA_PLAN.meta.widgetPlatformTitle)) {
+    widgetPlatformTitleEl.textContent = meta.widgetPlatformTitle || DEFAULT_MEDIA_PLAN.meta.widgetPlatformTitle;
+  }
+  if (widgetMonthlyTitleEl && (meta.widgetMonthlyTitle || DEFAULT_MEDIA_PLAN.meta.widgetMonthlyTitle)) {
+    widgetMonthlyTitleEl.textContent = meta.widgetMonthlyTitle || DEFAULT_MEDIA_PLAN.meta.widgetMonthlyTitle;
+  }
+  if (budgetTitleEl && (meta.budgetTitle || DEFAULT_MEDIA_PLAN.meta.budgetTitle)) {
+    budgetTitleEl.textContent = meta.budgetTitle || DEFAULT_MEDIA_PLAN.meta.budgetTitle;
+  }
+  if (budgetSubtitleEl && (meta.budgetSubtitle || DEFAULT_MEDIA_PLAN.meta.budgetSubtitle)) {
+    budgetSubtitleEl.innerHTML = formatCellTextHtml(meta.budgetSubtitle || DEFAULT_MEDIA_PLAN.meta.budgetSubtitle);
+  }
+  if (linkedinTitleEl && (meta.linkedinTitle || DEFAULT_MEDIA_PLAN.meta.linkedinTitle)) {
+    linkedinTitleEl.textContent = meta.linkedinTitle || DEFAULT_MEDIA_PLAN.meta.linkedinTitle;
+  }
+  if (linkedinSubtitleEl && (meta.linkedinSubtitle || DEFAULT_MEDIA_PLAN.meta.linkedinSubtitle)) {
+    linkedinSubtitleEl.innerHTML = formatCellTextHtml(meta.linkedinSubtitle || DEFAULT_MEDIA_PLAN.meta.linkedinSubtitle);
+  }
+  if (metaTitleEl && (meta.metaTitle || DEFAULT_MEDIA_PLAN.meta.metaTitle)) {
+    metaTitleEl.textContent = meta.metaTitle || DEFAULT_MEDIA_PLAN.meta.metaTitle;
+  }
+  if (metaSubtitleEl && (meta.metaSubtitle || DEFAULT_MEDIA_PLAN.meta.metaSubtitle)) {
+    metaSubtitleEl.innerHTML = formatCellTextHtml(meta.metaSubtitle || DEFAULT_MEDIA_PLAN.meta.metaSubtitle);
+  }
+  if (pinterestTitleEl && (meta.pinterestTitle || DEFAULT_MEDIA_PLAN.meta.pinterestTitle)) {
+    pinterestTitleEl.textContent = meta.pinterestTitle || DEFAULT_MEDIA_PLAN.meta.pinterestTitle;
+  }
+  if (pinterestSubtitleEl && (meta.pinterestSubtitle || DEFAULT_MEDIA_PLAN.meta.pinterestSubtitle)) {
+    pinterestSubtitleEl.innerHTML = formatCellTextHtml(meta.pinterestSubtitle || DEFAULT_MEDIA_PLAN.meta.pinterestSubtitle);
+  }
+  if (wechatTitleEl && (meta.wechatTitle || DEFAULT_MEDIA_PLAN.meta.wechatTitle)) {
+    wechatTitleEl.textContent = meta.wechatTitle || DEFAULT_MEDIA_PLAN.meta.wechatTitle;
+  }
+  if (wechatSubtitleEl && (meta.wechatSubtitle || DEFAULT_MEDIA_PLAN.meta.wechatSubtitle)) {
+    wechatSubtitleEl.innerHTML = formatCellTextHtml(meta.wechatSubtitle || DEFAULT_MEDIA_PLAN.meta.wechatSubtitle);
+  }
+  if (footerConfidentialEl && (meta.footerConfidential || DEFAULT_MEDIA_PLAN.meta.footerConfidential)) {
+    footerConfidentialEl.textContent = meta.footerConfidential || DEFAULT_MEDIA_PLAN.meta.footerConfidential;
+  }
+  if (footerRefEl && (meta.footerRef || DEFAULT_MEDIA_PLAN.meta.footerRef)) {
+    footerRefEl.textContent = meta.footerRef || DEFAULT_MEDIA_PLAN.meta.footerRef;
+  }
 }
 
 /* ==========================================================================
@@ -2239,26 +2349,37 @@ function attachStrategyTableListeners() {
   });
 }
 
-// Meta text fields (document title, description, headers)
-document.querySelectorAll('.editable-field[data-meta-field]').forEach(el => {
-  el.addEventListener('click', () => {
-    if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
-    if (el.isContentEditable) return;
+// Meta text fields (document title, description, headers, subtitles, notes)
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('.editable-field[data-meta-field]');
+  if (!el) return;
+  if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
+  if (el.isContentEditable) return;
 
-    const field = el.getAttribute('data-meta-field');
-    const isMultiline = (field === 'description' || field === 'stratDesc' || field === 'pinCallout' || field === 'footerCplNote');
+  const field = el.getAttribute('data-meta-field');
+  const isMultiline = (
+    field === 'description' ||
+    field === 'stratDesc' ||
+    field === 'pinCallout' ||
+    field === 'footerCplNote' ||
+    field === 'overviewSubtitle' ||
+    field === 'budgetSubtitle' ||
+    field.endsWith('Subtitle') ||
+    field.endsWith('Desc') ||
+    field.endsWith('Note')
+  );
 
-    setupInlineEditor(el, {
-      isMultiline,
-      onCommit: (cleanText) => {
-        BudgetStore.data.meta[field] = cleanText;
-        BudgetStore.save();
-        renderMetaText();
-      },
-      onCancel: () => {
-        renderMetaText();
-      }
-    });
+  setupInlineEditor(el, {
+    isMultiline,
+    onCommit: (cleanText) => {
+      if (!BudgetStore.data.meta) BudgetStore.data.meta = {};
+      BudgetStore.data.meta[field] = cleanText;
+      BudgetStore.save();
+      renderMetaText();
+    },
+    onCancel: () => {
+      renderMetaText();
+    }
   });
 });
 
@@ -4209,6 +4330,8 @@ const FirestoreSyncManager = {
     }
 
     BudgetStore.data = JSON.parse(JSON.stringify(proposalData.planData));
+    if (!BudgetStore.data.meta) BudgetStore.data.meta = {};
+    BudgetStore.data.meta = Object.assign({}, DEFAULT_MEDIA_PLAN.meta, BudgetStore.data.meta);
     BudgetStore.data._lastUpdated = Date.now();
     BudgetStore.recalculate();
     BudgetStore.save();
