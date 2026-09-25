@@ -58,3 +58,4 @@ Fresh worktree      Clean architecture     Runtime proof before/after Zero unver
 2. **State & Storage Safety**: State mutations must go through the centralized state manager (`DATA` / `APP_STATE`) and safely persist to `localStorage` without breaking schema backwards-compatibility.
 3. **No Phantom Dependencies**: Do not introduce bundlers (Webpack, Vite, Tailwind CLI) unless explicitly requested. Keep the application zero-config and 100% portable for direct GitHub Pages and Netlify deployment.
 4. **Theme & Responsiveness**: Maintain both light and dark theme compatibility across all new UI components, tables, and modal dialogs.
+5. **Version Incrementation Protocol**: The top nav version badge (`#appVersionBadge` in `index.html`) tracks releases. Every time code is prepared and pushed to `main`, increment the version by `+0.01` (e.g. `v1.01` -> `v1.02` -> `v1.03`), update cache-busting strings (`?v=...`), and synchronize the release branch name (e.g. `Beta-1.02`).
