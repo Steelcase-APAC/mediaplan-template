@@ -23,8 +23,51 @@
       </div>
 
       <div class="nav-actions">
-        <!-- Logged-in Header Action Controls Group -->
-        <div id="headerControlsGroup" class="header-controls-group">
+        <!-- Proposal Selector Dropdown (Accessible to ALL users, logged-in or non-logged-in) -->
+        <div class="nav-dropdown-wrapper" id="proposalSelectWrap">
+          <button id="proposalSelectBtn" class="btn btn-secondary btn-sm nav-dropdown-btn proposal-select-btn" type="button" title="Select proposal to view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span id="proposalSelectLabel" class="proposal-label-text">Select Proposal</span>
+            <svg class="dropdown-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div id="proposalSelectMenu" class="nav-dropdown-menu proposal-select-menu" style="display: none;">
+            <!-- Populated dynamically with saved proposals from Firestore -->
+          </div>
+        </div>
+
+        <!-- Planning vs Presentation View Mode Switch (Always visible; prompts sign-in if clicking Plan Mode while logged out) -->
+        <div class="mode-switch-group">
+          <button id="modePlanBtn" class="mode-pill" title="Interactive Planning Mode: Edit budgets, add channels and countries">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            <span>Plan Mode</span>
+          </button>
+          <button id="modePresentBtn" class="mode-pill active" title="Presentation View: Clean executive view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <span>Present</span>
+          </button>
+        </div>
+
+        <!-- Combined Export Dropdown (PDF, CSV) (Always visible) -->
+        <div class="nav-dropdown-wrapper" id="exportDropdownWrap">
+          <button id="exportDropdownBtn" class="btn btn-secondary btn-sm nav-dropdown-btn" type="button" title="Export proposal as PDF or CSV">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Export</span>
+            <svg class="dropdown-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div id="exportDropdownMenu" class="nav-dropdown-menu" style="display: none;">
+            <button type="button" id="exportPdfOptionBtn" class="nav-dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <span>Download PDF</span>
+            </button>
+            <button type="button" id="exportCsvOptionBtn" class="nav-dropdown-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Logged-in Header Action Controls Group (File Operations) -->
+        <div id="headerControlsGroup" class="header-controls-group" style="display: none;">
           <!-- File Operations Menu Dropdown (Open, Save) -->
           <div class="nav-dropdown-wrapper" id="fileDropdownWrap">
             <button id="fileDropdownBtn" class="btn btn-secondary btn-sm nav-dropdown-btn" type="button" title="File operations: Open or Save proposal">
@@ -43,40 +86,9 @@
               </button>
             </div>
           </div>
-
-          <!-- Planning vs Presentation View Mode Switch -->
-          <div class="mode-switch-group">
-            <button id="modePlanBtn" class="mode-pill active" title="Interactive Planning Mode: Edit budgets, add channels and countries">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              <span>Plan Mode</span>
-            </button>
-            <button id="modePresentBtn" class="mode-pill" title="Presentation View: Clean executive view">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              <span>Present</span>
-            </button>
-          </div>
-
-          <!-- Combined Export Dropdown (PDF, CSV) -->
-          <div class="nav-dropdown-wrapper" id="exportDropdownWrap">
-            <button id="exportDropdownBtn" class="btn btn-secondary btn-sm nav-dropdown-btn" type="button" title="Export proposal as PDF or CSV">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              <span>Export</span>
-              <svg class="dropdown-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
-            <div id="exportDropdownMenu" class="nav-dropdown-menu" style="display: none;">
-              <button type="button" id="exportPdfOptionBtn" class="nav-dropdown-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                <span>Download PDF</span>
-              </button>
-              <button type="button" id="exportCsvOptionBtn" class="nav-dropdown-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                <span>Export CSV</span>
-              </button>
-            </div>
-          </div>
         </div>
 
-        <!-- Optional User Account Pill -->
+        <!-- User Account Pill (Sign In / User Info) -->
         <div id="authControls" class="auth-controls">
           <button id="openAuthModalBtn" class="btn btn-secondary btn-sm" title="Sign in to save multiple plans to your account">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -257,7 +269,7 @@
                 <button class="filter-pill active" data-mkt-filter="all">All Markets</button>
               </div>
               <!-- Add Line Item button in section header -->
-              <button id="addLineItemTableTopBtn" class="btn btn-action-add btn-sm" title="Add a new marketing line item">
+              <button id="addLineItemTableTopBtn" class="btn btn-action-add btn-sm edit-mode-only" title="Add a new marketing line item">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 <span>Add Line Item</span>
               </button>
@@ -277,6 +289,8 @@
                 <th style="min-width: 160px;">Idea / Offer</th>
                 <th style="min-width: 85px;" class="text-right">Budget %</th>
                 <th style="min-width: 120px;" class="text-right">Budget (USD)</th>
+                <th style="min-width: 100px;" class="text-right">Expected CPC</th>
+                <th style="min-width: 105px;" class="text-right">Expected CPL*</th>
                 <th style="min-width: 85px;" class="text-right">Jan</th>
                 <th style="min-width: 85px;" class="text-right">Feb</th>
                 <th style="min-width: 85px;" class="text-right">Mar</th>
@@ -289,7 +303,7 @@
                 <th style="min-width: 85px;" class="text-right">Oct</th>
                 <th style="min-width: 85px;" class="text-right">Nov</th>
                 <th style="min-width: 85px;" class="text-right">Dec</th>
-                <th style="width: 44px;" class="table-action-col text-center"></th>
+                <th style="width: 44px;" class="table-action-col text-center edit-mode-only"></th>
               </tr>
             </thead>
             <tbody id="mainBudgetTableBody">
@@ -302,8 +316,8 @@
         </div>
 
         <!-- Bottom Action Bar (Add Line Item) -->
-        <div class="table-bottom-actions">
-          <button id="addLineItemTableBottomBtn" class="btn btn-action-add full-width-sm" title="Add a new marketing line item">
+        <div class="table-bottom-actions edit-mode-only">
+          <button id="addLineItemTableBottomBtn" class="btn btn-action-add full-width-sm edit-mode-only" title="Add a new marketing line item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>Add Line Item</span>
           </button>
@@ -340,17 +354,14 @@
           <table class="proposal-table" id="strategyTableLinkedIn">
             <thead>
               <tr>
-                <th style="width: 38px;" class="table-action-col text-center"></th>
+                <th style="width: 38px;" class="table-action-col text-center edit-mode-only"></th>
                 <th style="min-width: 100px;">Market</th>
-                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
                 <th style="min-width: 260px;">Targeting</th>
                 <th style="min-width: 210px;">Exclusions</th>
                 <th style="min-width: 160px;">Offer / CTA</th>
-                <th style="min-width: 110px;">Expected CPC</th>
-                <th style="min-width: 115px;">Expected CPL*</th>
               </tr>
             </thead>
             <tbody id="strategyBodyLinkedIn">
@@ -376,17 +387,14 @@
           <table class="proposal-table" id="strategyTableMeta">
             <thead>
               <tr>
-                <th style="width: 38px;" class="table-action-col text-center"></th>
+                <th style="width: 38px;" class="table-action-col text-center edit-mode-only"></th>
                 <th style="min-width: 100px;">Market</th>
-                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
                 <th style="min-width: 260px;">Targeting</th>
                 <th style="min-width: 210px;">Exclusions</th>
                 <th style="min-width: 160px;">Offer / CTA</th>
-                <th style="min-width: 110px;">Expected CPC</th>
-                <th style="min-width: 115px;">Expected CPL*</th>
               </tr>
             </thead>
             <tbody id="strategyBodyMeta">
@@ -422,17 +430,14 @@
           <table class="proposal-table" id="strategyTablePinterest">
             <thead>
               <tr>
-                <th style="width: 38px;" class="table-action-col text-center"></th>
+                <th style="width: 38px;" class="table-action-col text-center edit-mode-only"></th>
                 <th style="min-width: 100px;">Market</th>
-                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
                 <th style="min-width: 260px;">Targeting</th>
                 <th style="min-width: 210px;">Exclusions</th>
                 <th style="min-width: 160px;">Offer / CTA</th>
-                <th style="min-width: 110px;">Expected CPC</th>
-                <th style="min-width: 115px;">Expected CPL*</th>
               </tr>
             </thead>
             <tbody id="strategyBodyPinterest">
@@ -458,17 +463,14 @@
           <table class="proposal-table" id="strategyTableWeChat">
             <thead>
               <tr>
-                <th style="width: 38px;" class="table-action-col text-center"></th>
+                <th style="width: 38px;" class="table-action-col text-center edit-mode-only"></th>
                 <th style="min-width: 100px;">Market</th>
-                <th style="min-width: 105px;" class="text-right">Budget Split</th>
                 <th style="min-width: 180px;">Audience</th>
                 <th style="min-width: 95px;">Priority</th>
                 <th style="min-width: 210px;">Audience Purpose</th>
                 <th style="min-width: 260px;">Targeting</th>
                 <th style="min-width: 210px;">Exclusions</th>
                 <th style="min-width: 160px;">Offer / CTA</th>
-                <th style="min-width: 110px;">Expected CPC</th>
-                <th style="min-width: 115px;">Expected CPL</th>
               </tr>
             </thead>
             <tbody id="strategyBodyWeChat">
@@ -640,6 +642,20 @@
           </div>
         </div>
 
+        <div class="form-grid-2">
+          <!-- Expected CPC -->
+          <div class="form-group">
+            <label for="lineItemCpcInput">Expected CPC Benchmark</label>
+            <input type="text" id="lineItemCpcInput" class="form-input font-mono" value="USD 4–8" placeholder="e.g. USD 4–8">
+          </div>
+
+          <!-- Expected CPL -->
+          <div class="form-group">
+            <label for="lineItemCplInput">Expected CPL Benchmark*</label>
+            <input type="text" id="lineItemCplInput" class="form-input font-mono font-bold" value="USD 45–85" placeholder="e.g. USD 45–85">
+          </div>
+        </div>
+
         <!-- Audience Type -->
         <div class="form-group">
           <label for="lineItemAudienceInput">Audience Type / Targeting Criteria</label>
@@ -796,32 +812,10 @@
           </div>
         </div>
 
-        <div class="form-grid-2">
-          <!-- Offer / CTA -->
-          <div class="form-group">
-            <label for="stratLineOfferInput">Offer / Content Asset / CTA</label>
-            <input type="text" id="stratLineOfferInput" class="form-input" value="Work Better Magazine download" list="commonOffersList">
-          </div>
-
-          <!-- Budget Split -->
-          <div class="form-group">
-            <label for="stratLineSplitInput">Budget Split / Share</label>
-            <input type="text" id="stratLineSplitInput" class="form-input font-mono" value="25%" placeholder="e.g. 25%, 35–40%">
-          </div>
-        </div>
-
-        <div class="form-grid-2">
-          <!-- Expected CPC -->
-          <div class="form-group">
-            <label for="stratLineCpcInput">Expected CPC Benchmark</label>
-            <input type="text" id="stratLineCpcInput" class="form-input font-mono" value="USD 4–8" placeholder="e.g. USD 4–8, USD 0.80–2.00">
-          </div>
-
-          <!-- Expected CPL -->
-          <div class="form-group">
-            <label for="stratLineCplInput">Expected CPL Benchmark</label>
-            <input type="text" id="stratLineCplInput" class="form-input font-mono font-bold" value="USD 45–85" placeholder="e.g. USD 45–85, USD 12–25">
-          </div>
+        <!-- Offer / CTA -->
+        <div class="form-group">
+          <label for="stratLineOfferInput">Offer / Content Asset / CTA</label>
+          <input type="text" id="stratLineOfferInput" class="form-input" value="Work Better Magazine download" list="commonOffersList">
         </div>
 
         <div class="modal-footer">

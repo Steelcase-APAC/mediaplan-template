@@ -13,7 +13,7 @@
 // Global Application State
 const APP_STATE = {
   currentUser: null,
-  isEditMode: true, // Active by default for immediate planning
+  isEditMode: false, // View mode by default for visitors/non-login users
   deckFilter: 'all', // 'all' | 'countries' | 'platforms'
   activeMarketFilter: 'all',
   activeDropdownTarget: null,
@@ -113,8 +113,8 @@ const DEFAULT_MEDIA_PLAN = {
     dateBadge: "July 2026 Flight",
     scopeBadge: "Regional: APAC",
     stratTitle: "Channel Strategies & Tactical Audience Plans",
-    stratDesc: "Configure targeting criteria, exclusions, audience priority, and expected CPL for each media platform. Add custom channels and audience line items at any time.",
-    stratBadge1: "● Audience & CPL Strategy",
+    stratDesc: "Configure targeting criteria, exclusions, audience priority, and tactical approaches for each media platform. Add custom channels and audience line items at any time.",
+    stratBadge1: "● Audience Strategy",
     stratBadge2: "Tactical Deep Dives",
     pinCallout: "Recommend reallocating Pinterest budget to LinkedIn until GTM access is granted and the Pinterest pixel is installed and validated, as Pinterest's value in this plan depends primarily on its ability to build measurable retargeting audiences rather than direct lead generation.",
     footerCplNote: "* Note on Expected CPL: Projections are based on benchmark engagement rates, typical B2B conversion metrics, and initial landing page optimization assumptions for Steelcase APAC. Final CPL may vary based on live creative performance, audience saturation, and landing page conversion efficiency."
@@ -132,6 +132,8 @@ const DEFAULT_MEDIA_PLAN = {
           audienceType: "CRE, Workplace Leaders, Architects, Designers, HR",
           offer: "Work Better Magazine",
           budgetUSD: 20350,
+          cpc: "USD 4–8",
+          cpl: "USD 45–85",
           months: { july: 3850, august: 8250, september: 8250, october: 0, november: 0 }
         },
         {
@@ -141,6 +143,8 @@ const DEFAULT_MEDIA_PLAN = {
           audienceType: "Interests targeting",
           offer: "Work Better Magazine",
           budgetUSD: 5550,
+          cpc: "USD 0.25–0.70",
+          cpl: "USD 25–55",
           months: { july: 1050, august: 2250, september: 2250, october: 0, november: 0 }
         },
         {
@@ -150,6 +154,8 @@ const DEFAULT_MEDIA_PLAN = {
           audienceType: "Lookalikes, Interest Audiences",
           offer: "Work Better Magazine",
           budgetUSD: 11100,
+          cpc: "USD 0.80–2.00",
+          cpl: "USD 12–25",
           months: { july: 2100, august: 4500, september: 4500, october: 0, november: 0 }
         }
       ]
@@ -166,6 +172,8 @@ const DEFAULT_MEDIA_PLAN = {
           audienceType: "Workplace Leaders, CRE, Architects",
           offer: "Work Better Magazine",
           budgetUSD: 9000,
+          cpc: "USD 7–12",
+          cpl: "USD 60–110",
           months: { july: 1800, august: 3600, september: 3600, october: 0, november: 0 }
         },
         {
@@ -175,6 +183,8 @@ const DEFAULT_MEDIA_PLAN = {
           audienceType: "Lookalikes, Interest Audiences",
           offer: "Work Better Magazine",
           budgetUSD: 6000,
+          cpc: "USD 1.20–2.50",
+          cpl: "USD 20–40",
           months: { july: 1200, august: 2400, september: 2400, october: 0, november: 0 }
         }
       ]
@@ -191,6 +201,8 @@ const DEFAULT_MEDIA_PLAN = {
           audienceType: "Website Visitors, CRM",
           offer: "Work Better Magazine",
           budgetUSD: 67000,
+          cpc: "USD 0.20–0.80",
+          cpl: "USD 10–25",
           months: { july: 7000, august: 15000, september: 15000, october: 15000, november: 15000 }
         }
       ]
@@ -212,43 +224,43 @@ const DEFAULT_MEDIA_PLAN = {
   },
   strategyTables: {
     linkedin: [
-      { market: "India", audience: "CRE / Workplace Leaders", priority: "High", purpose: "Reach people closest to office transformation, workplace planning, and fit-out decisions", targeting: "Titles: Workplace Director, Head of CRE, Facilities Director, Real Estate Manager, Workplace Experience Manager", exclusions: "Residential real estate agents, junior admin roles, students, entry-level profiles, freelancers", offer: "Work Better Magazine download", cpc: "USD 4–8", cpl: "USD 45–85", split: "35–40%" },
-      { market: "India", audience: "Enterprise Decision Makers", priority: "High", purpose: "Capture senior enterprise contacts in large organizations", targeting: "Seniority: Director+, VP+, CXO, Head of Dept. Company size: 500+, 1,000+, 5,000+. Functions: Operations, HR, Real Estate, Facilities", exclusions: "Small businesses under 200 employees, students, entry level, freelancers, retail buyers", offer: "Work Better Magazine download", cpc: "USD 5–9", cpl: "USD 50–95", split: "25–30%" },
-      { market: "India", audience: "A&D / Design Influencers", priority: "Medium", purpose: "Reach architects and designers who influence workplace projects", targeting: "Titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Design Services", exclusions: "Students, junior-only designers if CPL is high, hobby/interior decor profiles", offer: "Work Better Magazine download", cpc: "USD 4–7", cpl: "USD 40–80", split: "15–20%" },
-      { market: "India", audience: "HR / People Leaders", priority: "Low-med", purpose: "Test workplace experience and employee-experience narrative", targeting: "Job titles/functions: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders", exclusions: "Recruiters, junior HR, HR vendors, training providers", offer: "Work Better Magazine download", cpc: "USD 4–8", cpl: "USD 50–95", split: "5–10%" },
-      { market: "India", audience: "Warm Retargeting / Engaged Audiences", priority: "High", purpose: "Convert already-exposed audiences into contacts", targeting: "Website visitors, LinkedIn page engagers, video viewers, previous lead form openers, CRM lists, event/webinar registrants", exclusions: "Existing Steelcase employees, invalid CRM contacts, already-converted contacts if applicable", offer: "Work Better Magazine download or webinar invite", cpc: "USD 3–6", cpl: "USD 20–50", split: "10–15%" },
-      { market: "Singapore", audience: "CRE / Workplace Leaders", priority: "High", purpose: "Reach strongest B2B workplace decision audience in a small market", targeting: "Titles: Workplace Director, Head of Real Estate, Facilities Director, Corporate Real Estate Manager, Workplace Strategy Director", exclusions: "Residential agents, junior admin, students, job seekers, unrelated property sales", offer: "Work Better Magazine download", cpc: "USD 7–12", cpl: "USD 60–110", split: "35–40%" },
-      { market: "Singapore", audience: "Enterprise Decision Makers", priority: "High", purpose: "Capture senior contacts from enterprise organizations", targeting: "Seniority: Manager+, Director+, VP+, CXO. Company size: 200+, 500+, 1,000+. Functions: Operations, HR, Real Estate, Facilities, Business Admin", exclusions: "Small companies, entry-level profiles, freelancers, students, retail buyers", offer: "Work Better Magazine download", cpc: "USD 8–14", cpl: "USD 70–130", split: "30–35%" },
-      { market: "Singapore", audience: "A&D / Design Influencers", priority: "Medium", purpose: "Reach architects, designers, and project specifiers", targeting: "Job titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Construction", exclusions: "Students, junior designers if CPL is inefficient, decor-only profiles", offer: "Work Better Magazine download", cpc: "USD 6–11", cpl: "USD 65–120", split: "15%" },
-      { market: "Singapore", audience: "HR / People Leaders", priority: "Low-med", purpose: "Test Work Better relevance to people / workplace experience leaders", targeting: "Job titles: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders", exclusions: "Recruiters, junior HR, training vendors, HR software sellers", offer: "Work Better Magazine download", cpc: "USD 7–13", cpl: "USD 80–150", split: "5%" },
-      { market: "Singapore", audience: "Warm Retargeting / Engaged Audiences", priority: "High", purpose: "Maximize conversion from small existing pool", targeting: "Website visitors, LinkedIn page engagers, video viewers, previous campaign engagers, CRM lists", exclusions: "Employees, invalid contacts, already-converted contacts if applicable", offer: "Work Better Magazine download or event/webinar invite", cpc: "USD 5–9", cpl: "USD 45–90", split: "15%" }
+      { market: "India", audience: "CRE / Workplace Leaders", priority: "High", purpose: "Reach people closest to office transformation, workplace planning, and fit-out decisions", targeting: "Titles: Workplace Director, Head of CRE, Facilities Director, Real Estate Manager, Workplace Experience Manager", exclusions: "Residential real estate agents, junior admin roles, students, entry-level profiles, freelancers", offer: "Work Better Magazine download" },
+      { market: "India", audience: "Enterprise Decision Makers", priority: "High", purpose: "Capture senior enterprise contacts in large organizations", targeting: "Seniority: Director+, VP+, CXO, Head of Dept. Company size: 500+, 1,000+, 5,000+. Functions: Operations, HR, Real Estate, Facilities", exclusions: "Small businesses under 200 employees, students, entry level, freelancers, retail buyers", offer: "Work Better Magazine download" },
+      { market: "India", audience: "A&D / Design Influencers", priority: "Medium", purpose: "Reach architects and designers who influence workplace projects", targeting: "Titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Design Services", exclusions: "Students, junior-only designers if CPL is high, hobby/interior decor profiles", offer: "Work Better Magazine download" },
+      { market: "India", audience: "HR / People Leaders", priority: "Low-med", purpose: "Test workplace experience and employee-experience narrative", targeting: "Job titles/functions: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders", exclusions: "Recruiters, junior HR, HR vendors, training providers", offer: "Work Better Magazine download" },
+      { market: "India", audience: "Warm Retargeting / Engaged Audiences", priority: "High", purpose: "Convert already-exposed audiences into contacts", targeting: "Website visitors, LinkedIn page engagers, video viewers, previous lead form openers, CRM lists, event/webinar registrants", exclusions: "Existing Steelcase employees, invalid CRM contacts, already-converted contacts if applicable", offer: "Work Better Magazine download or webinar invite" },
+      { market: "Singapore", audience: "CRE / Workplace Leaders", priority: "High", purpose: "Reach strongest B2B workplace decision audience in a small market", targeting: "Titles: Workplace Director, Head of Real Estate, Facilities Director, Corporate Real Estate Manager, Workplace Strategy Director", exclusions: "Residential agents, junior admin, students, job seekers, unrelated property sales", offer: "Work Better Magazine download" },
+      { market: "Singapore", audience: "Enterprise Decision Makers", priority: "High", purpose: "Capture senior contacts from enterprise organizations", targeting: "Seniority: Manager+, Director+, VP+, CXO. Company size: 200+, 500+, 1,000+. Functions: Operations, HR, Real Estate, Facilities, Business Admin", exclusions: "Small companies, entry-level profiles, freelancers, students, retail buyers", offer: "Work Better Magazine download" },
+      { market: "Singapore", audience: "A&D / Design Influencers", priority: "Medium", purpose: "Reach architects, designers, and project specifiers", targeting: "Job titles: Architect, Interior Designer, Design Director, Principal, Partner, Studio Director. Industries: Architecture & Planning, Construction", exclusions: "Students, junior designers if CPL is inefficient, decor-only profiles", offer: "Work Better Magazine download" },
+      { market: "Singapore", audience: "HR / People Leaders", priority: "Low-med", purpose: "Test Work Better relevance to people / workplace experience leaders", targeting: "Job titles: HR Director, CHRO, People Experience, Employee Experience, Workplace Culture, Talent / People Leaders", exclusions: "Recruiters, junior HR, training vendors, HR software sellers", offer: "Work Better Magazine download" },
+      { market: "Singapore", audience: "Warm Retargeting / Engaged Audiences", priority: "High", purpose: "Maximize conversion from small existing pool", targeting: "Website visitors, LinkedIn page engagers, video viewers, previous campaign engagers, CRM lists", exclusions: "Employees, invalid contacts, already-converted contacts if applicable", offer: "Work Better Magazine download or event/webinar invite" }
     ],
     meta: [
-      { market: "India", audience: "Website Visitors Retargeting (30/90 Days)", priority: "High", purpose: "Convert known visitors into contacts", targeting: "All website visitors, key content page visitors, Work Better page visitors", exclusions: "Existing leads, employees, recent converters", offer: "Work Better Magazine Download", cpc: "USD 0.50–1.50", cpl: "USD 8–20", split: "25%" },
-      { market: "India", audience: "CRM Lookalike 1%", priority: "High", purpose: "Find similar users to existing contacts/customers", targeting: "CRM upload, HubSpot contact lists, MQL lists, webinar registrants", exclusions: "Existing CRM contacts", offer: "Work Better Magazine Download", cpc: "USD 0.80–2.00", cpl: "USD 12–25", split: "20%" },
-      { market: "India", audience: "Video Viewers Retargeting", priority: "High", purpose: "Convert engaged content consumers", targeting: "50%+, 75%+, 95% video viewers across campaign creative", exclusions: "Existing leads", offer: "Work Better Magazine Download", cpc: "USD 0.60–1.60", cpl: "USD 10–25", split: "15%" },
-      { market: "India", audience: "Workplace Transformation Interests", priority: "Medium", purpose: "Reach workplace-interested professionals", targeting: "Office design, workplace strategy, commercial interiors, hybrid work, employee experience", exclusions: "Generic furniture shoppers, residential decor only", offer: "Work Better Magazine Download", cpc: "USD 0.80–2.50", cpl: "USD 20–40", split: "15%" },
-      { market: "India", audience: "Architecture & Design Community", priority: "Medium", purpose: "Reach designers and specifiers", targeting: "Interior design, architecture, workplace design, commercial design publications", exclusions: "Residential renovation interests", offer: "Work Better Magazine Download", cpc: "USD 0.70–2.20", cpl: "USD 15–35", split: "15%" },
-      { market: "India", audience: "Broad AI + Future of Work", priority: "Low", purpose: "Scale audience pool cheaply", targeting: "AI, future of work, technology leadership, workplace innovation", exclusions: "Existing warm audiences", offer: "Work Better Magazine Download", cpc: "USD 0.60–2.00", cpl: "USD 25–50", split: "10%" },
-      { market: "Singapore", audience: "Website Visitors Retargeting (30/90 Days)", priority: "High", purpose: "Convert limited traffic pool into contacts", targeting: "Website visitors, Work Better page visitors, campaign landing page visitors", exclusions: "Existing leads, employees", offer: "Work Better Magazine Download", cpc: "USD 1.00–2.50", cpl: "USD 18–40", split: "30%" },
-      { market: "Singapore", audience: "CRM Lookalike 1%", priority: "High", purpose: "Extend reach using known-quality profiles", targeting: "CRM, event attendees, webinar registrants, MQL lists", exclusions: "Existing CRM contacts", offer: "Work Better Magazine Download", cpc: "USD 1.50–3.00", cpl: "USD 20–45", split: "20%" },
-      { market: "Singapore", audience: "Video Viewers Retargeting", priority: "Medium", purpose: "Convert engaged audiences into contacts", targeting: "50%+, 75%+, 95% video viewers across active creatives", exclusions: "Existing leads", offer: "Work Better Magazine Download", cpc: "USD 1.20–2.50", cpl: "USD 20–40", split: "15%" },
-      { market: "Singapore", audience: "Workplace Transformation Interests", priority: "Medium", purpose: "Reach potential workplace decision influencers", targeting: "Hybrid work, workplace strategy, office design, employee experience", exclusions: "Residential shoppers, students", offer: "Work Better Magazine Download", cpc: "USD 1.50–3.50", cpl: "USD 30–60", split: "15%" },
-      { market: "Singapore", audience: "Architecture & Design Community", priority: "Medium", purpose: "Reach architects and designers", targeting: "Interior design, architecture firms, workplace design publications", exclusions: "Residential DIY and home improvement interests", offer: "Work Better Magazine Download", cpc: "USD 1.20–3.00", cpl: "USD 25–55", split: "10%" },
-      { market: "Singapore", audience: "Broad AI + Future of Work", priority: "Low", purpose: "Build audience for future retargeting", targeting: "AI, technology, business innovation, digital transformation", exclusions: "Non-business users", offer: "Work Better Magazine Download", cpc: "USD 1.20–3.50", cpl: "USD 35–70", split: "10%" }
+      { market: "India", audience: "Website Visitors Retargeting (30/90 Days)", priority: "High", purpose: "Convert known visitors into contacts", targeting: "All website visitors, key content page visitors, Work Better page visitors", exclusions: "Existing leads, employees, recent converters", offer: "Work Better Magazine Download" },
+      { market: "India", audience: "CRM Lookalike 1%", priority: "High", purpose: "Find similar users to existing contacts/customers", targeting: "CRM upload, HubSpot contact lists, MQL lists, webinar registrants", exclusions: "Existing CRM contacts", offer: "Work Better Magazine Download" },
+      { market: "India", audience: "Video Viewers Retargeting", priority: "High", purpose: "Convert engaged content consumers", targeting: "50%+, 75%+, 95% video viewers across campaign creative", exclusions: "Existing leads", offer: "Work Better Magazine Download" },
+      { market: "India", audience: "Workplace Transformation Interests", priority: "Medium", purpose: "Reach workplace-interested professionals", targeting: "Office design, workplace strategy, commercial interiors, hybrid work, employee experience", exclusions: "Generic furniture shoppers, residential decor only", offer: "Work Better Magazine Download" },
+      { market: "India", audience: "Architecture & Design Community", priority: "Medium", purpose: "Reach designers and specifiers", targeting: "Interior design, architecture, workplace design, commercial design publications", exclusions: "Residential renovation interests", offer: "Work Better Magazine Download" },
+      { market: "India", audience: "Broad AI + Future of Work", priority: "Low", purpose: "Scale audience pool cheaply", targeting: "AI, future of work, technology leadership, workplace innovation", exclusions: "Existing warm audiences", offer: "Work Better Magazine Download" },
+      { market: "Singapore", audience: "Website Visitors Retargeting (30/90 Days)", priority: "High", purpose: "Convert limited traffic pool into contacts", targeting: "Website visitors, Work Better page visitors, campaign landing page visitors", exclusions: "Existing leads, employees", offer: "Work Better Magazine Download" },
+      { market: "Singapore", audience: "CRM Lookalike 1%", priority: "High", purpose: "Extend reach using known-quality profiles", targeting: "CRM, event attendees, webinar registrants, MQL lists", exclusions: "Existing CRM contacts", offer: "Work Better Magazine Download" },
+      { market: "Singapore", audience: "Video Viewers Retargeting", priority: "Medium", purpose: "Convert engaged audiences into contacts", targeting: "50%+, 75%+, 95% video viewers across active creatives", exclusions: "Existing leads", offer: "Work Better Magazine Download" },
+      { market: "Singapore", audience: "Workplace Transformation Interests", priority: "Medium", purpose: "Reach potential workplace decision influencers", targeting: "Hybrid work, workplace strategy, office design, employee experience", exclusions: "Residential shoppers, students", offer: "Work Better Magazine Download" },
+      { market: "Singapore", audience: "Architecture & Design Community", priority: "Medium", purpose: "Reach architects and designers", targeting: "Interior design, architecture firms, workplace design publications", exclusions: "Residential DIY and home improvement interests", offer: "Work Better Magazine Download" },
+      { market: "Singapore", audience: "Broad AI + Future of Work", priority: "Low", purpose: "Build audience for future retargeting", targeting: "AI, technology, business innovation, digital transformation", exclusions: "Non-business users", offer: "Work Better Magazine Download" }
     ],
     pinterest: [
-      { market: "India", audience: "Workplace Design Inspiration", priority: "Medium", purpose: "Build audience of workplace-focused professionals", targeting: "Commercial interiors, workplace design, office design, hybrid workplace, workspace planning, workplace trends", exclusions: "Residential renovation, DIY hobbies, home decor only", offer: "Work Better Magazine", cpc: "USD 0.20–0.60", cpl: "USD 25–60", split: "25%" },
-      { market: "India", audience: "Architecture & Design Community", priority: "Medium", purpose: "Reach architects and interior designers who influence projects", targeting: "Architecture, workplace design, commercial interiors, architecture publications, design software interests", exclusions: "Students, hobby designers, residential-only design interests", offer: "Work Better Magazine", cpc: "USD 0.25–0.70", cpl: "USD 20–50", split: "25%" },
-      { market: "India", audience: "Corporate Office Inspiration", priority: "Medium", purpose: "Reach professionals researching office environments", targeting: "Office furniture, office layouts, hybrid workspaces, workplace innovation", exclusions: "Consumer home-office shoppers", offer: "Work Better Magazine", cpc: "USD 0.30–0.80", cpl: "USD 30–70", split: "20%" },
-      { market: "India", audience: "AI + Future of Work", priority: "Low", purpose: "Build audience around the campaign theme", targeting: "AI workplace, future of work, workplace technology, innovation, productivity", exclusions: "Consumer AI hobbyists, gaming, crypto interests", offer: "Work Better Magazine", cpc: "USD 0.30–0.90", cpl: "USD 35–80", split: "15%" },
-      { market: "India", audience: "Lookalike Audience (Website/CRM)", priority: "High", purpose: "Scale beyond existing audience", targeting: "Pinterest actalikes from website visitors, CRM uploads, engaged users", exclusions: "Existing leads, employees", offer: "Work Better Magazine", cpc: "USD 0.25–0.65", cpl: "USD 25–55", split: "15%" }
+      { market: "India", audience: "Workplace Design Inspiration", priority: "Medium", purpose: "Build audience of workplace-focused professionals", targeting: "Commercial interiors, workplace design, office design, hybrid workplace, workspace planning, workplace trends", exclusions: "Residential renovation, DIY hobbies, home decor only", offer: "Work Better Magazine" },
+      { market: "India", audience: "Architecture & Design Community", priority: "Medium", purpose: "Reach architects and interior designers who influence projects", targeting: "Architecture, workplace design, commercial interiors, architecture publications, design software interests", exclusions: "Students, hobby designers, residential-only design interests", offer: "Work Better Magazine" },
+      { market: "India", audience: "Corporate Office Inspiration", priority: "Medium", purpose: "Reach professionals researching office environments", targeting: "Office furniture, office layouts, hybrid workspaces, workplace innovation", exclusions: "Consumer home-office shoppers", offer: "Work Better Magazine" },
+      { market: "India", audience: "AI + Future of Work", priority: "Low", purpose: "Build audience around the campaign theme", targeting: "AI workplace, future of work, workplace technology, innovation, productivity", exclusions: "Consumer AI hobbyists, gaming, crypto interests", offer: "Work Better Magazine" },
+      { market: "India", audience: "Lookalike Audience (Website/CRM)", priority: "High", purpose: "Scale beyond existing audience", targeting: "Pinterest actalikes from website visitors, CRM uploads, engaged users", exclusions: "Existing leads, employees", offer: "Work Better Magazine" }
     ],
     wechat: [
-      { market: "China", audience: "Office Building Geo-Fence", priority: "High", purpose: "Reach workplace decision-makers around target buildings", targeting: "Building-level location targeting: Target users within a defined radius of premium office buildings, CBDs, technology parks, and Grade A office towers", exclusions: "Unrelated residential locations", offer: "Follow Official Account + Work Better Magazine", cpc: "USD 0.20–0.80", cpl: "USD 10–25", split: "30%" },
-      { market: "China", audience: "Retargeting / CRM Matching", priority: "High", purpose: "Convert existing warm contacts in China", targeting: "Official Account followers, CRM phone/email upload matching, past event/webinar attendees", exclusions: "Existing active accounts", offer: "Follow Official Account + Work Better Magazine", cpc: "USD 0.15–0.60", cpl: "USD 8–20", split: "25%" },
-      { market: "China", audience: "Industry & Title Targeting", priority: "Medium", purpose: "Engage enterprise procurement and workplace leaders", targeting: "Industries: Technology, Commercial Real Estate, Architecture & Design, MNCs; Roles: Management, Admin, Facilities, HR", exclusions: "Retail buyers", offer: "Work Better Magazine", cpc: "USD 0.25–0.90", cpl: "USD 12–30", split: "25%" },
-      { market: "China", audience: "Lookalike Expansion Audience", priority: "Medium", purpose: "Scale beyond known audiences", targeting: "Lookalike modelling: Similar profiles to followers, CRM contacts, event attendees", exclusions: "Existing fans", offer: "Work Better Magazine", cpc: "USD 0.30–1.00", cpl: "USD 15–30", split: "20%" }
+      { market: "China", audience: "Office Building Geo-Fence", priority: "High", purpose: "Reach workplace decision-makers around target buildings", targeting: "Building-level location targeting: Target users within a defined radius of premium office buildings, CBDs, technology parks, and Grade A office towers", exclusions: "Unrelated residential locations", offer: "Follow Official Account + Work Better Magazine" },
+      { market: "China", audience: "Retargeting / CRM Matching", priority: "High", purpose: "Convert existing warm contacts in China", targeting: "Official Account followers, CRM phone/email upload matching, past event/webinar attendees", exclusions: "Existing active accounts", offer: "Follow Official Account + Work Better Magazine" },
+      { market: "China", audience: "Industry & Title Targeting", priority: "Medium", purpose: "Engage enterprise procurement and workplace leaders", targeting: "Industries: Technology, Commercial Real Estate, Architecture & Design, MNCs; Roles: Management, Admin, Facilities, HR", exclusions: "Retail buyers", offer: "Work Better Magazine" },
+      { market: "China", audience: "Lookalike Expansion Audience", priority: "Medium", purpose: "Scale beyond known audiences", targeting: "Lookalike modelling: Similar profiles to followers, CRM contacts, event attendees", exclusions: "Existing fans", offer: "Work Better Magazine" }
     ]
   }
 };
@@ -434,9 +446,25 @@ const BudgetStore = {
 
       market.totalBudget = marketTotal;
 
-      // Channel % within its country
+      // Channel % within its country and ensure CPC/CPL default
       market.channels.forEach(ch => {
         ch.budgetPercent = marketTotal > 0 ? ((Number(ch.budgetUSD) || 0) / marketTotal) * 100 : 0;
+        if (!ch.cpc) {
+          const p = (ch.platform || '').toLowerCase();
+          if (p.includes('meta')) ch.cpc = 'USD 0.80–2.00';
+          else if (p.includes('pinterest')) ch.cpc = 'USD 0.25–0.70';
+          else if (p.includes('wechat')) ch.cpc = 'USD 0.20–0.80';
+          else if (p.includes('youtube')) ch.cpc = 'CPV: USD 0.04–0.12';
+          else ch.cpc = 'USD 4–8';
+        }
+        if (!ch.cpl) {
+          const p = (ch.platform || '').toLowerCase();
+          if (p.includes('meta')) ch.cpl = 'USD 12–25';
+          else if (p.includes('pinterest')) ch.cpl = 'USD 25–55';
+          else if (p.includes('wechat')) ch.cpl = 'USD 10–25';
+          else if (p.includes('youtube')) ch.cpl = 'USD 35–70';
+          else ch.cpl = 'USD 45–85';
+        }
       });
 
       // Channel summary string (e.g. LinkedIn (55%) · Meta (30%))
@@ -474,13 +502,15 @@ const BudgetStore = {
   },
 
   // Line Item & Market Mutations
-  addLineItem({ country, channel, totalBudget, activeMonths, objective, audienceType, offer }) {
+  addLineItem({ country, channel, totalBudget, activeMonths, objective, audienceType, offer, cpc, cpl }) {
     const cleanCountry = (country || 'New Market').trim();
     const cleanChannel = (channel || 'LinkedIn LeadGen').trim();
     const totalB = Math.max(0, Math.round(Number(totalBudget) || 0));
     const cleanObjective = (objective || 'Lead Generation').trim();
     const cleanAudience = (audienceType || 'Enterprise Decision Makers & Strategists').trim();
     const cleanOffer = (offer || 'Work Better Magazine').trim();
+    const cleanCpc = (cpc || 'USD 4–8').trim();
+    const cleanCpl = (cpl || 'USD 45–85').trim();
 
     // 1. Resolve or create market
     let market = this.data.markets.find(m => m.name.toLowerCase() === cleanCountry.toLowerCase());
@@ -519,6 +549,8 @@ const BudgetStore = {
       audienceType: cleanAudience,
       offer: cleanOffer,
       budgetUSD: totalB,
+      cpc: cleanCpc,
+      cpl: cleanCpl,
       activeMonths: [...validActiveMonths],
       months
     };
@@ -526,8 +558,6 @@ const BudgetStore = {
     market.channels.push(newChannel);
 
     // 4. Placeholder logic for bottom Channel Strategy section:
-    // If the channel section does not exist yet at the bottom level, or if the country does not exist yet in that channel section, automatically add as a placeholder.
-    // If the country or channel already exists, it will no longer add anything.
     const stratKey = getStratKey(cleanChannel);
     if (!this.data.strategyTables) this.data.strategyTables = {};
     if (this.data.deletedSections) {
@@ -542,16 +572,6 @@ const BudgetStore = {
     );
 
     if (!countryAlreadyExistsInStrategy) {
-      const pLower = cleanChannel.toLowerCase();
-      let cpcEstimate = "USD 4–8";
-      let cplEstimate = "USD 45–85";
-      if (pLower.includes('meta')) { cpcEstimate = "USD 0.80–2.00"; cplEstimate = "USD 12–25"; }
-      else if (pLower.includes('pinterest')) { cpcEstimate = "USD 0.25–0.70"; cplEstimate = "USD 25–55"; }
-      else if (pLower.includes('wechat')) { cpcEstimate = "USD 0.20–0.80"; cplEstimate = "USD 10–25"; }
-      else if (pLower.includes('youtube')) { cpcEstimate = "CPV: USD 0.04–0.12"; cplEstimate = "USD 35–70"; }
-      else if (pLower.includes('google')) { cpcEstimate = "USD 2.50–5.50"; cplEstimate = "USD 40–80"; }
-      else if (pLower.includes('tiktok')) { cpcEstimate = "USD 0.50–1.20"; cplEstimate = "USD 20–45"; }
-
       this.data.strategyTables[stratKey].push({
         market: cleanCountry,
         audience: cleanAudience || `${cleanChannel} Target Audience`,
@@ -559,10 +579,7 @@ const BudgetStore = {
         purpose: cleanObjective ? `Drive ${cleanObjective} for ${cleanOffer || 'Work Better Magazine'}` : "Strategic audience engagement",
         targeting: cleanAudience || "Enterprise Decision Makers",
         exclusions: "Competitors, junior roles, non-business consumer queries",
-        offer: cleanOffer || "Work Better Magazine download",
-        cpc: cpcEstimate,
-        cpl: cplEstimate,
-        split: "100%"
+        offer: cleanOffer || "Work Better Magazine download"
       });
     }
 
@@ -719,9 +736,6 @@ const BudgetStore = {
     const cleanTargeting = (rowData.targeting || "Target criteria").trim();
     const cleanExclusions = (rowData.exclusions || "Negative exclusions").trim();
     const cleanPriority = rowData.priority || "High";
-    const cleanSplit = rowData.split || "25%";
-    const cleanCpc = rowData.cpc || "USD 4–8";
-    const cleanCpl = rowData.cpl || "USD 45–85";
     const platName = getPlatformDisplayName(stratKey);
 
     // 1. Add planning row to Strategy Table
@@ -732,10 +746,7 @@ const BudgetStore = {
       purpose: cleanPurpose,
       targeting: cleanTargeting,
       exclusions: cleanExclusions,
-      offer: cleanOffer,
-      cpc: cleanCpc,
-      cpl: cleanCpl,
-      split: cleanSplit
+      offer: cleanOffer
     });
 
     // 2. Upper Budget Section Placeholder:
@@ -830,10 +841,7 @@ const BudgetStore = {
         purpose: initialRow.purpose || subtitle || `Drive B2B awareness and pipeline on ${cleanName}`,
         targeting: initialRow.targeting || "Enterprise decision makers, CRE, Facilities",
         exclusions: initialRow.exclusions || "Competitors, junior roles, non-business consumer queries",
-        offer: initialRow.offer || "Work Better Magazine download",
-        cpc: initialRow.cpc || "USD 2–5",
-        cpl: initialRow.cpl || "USD 35–70",
-        split: initialRow.split || "100%"
+        offer: initialRow.offer || "Work Better Magazine download"
       };
     } else {
       targetRow = {
@@ -843,10 +851,7 @@ const BudgetStore = {
         purpose: subtitle || `Drive B2B awareness and lead generation on ${cleanName}`,
         targeting: "Enterprise Decision Makers, CRE, Facilities",
         exclusions: "Competitors, junior roles, non-business consumer queries",
-        offer: "Work Better Magazine download",
-        cpc: "USD 2–5",
-        cpl: "USD 35–70",
-        split: "100%"
+        offer: "Work Better Magazine download"
       };
     }
 
@@ -1669,6 +1674,12 @@ function renderMainBudgetTable() {
         <td class="text-right font-mono font-bold budget-sum-cell" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="budgetUSD" title="Total channel budget (Auto-calculated sum of monthly flight budgets)">
           $${formatNumber(channel.budgetUSD)}
         </td>
+        <td class="text-right font-mono editable-field" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="cpc" title="Click to edit Expected CPC">
+          ${channel.cpc || 'USD 4–8'}
+        </td>
+        <td class="text-right font-mono font-bold editable-field" data-market-id="${market.id}" data-channel-id="${channel.id}" data-field="cpl" title="Click to edit Expected CPL">
+          ${channel.cpl || 'USD 45–85'}
+        </td>
       `;
 
       // Render all 12 monthly columns (Jan through Dec)
@@ -1708,8 +1719,10 @@ function renderMainBudgetTable() {
       <td colspan="5" class="font-bold">Total Program Spend</td>
       <td class="text-right font-mono font-bold">100%</td>
       <td class="text-right font-mono font-bold text-accent">$${formatNumber(grandTotal)}</td>
+      <td class="text-right font-mono text-muted">-</td>
+      <td class="text-right font-mono text-muted">-</td>
       ${monthFootCells}
-      <td class="table-action-col"></td>
+      <td class="table-action-col edit-mode-only"></td>
     </tr>
   `;
 
@@ -1870,17 +1883,14 @@ function renderStrategyTables() {
             <table class="proposal-table" id="strategyTable_${key}">
               <thead>
                 <tr>
-                  <th style="width: 38px;" class="table-action-col text-center"></th>
+                  <th style="width: 38px;" class="table-action-col text-center edit-mode-only"></th>
                   <th style="min-width: 100px;">Market</th>
-                  <th style="min-width: 105px;" class="text-right">Budget Split</th>
                   <th style="min-width: 180px;">Audience</th>
                   <th style="min-width: 95px;">Priority</th>
                   <th style="min-width: 210px;">Audience Purpose</th>
                   <th style="min-width: 260px;">Targeting</th>
                   <th style="min-width: 210px;">Exclusions</th>
                   <th style="min-width: 160px;">Offer / CTA</th>
-                  <th style="min-width: 110px;">Expected CPC</th>
-                  <th style="min-width: 115px;">Expected CPL*</th>
                 </tr>
               </thead>
               <tbody id="strategyBody_${key}"></tbody>
@@ -1975,7 +1985,7 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
     const prioClass = (row.priority || 'medium').toLowerCase();
 
     tr.innerHTML = `
-      <td class="text-center table-action-col" style="width: 38px;">
+      <td class="text-center table-action-col edit-mode-only" style="width: 38px;">
         <button type="button" class="btn-minus-strategy-line edit-mode-only" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" title="Delete this line item">-</button>
       </td>
       <td class="cell-market font-bold">
@@ -1983,7 +1993,6 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
           ${row.market}
         </span>
       </td>
-      <td class="text-right font-mono font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="split">${row.split}</td>
       <td class="font-semibold editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="audience">${formatCellTextHtml(row.audience)}</td>
       <td>
         <span class="priority-badge ${prioClass} dropdown-trigger" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="priority" data-dropdown-group="priorities">
@@ -1998,8 +2007,6 @@ function renderSingleStrategyTable(tbodyId, rows, tableKey) {
           ${row.offer}
         </span>
       </td>
-      <td class="font-mono editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="cpc">${row.cpc}</td>
-      <td class="font-mono font-bold text-accent editable-field" data-strategy-table="${tableKey}" data-strategy-idx="${idx}" data-field="cpl">${row.cpl}</td>
     `;
 
     tbody.appendChild(tr);
@@ -2049,6 +2056,7 @@ function attachBudgetTableListeners() {
   // 1. Action buttons (+ Line Item, Delete Market, Delete Line Item)
   document.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       e.stopPropagation();
       const action = btn.getAttribute('data-action');
       const marketId = btn.getAttribute('data-market-id');
@@ -2079,7 +2087,7 @@ function attachBudgetTableListeners() {
   // 2. Numeric Budget & Monthly Input Cells
   document.querySelectorAll('.budget-input-cell').forEach(cell => {
     cell.addEventListener('click', () => {
-      if (!APP_STATE.isEditMode) return;
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       if (cell.isContentEditable) return;
 
       const marketId = cell.getAttribute('data-market-id');
@@ -2122,10 +2130,10 @@ function attachBudgetTableListeners() {
     });
   });
 
-  // 3. Text field edits (Objective, Audience)
+  // 3. Text field edits (Objective, Audience, CPC, CPL)
   document.querySelectorAll('.editable-field[data-channel-id]').forEach(cell => {
     cell.addEventListener('click', () => {
-      if (!APP_STATE.isEditMode) return;
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       if (cell.isContentEditable) return;
 
       const marketId = cell.getAttribute('data-market-id');
@@ -2148,7 +2156,7 @@ function attachBudgetTableListeners() {
   // 4. Dropdown triggers in Budget Table
   document.querySelectorAll('#mainBudgetTableBody .dropdown-trigger').forEach(trigger => {
     trigger.addEventListener('click', (e) => {
-      if (!APP_STATE.isEditMode) return;
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       e.stopPropagation();
       openDropdownMenu(trigger);
     });
@@ -2159,7 +2167,7 @@ function attachStrategyTableListeners() {
   // Strategy table field edits
   document.querySelectorAll('.editable-field[data-strategy-table]').forEach(cell => {
     cell.addEventListener('click', () => {
-      if (!APP_STATE.isEditMode) return;
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       if (cell.isContentEditable) return;
 
       const tableKey = cell.getAttribute('data-strategy-table');
@@ -2186,16 +2194,16 @@ function attachStrategyTableListeners() {
   // Strategy table dropdown triggers
   document.querySelectorAll('.content-section .dropdown-trigger[data-strategy-table]').forEach(trigger => {
     trigger.addEventListener('click', (e) => {
-      if (!APP_STATE.isEditMode) return;
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       e.stopPropagation();
       openDropdownMenu(trigger);
     });
   });
 
-  // Strategy table minus '-' delete line item button (Just the sign)
+  // Strategy table minus '-' delete line item button
   document.querySelectorAll('.btn-minus-strategy-line').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      if (!APP_STATE.isEditMode) return;
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       e.stopPropagation();
       const tableKey = btn.getAttribute('data-strategy-table');
       const idx = parseInt(btn.getAttribute('data-strategy-idx'), 10);
@@ -2206,6 +2214,7 @@ function attachStrategyTableListeners() {
   // Strategy table add line item button in channel header
   document.querySelectorAll('.btn-add-strategy-header').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       e.stopPropagation();
       const stratKey = btn.getAttribute('data-strat-key');
       if (window.openAddStrategyLineItemModal) {
@@ -2217,6 +2226,7 @@ function attachStrategyTableListeners() {
   // Strategy table delete section buttons
   document.querySelectorAll('.btn-delete-section').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
       e.stopPropagation();
       const stratKey = btn.getAttribute('data-strat-key');
       const platformName = btn.getAttribute('data-platform-name');
@@ -2232,7 +2242,7 @@ function attachStrategyTableListeners() {
 // Meta text fields (document title, description, headers)
 document.querySelectorAll('.editable-field[data-meta-field]').forEach(el => {
   el.addEventListener('click', () => {
-    if (!APP_STATE.isEditMode) return;
+    if (!APP_STATE.isEditMode || !APP_STATE.currentUser) return;
     if (el.isContentEditable) return;
 
     const field = el.getAttribute('data-meta-field');
@@ -2583,6 +2593,10 @@ function initAddLineItemModal() {
       const objective = objectiveInput ? objectiveInput.value.trim() : 'Lead Generation';
       const audienceType = audienceInput ? normalizeBulletText(audienceInput.value) : 'Enterprise Decision Makers';
       const offer = offerInput ? offerInput.value.trim() : 'Work Better Magazine';
+      const cpcInput = document.getElementById('lineItemCpcInput');
+      const cplInput = document.getElementById('lineItemCplInput');
+      const cpc = cpcInput ? cpcInput.value.trim() : 'USD 4–8';
+      const cpl = cplInput ? cplInput.value.trim() : 'USD 45–85';
 
       if (!country) return;
 
@@ -2593,7 +2607,9 @@ function initAddLineItemModal() {
         activeMonths: [...activeMonths],
         objective,
         audienceType,
-        offer
+        offer,
+        cpc,
+        cpl
       });
 
       closeModal();
@@ -2706,9 +2722,6 @@ function initAddStrategyLineItemModal() {
   const targetingInput = document.getElementById('stratLineTargetingInput');
   const exclusionsInput = document.getElementById('stratLineExclusionsInput');
   const offerInput = document.getElementById('stratLineOfferInput');
-  const splitInput = document.getElementById('stratLineSplitInput');
-  const cpcInput = document.getElementById('stratLineCpcInput');
-  const cplInput = document.getElementById('stratLineCplInput');
 
   function populateChannelOptions(selectedStratKey = '') {
     if (!channelSelect) return;
@@ -2783,9 +2796,6 @@ function initAddStrategyLineItemModal() {
       const targeting = targetingInput ? targetingInput.value.trim() : 'Decision makers';
       const exclusions = exclusionsInput ? exclusionsInput.value.trim() : 'Negative criteria';
       const offer = offerInput ? offerInput.value.trim() : 'Work Better Magazine download';
-      const split = splitInput ? splitInput.value.trim() : '25%';
-      const cpc = cpcInput ? cpcInput.value.trim() : 'USD 4–8';
-      const cpl = cplInput ? cplInput.value.trim() : 'USD 45–85';
 
       BudgetStore.addStrategyLineItem(stratKey, {
         market,
@@ -2794,10 +2804,7 @@ function initAddStrategyLineItemModal() {
         purpose,
         targeting,
         exclusions,
-        offer,
-        split,
-        cpc,
-        cpl
+        offer
       });
 
       closeModal();
@@ -2888,10 +2895,7 @@ function initAddChannelModal() {
         purpose: subtitle || `Drive B2B awareness and pipeline on ${name}`,
         targeting,
         exclusions: "Competitors, junior roles, non-business consumer queries",
-        offer,
-        cpc: "USD 2–5",
-        cpl: "USD 35–70",
-        split: "100%"
+        offer
       };
 
       BudgetStore.addNewChannelSection({
@@ -3447,12 +3451,18 @@ function initDeckFilterTabs() {
 
   if (planBtn && presentBtn) {
     planBtn.addEventListener('click', () => {
+      if (!APP_STATE.currentUser) {
+        showToast('Please sign in to edit or plan proposals', 'info');
+        if (window.openAuthModal) window.openAuthModal();
+        return;
+      }
       planBtn.classList.add('active');
       presentBtn.classList.remove('active');
       APP_STATE.isEditMode = true;
       document.body.classList.add('edit-mode-active');
       updateHeaderControlsVisibility();
       renderMainBudgetTable();
+      renderStrategyTables();
       showToast('Planning Mode enabled: Edit cells, add channels & countries');
     });
 
@@ -3464,6 +3474,7 @@ function initDeckFilterTabs() {
       closeDropdownMenu();
       updateHeaderControlsVisibility();
       renderMainBudgetTable();
+      renderStrategyTables();
       showToast('Presentation View enabled (Clean view)');
     });
   }
@@ -3473,21 +3484,20 @@ function updateHeaderControlsVisibility() {
   const controlsGroup = document.getElementById('headerControlsGroup');
   const adminBtn = document.getElementById('openAdminSettingsBtn');
   const exportWrap = document.getElementById('exportDropdownWrap');
-  if (!controlsGroup) return;
 
-  if (!APP_STATE.currentUser) {
-    controlsGroup.style.display = 'none';
-    if (adminBtn) adminBtn.style.display = 'none';
-    return;
+  // File operations (Open, Save) only visible when logged in
+  if (controlsGroup) {
+    controlsGroup.style.display = APP_STATE.currentUser ? 'flex' : 'none';
   }
-  controlsGroup.style.display = 'flex';
 
-  if (APP_STATE.isEditMode) {
-    if (adminBtn) adminBtn.style.display = 'inline-flex';
-    if (exportWrap) exportWrap.style.display = 'inline-flex';
-  } else {
-    if (adminBtn) adminBtn.style.display = 'none';
-    if (exportWrap) exportWrap.style.display = 'none';
+  // Admin button only visible when logged in and in edit mode
+  if (adminBtn) {
+    adminBtn.style.display = (APP_STATE.currentUser && APP_STATE.isEditMode) ? 'inline-flex' : 'none';
+  }
+
+  // Export dropdown is accessible to all users (both guest & logged-in)
+  if (exportWrap) {
+    exportWrap.style.display = 'inline-flex';
   }
 }
 
@@ -4137,6 +4147,10 @@ const FirestoreSyncManager = {
       }
     }
 
+    if (window.refreshProposalSelector) {
+      window.refreshProposalSelector(false);
+    }
+
     return payload;
   },
 
@@ -4210,6 +4224,11 @@ const FirestoreSyncManager = {
     }
 
     renderAll();
+
+    if (window.refreshProposalSelector) {
+      window.refreshProposalSelector(false);
+    }
+
     return proposalData;
   },
 
@@ -4632,6 +4651,106 @@ function initThemeCustomizer() {
   });
 }
 
+/* ==========================================================================
+   Proposal Selector Dropdown (Guest & Logged-in view selection)
+   ========================================================================== */
+
+async function initProposalSelector() {
+  const wrap = document.getElementById('proposalSelectWrap');
+  const btn = document.getElementById('proposalSelectBtn');
+  const menu = document.getElementById('proposalSelectMenu');
+  const listEl = document.getElementById('proposalSelectList');
+  const activeLabel = document.getElementById('activeProposalName');
+  if (!wrap || !btn || !menu || !listEl) return;
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = menu.style.display === 'flex';
+    menu.style.display = isOpen ? 'none' : 'flex';
+    wrap.classList.toggle('open', !isOpen);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) {
+      menu.style.display = 'none';
+      wrap.classList.remove('open');
+    }
+  });
+
+  async function populateProposals(autoLoadLatest = false) {
+    try {
+      const proposals = await FirestoreSyncManager.fetchSavedProposals();
+      if (!proposals || proposals.length === 0) {
+        listEl.innerHTML = `<div class="nav-dropdown-item text-muted" style="padding: 10px;">Default Media Plan</div>`;
+        if (activeLabel) activeLabel.textContent = BudgetStore.data?.meta?.title || 'Default Plan';
+        return;
+      }
+
+      const activeId = FirestoreSyncManager.activeProposalId || (autoLoadLatest ? proposals[0].id : null);
+
+      listEl.innerHTML = proposals.map(p => {
+        const isActive = p.id === activeId;
+        const dateStr = p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '';
+        const budgetStr = p.grandTotal ? `$${formatNumber(p.grandTotal)}` : '';
+        return `
+          <button type="button" class="proposal-select-item ${isActive ? 'active' : ''}" data-prop-id="${p.id}">
+            <div class="proposal-select-item-title">${escapeHtml(p.title || p.id)}</div>
+            <div class="proposal-select-item-meta">${budgetStr} ${dateStr ? '· ' + dateStr : ''}</div>
+          </button>
+        `;
+      }).join('');
+
+      listEl.querySelectorAll('.proposal-select-item').forEach(itemBtn => {
+        itemBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const propId = itemBtn.getAttribute('data-prop-id');
+          const found = proposals.find(p => p.id === propId);
+          if (found) {
+            try {
+              await FirestoreSyncManager.loadProposal(propId, found);
+              if (activeLabel) activeLabel.textContent = found.title || propId;
+              populateProposals(false);
+              showToast(`Loaded: ${found.title || propId}`);
+            } catch (err) {
+              showToast('Error loading proposal: ' + err.message, 'error');
+            }
+          }
+          menu.style.display = 'none';
+          wrap.classList.remove('open');
+        });
+      });
+
+      // Handle auto-load on initial launch
+      if (autoLoadLatest && proposals.length > 0) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPropId = urlParams.get('proposal');
+        const target = (urlPropId && proposals.find(p => p.id === urlPropId)) || proposals[0];
+
+        if (target) {
+          try {
+            await FirestoreSyncManager.loadProposal(target.id, target);
+            if (activeLabel) activeLabel.textContent = target.title || target.id;
+          } catch (e) {
+            console.warn('Auto-load latest proposal notice:', e);
+          }
+        }
+      } else if (FirestoreSyncManager.activeProposalId) {
+        const current = proposals.find(p => p.id === FirestoreSyncManager.activeProposalId);
+        if (current && activeLabel) activeLabel.textContent = current.title || current.id;
+      }
+    } catch (e) {
+      console.warn('populateProposals error:', e);
+    }
+  }
+
+  window.refreshProposalSelector = populateProposals;
+
+  // Initial populate & auto-select latest saved proposal
+  setTimeout(() => {
+    populateProposals(true);
+  }, 100);
+}
+
 // Global Application Startup
 document.addEventListener('DOMContentLoaded', () => {
   initThemeAndNav();
@@ -4649,4 +4768,5 @@ document.addEventListener('DOMContentLoaded', () => {
   FirestoreSyncManager.init();
   initFirebaseConfigHandlers();
   updateHeaderControlsVisibility();
+  initProposalSelector();
 });

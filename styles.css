@@ -469,6 +469,80 @@ body.theme-night .moon-icon { display: block; }
   color: var(--primary);
 }
 
+/* Proposal Select Dropdown */
+.proposal-select-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.proposal-select-btn {
+  max-width: 240px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.proposal-select-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.proposal-select-menu {
+  min-width: 260px;
+  max-width: 320px;
+  max-height: 360px;
+  overflow-y: auto;
+  left: 0;
+  right: auto;
+}
+
+.proposal-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.proposal-select-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s ease;
+  font-family: inherit;
+}
+
+.proposal-select-item:hover {
+  background: var(--bg-body);
+}
+
+.proposal-select-item.active {
+  background: rgba(0, 150, 167, 0.08);
+  border-left: 3px solid var(--primary);
+}
+
+.proposal-select-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.proposal-select-item-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 /* Saved File Cards in Open Modal */
 .saved-file-card {
   display: flex;
@@ -1767,6 +1841,14 @@ body.edit-mode-active .dropdown-trigger::after {
 /* Visibility toggling for edit mode controls */
 .edit-mode-only {
   display: none !important;
+}
+
+body:not(.edit-mode-active) .editable-field,
+body:not(.edit-mode-active) .budget-input-cell,
+body:not(.edit-mode-active) .dropdown-trigger {
+  pointer-events: none !important;
+  cursor: default !important;
+  outline: none !important;
 }
 
 body:not(.edit-mode-active) .edit-mode-only,
