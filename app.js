@@ -116,7 +116,7 @@ const DEFAULT_MEDIA_PLAN = {
     overviewLiveLabel: "LIVE REACTIVE BUDGET ENGINE",
     overviewTitle: "Marketing Budget Executive Overview",
     overviewSubtitle: "Real-time spend breakdown across regional markets and media channels. Auto-updates with every budget edit.",
-    kpiCountriesTitle: "COUNTRIES & TOTAL BUDGET",
+    kpiCountriesTitle: "COUNTRIES & MARKETS BUDGET",
     kpiChannelsTitle: "CHANNELS (MEDIA PLATFORMS)",
     widgetCountryTitle: "Spend by Country",
     widgetPlatformTitle: "Spend by Platform",
@@ -1397,6 +1397,27 @@ function renderOverviewWidgets() {
   if (widgetCountryCountEl) widgetCountryCountEl.textContent = `${countryBreakdown.length} Markets`;
   if (widgetPlatformCountEl) widgetPlatformCountEl.textContent = `${platformBreakdown.length} Platforms`;
 
+  // 1B. Render Hero Total Campaign Card
+  const heroBudgetContainer = document.getElementById('heroBudgetCardContainer');
+  if (heroBudgetContainer) {
+    heroBudgetContainer.innerHTML = `
+      <div class="hero-total-card" id="heroTotalCard">
+        <div class="hero-total-header">
+          <span class="hero-total-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            TOTAL CAMPAIGN
+          </span>
+          <span class="hero-total-badge">GLOBAL</span>
+        </div>
+        <div class="hero-total-value">$${formatNumber(grandTotal)}</div>
+        <div class="hero-total-desc">${countryBreakdown.length} markets · ${totalChannelsCount} placements</div>
+        <div class="hero-total-bar-bg">
+          <div class="hero-total-bar-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+    `;
+  }
+
   // 2. Render Top KPI Cards Deck (Grouped into Countries and Channels)
   const filter = APP_STATE.deckFilter;
   const sectionCountries = document.getElementById('kpiSectionCountries');
@@ -1416,28 +1437,61 @@ function renderOverviewWidgets() {
     sectionChannels.style.display = (filter === 'all' || filter === 'platforms') ? 'block' : 'none';
   }
 
-  // Populate Countries Row
-  if (countriesContainer) {
-    countriesContainer.innerHTML = '';
+  function getOptimalKpiColumns(count) {
+    if (count <= 0) return 4;
+    if (count <= 4) return count; // 1->1, 2->2, 3->3, 4->4 (1 row, 0 grey)
+    if (count === 5) return 3;    // 3+2 (1 grey) - user specified: make each box wider
+    if (count === 6) return 3;    // 3+3 (0 grey)
+    if (count === 7) return 4;    // 4+3 (1 grey) - user specified
+    if (count === 8) return 4;    // 4+4 (0 grey)
+    if (count === 9) return 5;    // 5+4 (1 grey) - user specified: make each narrower
+    if (count === 10) return 5;   // 5+5 (0 grey)
+    if (count === 11) return 4;   // 4+4+3 (1 grey)
+    if (count === 12) return 4;   // 4+4+4 (0 grey)
+    if (count === 13) return 5;   // 5+5+3 (2 grey) - user specified
+    if (count === 14) return 5;   // 5+5+4 (1 grey)
+    if (count === 15) return 5;   // 5+5+5 (0 grey)
 
-    // Card 1: Total Budget Card
-    const totalCard = document.createElement('div');
-    totalCard.className = 'kpi-card kpi-total-card';
-    totalCard.innerHTML = `
-      <div class="kpi-card-header">
+    // For count >= 16: select columns between 3 and 5 (max 5) that minimize grey boxes (<= 2)
+    let bestCols = 5;
+    let minGrey = 999;
+    for (let c = 5; c >= 3; c--) {
+      const rem = count % c;
+      const grey = rem === 0 ? 0 : c - rem;
+      if (grey <= 2 && grey < minGrey) {
+        minGrey = grey;
+        bestCols = c;
+      }
+    }
+    return bestCols;
+  }
+
+  function createEmptyKpiCard() {
+    const emptyCard = document.createElement('div');
+    emptyCard.className = 'kpi-card kpi-card-empty';
+    emptyCard.setAttribute('aria-hidden', 'true');
+    emptyCard.innerHTML = `
+      <div class="kpi-card-header" style="border-bottom: 1px dashed rgba(255, 255, 255, 0.12);">
         <span class="kpi-card-title">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-          TOTAL CAMPAIGN
+          <span class="kpi-ghost-badge"></span>
+          <span class="kpi-ghost-line" style="width: 48px;"></span>
         </span>
-        <span class="kpi-card-type-badge">GLOBAL</span>
+        <span class="kpi-ghost-badge" style="width: 32px;"></span>
       </div>
-      <div class="kpi-card-value">$${formatNumber(grandTotal)}</div>
-      <div class="kpi-card-desc">${countryBreakdown.length} markets · ${totalChannelsCount} placements</div>
-      <div class="kpi-card-bar-bg">
-        <div class="kpi-card-bar-fill" style="width: 100%;"></div>
+      <div class="kpi-ghost-value"></div>
+      <div class="kpi-ghost-line" style="width: 70%;"></div>
+      <div class="kpi-card-bar-bg" style="opacity: 0.25;">
+        <div class="kpi-card-bar-fill" style="width: 0%;"></div>
       </div>
     `;
-    countriesContainer.appendChild(totalCard);
+    return emptyCard;
+  }
+
+  // Populate Countries Row (Market Cards)
+  if (countriesContainer) {
+    countriesContainer.innerHTML = '';
+    const mCols = getOptimalKpiColumns(countryBreakdown.length);
+    countriesContainer.style.setProperty('--kpi-cols', mCols);
 
     // Country Spend Cards
     countryBreakdown.forEach(item => {
@@ -1447,9 +1501,9 @@ function renderOverviewWidgets() {
 
       card.innerHTML = `
         <div class="kpi-card-header">
-          <span class="kpi-card-title">
-            <span class="market-tag tag-${code}" style="padding: 1px 5px; font-size: 9.5px;">${code.toUpperCase()}</span>
-            ${item.name.toUpperCase()}
+          <span class="kpi-card-title" title="${item.name.toUpperCase()}">
+            <span class="market-tag tag-${code}" style="padding: 1px 5px; font-size: 9.5px; flex-shrink: 0;">${code.toUpperCase()}</span>
+            <span class="kpi-country-name">${item.name.toUpperCase()}</span>
           </span>
           <span class="kpi-card-type-badge">${item.percent.toFixed(1)}%</span>
         </div>
@@ -1461,11 +1515,21 @@ function renderOverviewWidgets() {
       `;
       countriesContainer.appendChild(card);
     });
+
+    // Fill remaining slots in optimal grid with greyed-out placeholder cards (max 2)
+    const mRemainder = countryBreakdown.length % mCols;
+    const mEmptyNeeded = (countryBreakdown.length > 0 && mRemainder !== 0) ? (mCols - mRemainder) : 0;
+    for (let i = 0; i < mEmptyNeeded; i++) {
+      countriesContainer.appendChild(createEmptyKpiCard());
+    }
   }
 
   // Populate Channels Row
   if (channelsContainer) {
     channelsContainer.innerHTML = '';
+    const pCols = getOptimalKpiColumns(platformBreakdown.length);
+    channelsContainer.style.setProperty('--kpi-cols', pCols);
+
     platformBreakdown.forEach(item => {
       const card = document.createElement('div');
       card.className = 'kpi-card';
@@ -1487,6 +1551,13 @@ function renderOverviewWidgets() {
       `;
       channelsContainer.appendChild(card);
     });
+
+    // Fill remaining slots in optimal grid with greyed-out placeholder cards (max 2)
+    const pRemainder = platformBreakdown.length % pCols;
+    const pEmptyNeeded = (platformBreakdown.length > 0 && pRemainder !== 0) ? (pCols - pRemainder) : 0;
+    for (let i = 0; i < pEmptyNeeded; i++) {
+      channelsContainer.appendChild(createEmptyKpiCard());
+    }
   }
 
   // 3. Multi-Segment Continuous Proportional Bars
@@ -2194,8 +2265,9 @@ function renderMetaText() {
   if (overviewSubtitleEl && (meta.overviewSubtitle || DEFAULT_MEDIA_PLAN.meta.overviewSubtitle)) {
     overviewSubtitleEl.innerHTML = formatCellTextHtml(meta.overviewSubtitle || DEFAULT_MEDIA_PLAN.meta.overviewSubtitle);
   }
-  if (kpiCountriesTitleEl && (meta.kpiCountriesTitle || DEFAULT_MEDIA_PLAN.meta.kpiCountriesTitle)) {
-    kpiCountriesTitleEl.textContent = meta.kpiCountriesTitle || DEFAULT_MEDIA_PLAN.meta.kpiCountriesTitle;
+  if (kpiCountriesTitleEl) {
+    const rawTitle = meta.kpiCountriesTitle || DEFAULT_MEDIA_PLAN.meta.kpiCountriesTitle;
+    kpiCountriesTitleEl.textContent = (rawTitle === 'COUNTRIES & TOTAL BUDGET') ? 'COUNTRIES & MARKETS BUDGET' : rawTitle;
   }
   if (kpiChannelsTitleEl && (meta.kpiChannelsTitle || DEFAULT_MEDIA_PLAN.meta.kpiChannelsTitle)) {
     kpiChannelsTitleEl.textContent = meta.kpiChannelsTitle || DEFAULT_MEDIA_PLAN.meta.kpiChannelsTitle;
